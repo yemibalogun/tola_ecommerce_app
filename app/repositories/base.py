@@ -1,9 +1,8 @@
 from typing import TypeVar, Generic, Optional, List, Type
 from sqlalchemy.exc import SQLAlchemyError
 from app.extensions.db import db
-from flask_sqlalchemy import Model as BaseModel
 
-ModelType = TypeVar("ModelType", bound=BaseModel)
+ModelType = TypeVar("ModelType")
 
 
 class BaseRepository(Generic[ModelType]):
@@ -19,7 +18,7 @@ class BaseRepository(Generic[ModelType]):
             return None
 
         try:
-            return cls.model.query.get(record_id)
+            return db.session.get(cls.model, record_id)
         except SQLAlchemyError:
             db.session.rollback()
             return None
@@ -27,7 +26,7 @@ class BaseRepository(Generic[ModelType]):
     @classmethod
     def list_all(cls) -> List[ModelType]:
         try:
-            return cls.model.query.all()  
+            return cls.model.query.all()    # type: ignore
         except SQLAlchemyError:
             return []
 

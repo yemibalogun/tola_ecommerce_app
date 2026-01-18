@@ -16,6 +16,7 @@ class Order(BaseModel):
 
     user = relationship("User", back_populates="orders")
     tenant = relationship("Tenant", back_populates="orders")
+    
     items = relationship(
         "OrderItem",
         back_populates="order",

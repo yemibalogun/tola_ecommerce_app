@@ -11,6 +11,7 @@ class ProductVariant(BaseModel):
 
     product_id = Column(Integer, ForeignKey("product.id"), nullable=False)
     tenant_id = Column(Integer, nullable=False)  # 🔹 ADD THIS
+    
     name = Column(String(120), nullable=False)
     sku = Column(String(120), unique=True, nullable=False)
     price_override = Column(Numeric(10, 2), nullable=True)
