@@ -10,7 +10,6 @@ from app.models.order_item import OrderItem
 from app.models.payment import Payment
 from app.models.product_variant import ProductVariant
 
-
 class CheckoutError(Exception):
     """Raised when checkout fails safely."""
     pass
@@ -74,17 +73,14 @@ class CheckoutService:
                 if not variant:
                     raise CheckoutError(f"Variant {variant_id} not found")
 
-                if variant.stock_quantity < quantity:
-                    raise CheckoutError(
-                        f"Insufficient stock for {variant.sku}"
-                    )
+                if variant.stock_quantity is None or int(variant.stock_quantity) < quantity:  
+                    raise CheckoutError(f"Insufficient stock for {variant.sku}")
 
                 # Price resolution: variant override wins else product price
-                unit_price = (
-                    Decimal(variant.price_override)
-                    if variant.price_override is not None
-                    else Decimal(variant.product.price)
-                )
+                if variant.price_override is not None:
+                    unit_price = Decimal(float(variant.price_override)) # type: ignore
+                else:
+                    unit_price = Decimal(float(variant.product.price))
 
                 total_amount += unit_price * quantity
                 locked_variants[variant_id] = variant
@@ -102,31 +98,30 @@ class CheckoutService:
             for variant_id, quantity in cart.items():
                 variant = locked_variants[variant_id]
 
-                unit_price = (
-                    Decimal(variant.price_override)
-                    if variant.price_override is not None
-                    else Decimal(variant.product.price)
-                )
+                if variant.price_override is not None:
+                    unit_price = Decimal(float(variant.price_override)) # type: ignore
+                else:
+                    unit_price = Decimal(float(variant.product.price))
 
                 item = OrderItem()
-                item.order_id=order.id,
-                item.product_id=variant.product_id,
-                item.variant_id=variant.id,
-                item.quantity=quantity,
-                item.unit_price=unit_price,
-                
+                item.order_id = order.id
+                item.product_id = variant.product_id
+                item.variant_id = variant.id
+                item.quantity = quantity
+                item.unit_price = unit_price
+
                 session.add(item)
 
                 # Deduct inventory safely (still locked)
-                variant.stock_quantity -= quantity
+                variant.stock_quantity -= quantity  # type: ignore
 
             # ---- PAYMENT RECORD ----
             payment = Payment()
-            payment.order_id = order.id
-            payment.provider = payment_provider
-            payment.reference = payment_reference
-            payment.amount = total_amount
-            payment.status = "initiated"
+            payment.order_id = order.id # type: ignore
+            payment.provider = payment_provider # type: ignore
+            payment.reference = payment_reference   # type: ignore
+            payment.amount = total_amount   # type: ignore
+            payment.status = "initiated"    # type: ignore
             session.add(payment)
 
             # ---- COMMIT (single atomic operation) ----
