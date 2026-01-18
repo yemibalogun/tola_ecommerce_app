@@ -73,7 +73,7 @@ class CheckoutService:
                 if not variant:
                     raise CheckoutError(f"Variant {variant_id} not found")
 
-                if variant.stock_quantity is None or int(variant.stock_quantity) < quantity:  
+                if variant.stock_quantity is None or int(variant.stock_quantity) < quantity:    # type: ignore  
                     raise CheckoutError(f"Insufficient stock for {variant.sku}")
 
                 # Price resolution: variant override wins else product price
