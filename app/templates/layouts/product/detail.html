@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<section class="product-detail">
+    <img src="{{ url_for('static', filename='images/' ~ product.image) }}">
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.description }}</p>
+    <span>{{ product.price }}</span>
+
+    <form method="post">
+        <button type="submit">Add to Cart</button>
+    </form>
+</section>
+{% endblock %}

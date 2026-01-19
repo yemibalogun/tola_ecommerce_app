@@ -1,0 +1,17 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<section class="shop">
+    {% for product in products %}
+        <div class="product">
+            <a href="{{ url_for('web.product_detail', slug=product.slug) }}">
+                <img src="{{ url_for('static', filename='images/' ~ product.image) }}">
+            </a>
+            <h4>{{ product.name }}</h4>
+            <span>{{ product.price }}</span>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
