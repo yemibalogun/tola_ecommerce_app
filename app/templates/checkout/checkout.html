@@ -1,0 +1,58 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<section class="checkout container">
+
+    <h1>Checkout</h1>
+
+    {% if cart_items %}
+    <form method="post" action="{{ url_for('web.checkout') }}">
+
+        <fieldset>
+            <legend>Customer Information</legend>
+
+            <label>
+                Full Name
+                <input type="text" name="full_name" required>
+            </label>
+
+            <label>
+                Email
+                <input type="email" name="email" required>
+            </label>
+
+            <label>
+                Address
+                <textarea name="address" required></textarea>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Order Summary</legend>
+
+            <ul>
+                {% for item in cart_items %}
+                <li>
+                    {{ item.product.name }} × {{ item.quantity }}
+                    — {{ item.product.price * item.quantity }}
+                </li>
+                {% endfor %}
+            </ul>
+
+            <p><strong>Total:</strong> {{ cart_total }}</p>
+        </fieldset>
+
+        <button type="submit" class="btn btn-success">
+            Place Order
+        </button>
+
+    </form>
+    {% else %}
+        <p>No items in cart.</p>
+        <a href="{{ url_for('web.product_list') }}">Shop now</a>
+    {% endif %}
+
+</section>
+{% endblock %}

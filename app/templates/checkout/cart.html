@@ -1,0 +1,57 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<section class="cart container">
+
+    <h1>Your Cart</h1>
+
+    {% if cart_items %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <strong>{{ item.product.name }}</strong>
+                    </td>
+
+                    <td>
+                        {{ item.quantity }}
+                    </td>
+
+                    <td>
+                        {{ item.product.price }}
+                    </td>
+
+                    <td>
+                        {{ item.product.price * item.quantity }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <p><strong>Subtotal:</strong> {{ cart_total }}</p>
+
+            <a href="{{ url_for('web.checkout') }}" class="btn btn-primary">
+                Proceed to Checkout
+            </a>
+        </div>
+
+    {% else %}
+        <p>Your cart is empty.</p>
+        <a href="{{ url_for('web.product_list') }}">Continue shopping</a>
+    {% endif %}
+
+</section>
+{% endblock %}
