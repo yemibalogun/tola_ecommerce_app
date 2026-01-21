@@ -33,6 +33,9 @@ def create_database_if_not_exists(database_uri: str) -> None:
 def create_app(config_name: str = "development") -> Flask:
     app = Flask(__name__)
 
+    # ---- Core Flask config ----
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
+
     # Use environment variable for SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] =False
