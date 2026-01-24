@@ -1,0 +1,59 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<section class="contact-page">
+    <div class="container">
+        <h1>Contact Us</h1>
+
+        <p>
+            Have a question, feedback, or need support?  
+            Fill out the form below and our team will respond as soon as possible.
+        </p>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if success %}
+            <p class="success">{{ success }}</p>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('web.contact') }}">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Your name"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea
+                    id="message"
+                    name="message"
+                    rows="5"
+                    placeholder="Write your message here..."
+                    required
+                ></textarea>
+            </div>
+
+            <button type="submit">Send Message</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
