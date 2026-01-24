@@ -8,7 +8,7 @@ from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from app.models.base import BaseModel
+from .base import BaseModel
 from app.extensions.db import db
 
 

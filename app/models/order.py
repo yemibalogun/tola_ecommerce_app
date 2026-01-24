@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Numeric, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from app.models.base import BaseModel
+from .base import BaseModel
 from decimal import Decimal 
 
 class Order(BaseModel):

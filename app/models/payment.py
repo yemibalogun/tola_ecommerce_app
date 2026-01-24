@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Numeric, ForeignKey
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from .base import BaseModel
 
 
 class Payment(BaseModel):

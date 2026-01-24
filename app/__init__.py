@@ -31,11 +31,16 @@ def create_database_if_not_exists(database_uri: str) -> None:
 
 
 def create_app(config_name: str = "development") -> Flask:
-    app = Flask(__name__, static_folder="app/static", template_folder="app/templates")
+    # Build absolute paths for templates and static
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    template_dir = os.path.join(base_dir, "templates")
+    static_dir = os.path.join(base_dir, "static")
+
+    app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
     # ---- Core Flask config ----
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
-    
+
     # Use environment variable for SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] =False
@@ -51,6 +56,9 @@ def create_app(config_name: str = "development") -> Flask:
 
     if config_name in ("development", "testing"):
         with app.app_context():
+            # --- Import all models first ---
+            from app.models import base, tenant, user, product, order, category, product_variant, payment, order_item
+            # --- Then create tables ---
             db.create_all()  # now all foreign keys are resolvable
 
     # Register blueprints

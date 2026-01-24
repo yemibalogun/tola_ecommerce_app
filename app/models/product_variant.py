@@ -1,6 +1,6 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Numeric, ForeignKey
-from app.models.base import BaseModel
+from .base import BaseModel
 
 
 class ProductVariant(BaseModel):
