@@ -1,8 +1,8 @@
 from typing import Dict, List, TypedDict
-from app.extensions import db
+from flask_sqlalchemy import SQLAlchemy
+from app.extensions import db 
 from app.models.product import Product
 from app.utils.cart import get_cart
-
 
 class CartItem(TypedDict):
     product: Product
@@ -33,7 +33,7 @@ def build_cart_items() -> CartData:
         return {"items": [], "total": 0.0}
 
     products = (
-        db.session.query(Product)
+        db.db.session.query(Product)
         .filter(Product.id.in_(product_ids))
         .all()
     )

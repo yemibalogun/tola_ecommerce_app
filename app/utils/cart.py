@@ -1,22 +1,22 @@
 from typing import Dict, List
-from app.models.product import Product
-from app.extensions.db import db
-from app.utils.cart import get_cart
 from flask import session
+from app.extensions.db import db
+from app.models.product import Product
+from decimal import Decimal 
+from sqlalchemy.orm import Mapped, mapped_column
 
 Cart = Dict[str, int]
 
 
 def get_cart() -> Cart:
     """
-    Safely get cart from session.
+    Safely get cart from Flask session.
     Ensures correct default and type.
     """
     cart = session.get("cart")
 
     # Edge case: corrupted or missing cart
     if not isinstance(cart, dict):
-        if not isinstance(cart, dict):
         session["cart"] = {}
         return session["cart"]
 
@@ -28,7 +28,7 @@ def add_to_cart(product_id: int, quantity: int = 1) -> None:
     Add or increment product in cart.
     """
     if quantity <= 0:
-        return  # invalid quantity guard
+        return  # guard invalid quantity
 
     cart = get_cart()
     pid = str(product_id)
@@ -55,14 +55,15 @@ def clear_cart() -> None:
 
 
 def build_cart_items() -> Dict[str, object]:
-    """
-    Converts session cart into renderable objects.
-    """
     cart = get_cart()
-    if not cart:
-        return {"items": [], "total": 0}
 
-    product_ids = [int(pid) for pid in cart.keys()]
+    if not cart:
+        return {"items": [], "total": 0.0}
+
+    try:
+        product_ids = [int(pid) for pid in cart.keys()]
+    except ValueError:
+        return {"items": [], "total": 0.0}
 
     products = (
         db.session.query(Product)
@@ -70,23 +71,26 @@ def build_cart_items() -> Dict[str, object]:
         .all()
     )
 
-    items = []
-    total = 0
+    items: List[Dict[str, object]] = []
+    total: Decimal = Decimal("0.00")
 
     for product in products:
         qty = cart.get(str(product.id), 0)
-
-        # Edge case: product removed but still in session
         if qty <= 0:
             continue
 
-        line_total = product.price * qty
+        price: Decimal = product.price
+        line_total: Decimal = price * Decimal(qty)
+
         total += line_total
 
         items.append({
             "product": product,
             "quantity": qty,
-            "line_total": line_total,
+            "line_total": float(line_total),
         })
 
-    return {"items": items, "total": total}
+    return {
+        "items": items,
+        "total": float(total.quantize(Decimal("0.01"))),
+    }

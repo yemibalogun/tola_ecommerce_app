@@ -1,28 +1,32 @@
 from decimal import Decimal
 from sqlalchemy import (
     Column,
-    Integer,
+    Numeric,
     String,
     Text,
-    Numeric,
     Boolean,
     ForeignKey,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.models.base import BaseModel
+from app.extensions.db import db
 
 
 class Product(BaseModel):
     """
     Core sellable item.
     """
+    id: Mapped[int] = mapped_column(primary_key=True)
 
-    id = Column(Integer, primary_key=True)
+    price: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        nullable=False
+    )
+    
     name = Column(String(255), nullable=False)
     slug = Column(String(255), unique=True, nullable=False)
     description = Column(Text)
 
-    price = Column(Numeric(10, 2), nullable=False)
     is_active = Column(Boolean, default=True)
 
     tenant_id = Column(ForeignKey("tenant.id"), nullable=False)
