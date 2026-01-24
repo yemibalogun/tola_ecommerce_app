@@ -1,6 +1,7 @@
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, render_template
 from app.utils.cart import clear_cart
 from app.services.cart_service import build_cart_items
+from app.web import web_bp
 
 
 @web_bp.route("/checkout", methods=["GET", "POST"])
