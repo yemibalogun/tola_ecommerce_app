@@ -1,6 +1,8 @@
 from flask import render_template, request, send_from_directory
 from app.models.product import Product
 from app.web import web_bp
+from sqlalchemy.exc import SQLAlchemyError
+
 
 @web_bp.route("/test-css")
 def test_css():
@@ -58,9 +60,6 @@ def about():
         # Basic safety net: surface a clean error instead of a hard crash
         return f"Error loading About page: {exc}", 500
 
-from flask import Blueprint, render_template, request
-
-web_bp = Blueprint("web", __name__)
 
 @web_bp.route("/contact", methods=["GET", "POST"])
 def contact():
@@ -125,3 +124,21 @@ def blog():
 
     except Exception as exc:
         return f"Error loading Blog page: {exc}", 500
+    
+
+@web_bp.route("/shop")
+def shop():
+    """
+    Shop page – lists available products.
+    """
+    try:
+        # Defensive query: avoid breaking the page if DB is empty
+        products: list[Product] = Product.query.limit(24).all()
+
+        return render_template("shop.html", products=products)
+
+    except SQLAlchemyError as exc:
+        # Basic error handling to avoid crashing the UI
+        return f"Database error loading shop: {exc}", 500
+    
+
