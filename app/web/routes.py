@@ -1,11 +1,15 @@
-from flask import render_template, request
+from flask import render_template, request, send_from_directory
 from models.product import Product
 from app.web import web_bp
+
+@web_bp.route("/test-css")
+def test_css():
+    return send_from_directory("static/css", "style.css")
 
 @web_bp.route("/")
 def home():
     products = Product.query.limit(8).all()
-    return render_template("index.html", products=products)
+    return render_template("/index.html", products=products)
 
 @web_bp.route("/products")
 def product_list():

@@ -35,7 +35,7 @@
             <ul>
                 {% for item in cart_items %}
                 <li>
-                    {{ item.product.name }} × {{ item.quantity }}
+                    {{ item.product.name }} "×" {{ item.quantity }}
                     — {{ item.product.price * item.quantity }}
                 </li>
                 {% endfor %}
