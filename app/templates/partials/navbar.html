@@ -64,14 +64,14 @@
                   <div class="user-items ps-5">
                     <ul class="d-flex justify-content-end list-unstyled">
                       <li class="search-item pe-3">
-                        <a href="#" class="search-button">
+                        <a href="{{ url_for('web.search') }}" class="search-button">
                           <svg class="search">
                             <use xlink:href="#search"></use>
                           </svg>
                         </a>
                       </li>
                       <li class="pe-3">
-                        <a href="#">
+                        <a href="{{ url_for('web.user') }}">
                           <svg class="user">
                             <use xlink:href="#user"></use>
                           </svg>
