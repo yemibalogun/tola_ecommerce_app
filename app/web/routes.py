@@ -19,6 +19,7 @@ def home():
     products = Product.query.limit(8).all()
     return render_template("index.html", products=products)
 
+
 @web_bp.route("/user", methods=["GET"])
 @login_required  # optional
 def user() -> str:
