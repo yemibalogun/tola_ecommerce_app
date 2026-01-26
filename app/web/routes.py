@@ -19,12 +19,10 @@ def home():
     products = Product.query.limit(8).all()
     return render_template("index.html", products=products)
 
-
 @web_bp.route("/user", methods=["GET"])
 @login_required  # optional
 def user() -> str:
     return render_template("web/user.html")
-
 
 @web_bp.route("/products")
 def product_list():
@@ -107,7 +105,6 @@ def contact():
 
     except Exception as exc:
         return f"Error loading Contact page: {exc}", 500
-
 
 @web_bp.route("/blogs")
 def blog():
