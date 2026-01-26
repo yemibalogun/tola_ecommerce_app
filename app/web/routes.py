@@ -5,6 +5,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_
 from typing import List
 from app.models.category import Category
+from flask_login import login_required
+from typing import Any
+
+
 
 @web_bp.route("/test-css")
 def test_css():
@@ -14,6 +18,12 @@ def test_css():
 def home():
     products = Product.query.limit(8).all()
     return render_template("index.html", products=products)
+
+@web_bp.route("/user", methods=["GET"])
+@login_required  # optional
+def user() -> str:
+    return render_template("web/user.html")
+
 
 @web_bp.route("/products")
 def product_list():
@@ -143,7 +153,7 @@ def shop():
         # Basic error handling to avoid crashing the UI
         return f"Database error loading shop: {exc}", 500
  
- 
+
 @web_bp.route("/search", methods=["GET"])
 def search():
     query: str = request.args.get("q", "").strip()
