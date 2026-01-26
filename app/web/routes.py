@@ -2,7 +2,9 @@ from flask import render_template, request, send_from_directory
 from app.models.product import Product
 from app.web import web_bp
 from sqlalchemy.exc import SQLAlchemyError
-
+from sqlalchemy import or_
+from typing import List
+from app.models.category import Category
 
 @web_bp.route("/test-css")
 def test_css():
@@ -140,5 +142,56 @@ def shop():
     except SQLAlchemyError as exc:
         # Basic error handling to avoid crashing the UI
         return f"Database error loading shop: {exc}", 500
-    
+ 
+ 
+@web_bp.route("/search", methods=["GET"])
+def search():
+    query: str = request.args.get("q", "").strip()
 
+    # Empty query → no DB hit
+    if not query:
+        return render_template(
+            "web/search.html",
+            query=query,
+            products=[],
+            categories=[],
+        )
+
+    # ----------------------------
+    # Build product search filters
+    # ----------------------------
+    product_filters = []
+
+    if hasattr(Product, "name"):
+        product_filters.append(Product.name.ilike(f"%{query}%"))
+
+    if hasattr(Product, "description"):
+        product_filters.append(Product.description.ilike(f"%{query}%"))
+
+    products: List[Product] = []
+    if product_filters:
+        products = (
+            Product.query
+            .filter(or_(*product_filters))  # ✅ only SQL expressions
+            .limit(24)
+            .all()
+        )
+
+    # ----------------------------
+    # Category search
+    # ----------------------------
+    categories: List[Category] = []
+    if hasattr(Category, "name"):
+        categories = (
+            Category.query
+            .filter(Category.name.ilike(f"%{query}%"))
+            .limit(10)
+            .all()
+        )
+
+    return render_template(
+        "web/search.html",
+        query=query,
+        products=products,
+        categories=categories,
+    )
