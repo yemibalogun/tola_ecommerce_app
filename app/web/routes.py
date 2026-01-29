@@ -6,8 +6,6 @@ from sqlalchemy import or_
 from typing import List
 from app.models.category import Category
 from flask_login import login_required
-from typing import Any
-
 
 
 @web_bp.route("/test-css")
