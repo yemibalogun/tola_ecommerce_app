@@ -3,7 +3,6 @@ from decimal import Decimal
 from typing import Dict, Optional
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
 from app.extensions.db import db
 from app.models.order import Order
 from app.models.order_item import OrderItem
