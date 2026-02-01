@@ -8,15 +8,18 @@ from app.extensions.db import db
 from app.models.product import Product
 from app.models.category import Category
 from flask_login import current_user, login_required
+from app.admin.decorators import admin_required
 from app.admin.services import PRODUCT_IMAGE_DIR
 
 @admin_bp.route("/dashboard")
 @login_required
+@admin_required
 def dashboard():
     return "Welcome to the Admin Dashboard"
 
 @admin_bp.route("/products")
 @login_required
+@admin_required
 def products() -> str:
     products: List[Product] = (
         Product.query
@@ -29,6 +32,7 @@ def products() -> str:
 
 @admin_bp.route("/products/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def create_product():
     form = ProductForm()
     form.category_id.choices = [
@@ -75,6 +79,7 @@ def create_product():
 
 @admin_bp.route("/products/<int:product_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def edit_product(product_id: int):
     product = Product.query.filter_by(
         id=product_id,
@@ -132,6 +137,7 @@ def edit_product(product_id: int):
 
 @admin_bp.route("/products/<int:product_id>/delete", methods=["POST"])
 @login_required
+@admin_required
 def delete_product(product_id: int):
     product = Product.query.filter_by(
         id=product_id,

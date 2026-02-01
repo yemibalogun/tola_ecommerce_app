@@ -15,7 +15,6 @@ def login():
         return redirect(url_for("admin.dashboard"))
 
     form = AdminLoginForm()
-
     if form.validate_on_submit():
         email_raw = form.email.data
         password_raw = form.password.data
@@ -27,7 +26,7 @@ def login():
 
         email: str = email_raw.strip().lower()
         password: str = password_raw
-        
+
         # Attempt to fetch admin user
         user = User.query.filter_by(email=email, is_admin=True).first()
         if user and check_password_hash(user.password, password):
