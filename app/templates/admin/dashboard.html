@@ -6,6 +6,10 @@
 <h2>Dashboard</h2>
 
 <div class="stats">
+    <!-- admin/products/list.html -->
+    <div>
+        <a href="{{ url_for('admin_products.create_product') }}" class="btn btn-primary">Add Product</a>
+    </div> 
     <div class="card">Products: {{ product_count }}</div>
     <div class="card">Orders: {{ order_count }}</div>
     <div class="card">Revenue: ₦{{ revenue }}</div>

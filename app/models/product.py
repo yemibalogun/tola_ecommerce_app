@@ -10,16 +10,14 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .base import BaseModel
 from app.extensions.db import db
 
-
 class Product(BaseModel):
     __tablename__ = "product"
 
     """
     Core sellable item.
     """
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    price: Mapped[Decimal | None] = mapped_column(
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    price: Mapped[Decimal] = mapped_column(
         Numeric(10, 2),
         nullable=False
     )
@@ -29,7 +27,6 @@ class Product(BaseModel):
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     tenant_id: Mapped[int] = mapped_column(ForeignKey("tenant.id"), nullable=False)
     category_id: Mapped[int | None] = mapped_column(ForeignKey("category.id"), nullable=True)

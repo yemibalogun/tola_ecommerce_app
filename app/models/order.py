@@ -7,7 +7,6 @@ class Order(BaseModel):
     """
     Represents a completed or pending checkout.
     """
-
     status: Mapped[str] = mapped_column(String(50))
     total_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
 

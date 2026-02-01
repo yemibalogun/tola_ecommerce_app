@@ -3,7 +3,6 @@ from flask import session
 from app.extensions.db import db
 from app.models.product import Product
 from decimal import Decimal 
-from sqlalchemy.orm import Mapped, mapped_column
 
 Cart = Dict[str, int]
 

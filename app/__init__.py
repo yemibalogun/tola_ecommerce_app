@@ -41,6 +41,10 @@ def create_app(config_name: str = "development") -> Flask:
     # ---- Core Flask config ----
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
 
+    app.config["UPLOAD_FOLDER"] = os.path.join(
+        app.root_path, "static", "uploads", "products"
+    )
+
     # Use environment variable for SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] =False
@@ -66,11 +70,13 @@ def create_app(config_name: str = "development") -> Flask:
     from app.web import web_bp
     from app.api import api_bp
     from app.admin.routes.auth import auth_bp
-    from app.admin.routes.products import admin_bp
+    from app.admin.routes.products import product_bp
+    from app.admin.routes.dashboard import admin_bp
     
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(product_bp)
 
     return app

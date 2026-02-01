@@ -20,12 +20,24 @@
         {{ form.category_id.label }}
         {{ form.category_id(class="form-control") }}
     </div>
+    
+    <div class="mb-3">
+        {{ form.description.label }}
+        {{ form.description(class="form-control") }}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.slug.label }}
+        {{ form.slug(class="form-control") }}
+    </div>
 
     <div class="mb-3">
         {{ form.image.label }}
         {{ form.image(class="form-control") }}
     </div>
+    
+    
 
-    <button class="btn btn-success" type="button">Save</button>
+    <button class="btn btn-success" type="submit">Create Product</button>
 </form>
 {% endblock %}

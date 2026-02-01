@@ -3,6 +3,7 @@ from app.extensions.db import db
 from app.models.user import User
 from app.models.tenant import Tenant 
 from sqlalchemy.exc import IntegrityError
+from slugify import slugify 
 
 app = create_app("development")
 
@@ -13,10 +14,13 @@ with app.app_context():
 
     try:
         # ---- Ensure tenant exists ---
-        tenant: Tenant | None = Tenant.query.filter_by(name=name).first()
+        tenant: Tenant | None = Tenant.query.filter_by(name=tenant_name).first()
 
         if tenant is None:
-            tenant = Tenant(name=tenant_name)
+            tenant = Tenant()
+            tenant.name=tenant_name
+            tenant.slug=slugify(tenant_name)
+            
             db.session.add(tenant)
             db.session.flush()
             # flush assigns tenant.id WITHOUT committing yet
@@ -31,12 +35,13 @@ with app.app_context():
             admin = User()
             admin.email=admin_email 
             admin.is_admin=True
-            admin.tenant_id=1
+            admin.tenant_id=tenant.id
         
             admin.set_password(admin_password)
             db.session.add(admin)
             db.session.commit()
-            print(f"Admin user created: {admin_email} (tenant_id={tenant.id})")
+            print(
+                f"Admin user created: {admin_email} (tenant_id={tenant.id})")
         
     except IntegrityError as exc:
         db.session.rollback()

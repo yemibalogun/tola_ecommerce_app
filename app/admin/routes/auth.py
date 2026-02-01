@@ -7,7 +7,6 @@ from werkzeug.security import check_password_hash
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/admin/auth")
 
-
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     # If already logged in, redirect to admin dashboard
@@ -15,6 +14,7 @@ def login():
         return redirect(url_for("admin.dashboard"))
 
     form = AdminLoginForm()
+
     if form.validate_on_submit():
         email_raw = form.email.data
         password_raw = form.password.data
@@ -29,15 +29,16 @@ def login():
 
         # Attempt to fetch admin user
         user = User.query.filter_by(email=email, is_admin=True).first()
-        if user and check_password_hash(user.password, password):
+
+        if user and user.check_password(password):
             login_user(user, remember=form.remember_me.data)
             flash("Welcome back!", "success")
 
             # Redirect to 'next' if specified in query params
             next_page = request.args.get("next")
             return redirect(next_page or url_for("admin.dashboard"))
-        else:
-            flash("Invalid email or password", "danger")
+        
+        flash("Invalid email or password", "danger")
 
     return render_template("admin/login.html", form=form)
 
