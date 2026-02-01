@@ -1,0 +1,39 @@
+<h4 class="mt-4">Variants & Inventory</h4>
+
+<a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
+   class="btn btn-sm btn-primary mb-3">
+  + Add Variant
+</a>
+
+<table class="table table-sm align-middle">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>SKU</th>
+      <th>Price</th>
+      <th>Stock</th>
+      <th>Adjust</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in product.variants %}
+    <tr>
+      <td>{{ v.name }}</td>
+      <td>{{ v.sku }}</td>
+      <td>
+        {{ v.price_override or product.price }}
+      </td>
+      <td>{{ v.stock_quantity }}</td>
+      <td>
+        <form method="post"
+              action="{{ url_for('admin.update_inventory', variant_id=v.id) }}"
+              class="d-flex gap-1">
+          {{ inventory_form.hidden_tag() }}
+          {{ inventory_form.delta(class="form-control form-control-sm", style="width:80px") }}
+          {{ inventory_form.submit(class="btn btn-sm btn-outline-primary") }}
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

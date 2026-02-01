@@ -1,14 +1,12 @@
 from typing import List, Optional
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from app.admin.forms import ProductForm
-from app.admin.services import save_product_image
 from app.utils.slug import unique_slug
 from app.extensions.db import db
 from app.models.product import Product
 from app.models.category import Category
 from flask_login import current_user, login_required
 from app.admin.decorators import admin_required
-from app.admin.services import PRODUCT_IMAGE_DIR
 from sqlalchemy.exc import IntegrityError
 import re
 from app.utils.uploads import save_product_image
@@ -61,9 +59,10 @@ def create_product():
         try:
             # Create product instance with validated form data
             product = Product()
+            
             product.name = form.name.data.strip() if form.name.data else ""
             product.slug=form.slug.data.strip() if form.slug.data else unique_slug(Product, product.name)
-            product.price=form.price.data
+            product.price=form.price.data # type: ignore
             product.description=form.description.data.strip() if form.description.data else None
             product.category_id=form.category_id.data or None
             product.is_active=form.is_active.data

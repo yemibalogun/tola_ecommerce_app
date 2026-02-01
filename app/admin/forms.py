@@ -6,9 +6,10 @@ from wtforms import (
     SelectField,
     PasswordField,
     SubmitField,
+    IntegerField,
     BooleanField,
 )
-from wtforms.validators import DataRequired, NumberRange, Length, Email
+from wtforms.validators import DataRequired, Optional, NumberRange, Length, Email
 from flask_wtf.file import FileField, FileAllowed
 
 
@@ -23,7 +24,7 @@ class ProductForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     price = DecimalField(
         "Price",
-        validators=[DataRequired(), NumberRange(min=0)],
+        validators=[DataRequired(), NumberRange(min=0.01)],
         places=2,
     )
     slug = StringField("Slug", validators=[DataRequired()])
@@ -36,3 +37,35 @@ class ProductForm(FlaskForm):
             FileAllowed(["jpg", "jpeg", "png", "webp"], "Images only!")
         ]
     )
+
+class ProductVariantForm(FlaskForm):
+    name = StringField(
+        "Variant Name (e.g. Black / 128GB)",
+        validators=[DataRequired()],
+    )
+
+    sku = StringField(
+        "SKU",
+        validators=[DataRequired()],
+    )
+
+    price_override = DecimalField(
+        "Price Override",
+        places=2,
+        rounding=None,
+        validators=[Optional()],
+    )
+
+    stock_quantity = IntegerField(
+        "Stock Quantity",
+        validators=[DataRequired(), NumberRange(min=0)],
+        default=0,
+    )
+
+    #File upload for image
+    image = FileField(
+        "Variant Image",
+        validators=[FileAllowed('jpg', 'Jpeg', 'png'), Images onlyy]
+    )
+
+    submit = SubmitField("Save Variant")

@@ -27,7 +27,7 @@ def save_product_image(file: FileStorage | None,
         # Save file to disk
         file.save(file_path)
 
-        return f"uploads/products/{filename}"
+        return f"admin/uploads/products/{filename}"
     except Exception:
         # In production, log this exception
         return None

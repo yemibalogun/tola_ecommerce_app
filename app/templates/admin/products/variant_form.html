@@ -1,0 +1,28 @@
+<h3>Add Variant – {{ product.name }}</h3>
+
+<form method="post" enctype="multipart/form-data">
+  {{ form.hidden_tag() }}
+
+  <div class="mb-3">
+    {{ form.name.label }} {{ form.name(class="form-control") }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.sku.label }} {{ form.sku(class="form-control") }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.price_override.label }} {{ form.price_override(class="form-control") }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.stock_quantity.label }} {{ form.stock_quantity(class="form-control") }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.image.label }} {{ form.image(class="form-control") }}
+    <small class="text-muted">Optional variant image (JPG, PNG)</small>
+  </div>
+
+  {{ form.submit(class="btn btn-success") }}
+</form>

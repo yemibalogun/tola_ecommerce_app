@@ -1,6 +1,7 @@
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import ForeignKey, Integer, String, Numeric, ForeignKey
 from .base import BaseModel
+from decimal import Decimal
 
 
 class ProductVariant(BaseModel):
@@ -9,13 +10,29 @@ class ProductVariant(BaseModel):
     Classical SQLAlchemy style avoids Pylance assignment errors.
     """
 
-    product_id = Column(Integer, ForeignKey("product.id"), nullable=False)
-    tenant_id = Column(Integer, nullable=False)  # 🔹 ADD THIS
-    
-    name = Column(String(120), nullable=False)
-    sku = Column(String(120), unique=True, nullable=False)
-    price_override = Column(Numeric(10, 2), nullable=True)
-    stock_quantity = Column(Integer, default=0, nullable=False)
+    product_id: Mapped[int] = mapped_column(
+        ForeignKey("product.id"),
+        nullable=False,
+        index=True,
+    )
+
+    tenant_id: Mapped[int] = mapped_column(nullable=False, index=True)
+
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    sku: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+
+    price_override: Mapped[Decimal | None] = mapped_column(
+        Numeric(10, 2),
+        nullable=True,
+    )
+
+    stock_quantity: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    image_filename: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # Relationship to Product
     product = relationship("Product", back_populates="variants")

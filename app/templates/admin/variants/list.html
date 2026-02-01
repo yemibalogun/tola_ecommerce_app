@@ -1,0 +1,39 @@
+<h3>{{ product.name }} — Variants</h3>
+
+<a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
+   class="btn btn-primary mb-3">
+  Add Variant
+</a>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>SKU</th>
+      <th>Price</th>
+      <th>Stock</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in variants %}
+    <tr>
+      <td>{{ v.name }}</td>
+      <td>{{ v.sku }}</td>
+      <td>{{ v.price_override or product.price }}</td>
+      <td>
+        {% if v.stock_quantity <= 5 %}
+          <span class="text-danger fw-bold">
+            {{ v.stock_quantity }}
+          </span>
+        {% else %}
+          {{ v.stock_quantity }}
+        {% endif %}
+      </td>
+      <td>
+        <a href="{{ url_for('admin.edit_variant', variant_id=v.id) }}">Edit</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
