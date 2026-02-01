@@ -64,7 +64,9 @@ def create_app(config_name: str = "development") -> Flask:
     # Register blueprints
     from app.web import web_bp
     from app.api import api_bp
+    from app.admin import admin_bp
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(admin_bp)
 
     return app
