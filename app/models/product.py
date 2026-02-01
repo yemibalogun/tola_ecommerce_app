@@ -26,6 +26,7 @@ class Product(BaseModel):
     name = Column(String(255), nullable=False)
     slug = Column(String(255), unique=True, nullable=False)
     description = Column(Text)
+    image = Column(String(255), nullable=True)
 
     is_active = Column(Boolean, default=True)
 

@@ -1,0 +1,39 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between">
+    <h2>Products</h2>
+    <a href="{{ url_for('admin.create_product') }}" class="btn btn-primary">
+        Add Product
+    </a>
+</div>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>
+                {% if product.image %}
+                <img src="{{ url_for('static', filename=product.image) }}" width="50" alt="product-image">
+                {% endif %}
+            </td>
+            <td>{{ product.name }}</td>
+            <td>₦{{ product.price }}</td>
+            <td>
+                <a href="#" class="btn btn-sm btn-warning">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

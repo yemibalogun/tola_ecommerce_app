@@ -1,0 +1,23 @@
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    background: #1f2937;
+    color: #fff;
+    padding: 20px;
+}
+
+.sidebar a {
+    color: #fff;
+    display: block;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
+}

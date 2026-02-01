@@ -1,0 +1,13 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+<div class="stats">
+    <div class="card">Products: {{ product_count }}</div>
+    <div class="card">Orders: {{ order_count }}</div>
+    <div class="card">Revenue: ₦{{ revenue }}</div>
+</div>
+{% endblock %}
