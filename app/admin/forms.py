@@ -4,9 +4,11 @@ from wtforms import (
     TextAreaField,
     DecimalField,
     SelectField,
+    PasswordField,
+    SubmitField,
     BooleanField,
 )
-from wtforms.validators import DataRequired, NumberRange, Length
+from wtforms.validators import DataRequired, NumberRange, Length, Email
 from flask_wtf.file import FileField, FileAllowed
 
 
@@ -24,3 +26,9 @@ class ProductForm(FlaskForm):
         "Product Image",
         validators=[FileAllowed(["jpg", "jpeg", "png"])],
     )
+
+class AdminLoginForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    remember_me = BooleanField("Remember Me")
+    submit = SubmitField("Login")

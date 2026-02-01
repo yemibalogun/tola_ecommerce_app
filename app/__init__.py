@@ -1,12 +1,12 @@
 from flask import Flask
 from flask_migrate import Migrate
 from app.extensions.db import db
+from app.extensions.login import login_manager
 from app.extensions.cache import cache
 from sqlalchemy import create_engine, text
 import re, os
 
 migrate = Migrate()
-
 
 def create_database_if_not_exists(database_uri: str) -> None:
     """
@@ -51,9 +51,10 @@ def create_app(config_name: str = "development") -> Flask:
 
     # Init extensions
     db.init_app(app)
+    login_manager.init_app(app)
     cache.init_app(app)
     migrate.init_app(app, db)
-
+    
     if config_name in ("development", "testing"):
         with app.app_context():
             # --- Import all models first ---
@@ -64,9 +65,12 @@ def create_app(config_name: str = "development") -> Flask:
     # Register blueprints
     from app.web import web_bp
     from app.api import api_bp
-    from app.admin import admin_bp
+    from app.admin.routes.auth import auth_bp
+    from app.admin.routes.products import admin_bp
+    
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(admin_bp)
+    app.register_blueprint(auth_bp)
 
     return app
