@@ -6,7 +6,7 @@ from app.admin.decorators import admin_required
 from app.extensions.db import db
 from app.models.product import Product
 from app.models.product_variant import ProductVariant
-
+import os 
 
 @admin_bp.route("/products/<int:product_id>/variants")
 def list_variants(product_id: int):

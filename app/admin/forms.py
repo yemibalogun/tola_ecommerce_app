@@ -9,7 +9,7 @@ from wtforms import (
     IntegerField,
     BooleanField,
 )
-from wtforms.validators import DataRequired, Optional, NumberRange, Length, Email
+from wtforms.validators import DataRequired, Optional, NumberRange, Email
 from flask_wtf.file import FileField, FileAllowed
 
 
@@ -62,10 +62,13 @@ class ProductVariantForm(FlaskForm):
         default=0,
     )
 
-    #File upload for image
+    # File upload for image
     image = FileField(
         "Variant Image",
-        validators=[FileAllowed('jpg', 'Jpeg', 'png'), Images onlyy]
+        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
     )
 
     submit = SubmitField("Save Variant")
+
+class InventoryAdjustForm(FlaskForm):
+    pass
