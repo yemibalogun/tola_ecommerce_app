@@ -29,8 +29,7 @@
         {% if v.image_filename %}
           <img
             src="{{ url_for('static', filename=v.image_filename) }}"
-            class="img-thumbnail"
-            style="height: 40px; width: 40px; object-fit: cover"
+            class="img-thumbnail"            
             alt="image-filename"
           >
         {% else %}

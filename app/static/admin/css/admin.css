@@ -21,3 +21,11 @@
     flex: 1;
     padding: 30px;
 }
+
+
+.img-thumbnail{
+    height: 40px; 
+    width: 40px; 
+    object-fit: cover";
+}
+            

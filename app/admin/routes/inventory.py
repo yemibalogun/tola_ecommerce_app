@@ -4,7 +4,6 @@ from app.models.product_variant import ProductVariant
 from app.admin.forms import InventoryAdjustForm
 from app.admin import admin_bp
 
-
 @admin_bp.route("/variants/<int:variant_id>/inventory", methods=["POST"])
 def update_inventory(variant_id: int):
     form = InventoryAdjustForm()
