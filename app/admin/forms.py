@@ -65,7 +65,7 @@ class ProductVariantForm(FlaskForm):
     # File upload for image
     image = FileField(
         "Variant Image",
-        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
+        validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
     )
 
     submit = SubmitField("Save Variant")

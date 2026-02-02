@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash
+from flask import current_app, render_template, redirect, url_for, flash
 from flask_login import current_user, login_required
 from app.admin import admin_bp
 from app.admin.forms import ProductVariantForm, InventoryAdjustForm
@@ -100,20 +100,42 @@ def edit_variant(variant_id: int):
         variant.price_override = form.price_override.data
         variant.stock_quantity = form.stock_quantity.data
 
+        # Handle image replacement
+        if form.image.data:
+            # Delete old image if it exists
+            if variant.image_filename:
+                old_path = os.path.join(
+                    current_app.root_path, "static", variant.image_filename
+                )
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+
+            filename = secure_filename(form.image.data.filename)
+            upload_dir = os.path.join(
+                current_app.root_path, "static", "uploads"
+            )
+            os.makedirs(upload_dir, exist_ok=True)
+
+            file_path = os.path.join(upload_dir, filename)
+            form.image.data.save(file_path)
+
+            variant.image_filename = f"uploads/{filename}"
+
         db.session.commit()
-        flash("Variant updated", "success")
+        flash("Variant updated successfully", "success")
 
         return redirect(
             url_for(
-                "admin.list_variants",
+                "admin.edit_product",
                 product_id=variant.product_id,
             )
         )
 
     return render_template(
-        "admin/variants/edit.html",
+        "admin/product/variant_form.html",
         form=form,
         variant=variant,
+        product=variant.product
     )
 
 
@@ -138,6 +160,31 @@ def delete_variant(variant_id: int):
             product_id=product_id,
         )
     )
+
+@admin_bp.route("/variants/<int:variant_id>/delete-image", methods=["POST"])
+@login_required
+@admin_required
+def delete_variant_image(variant_id: int):
+    variant = ProductVariant.query.filter_by(
+        id=variant_id,
+        tenant_id=current_user.tenant_id
+    ).first_or_404()
+
+    if variant.image_filename:
+        image_path = os.path.join(
+            current_app.root_path, "static", variant.image_filename
+        )
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        variant.image_filename = None
+        db.session.commit()
+        flash("Variant image removed", "success")
+
+    return redirect(
+        url_for("admin.edit_variant", variant_id=variant.id)
+    )
+
 
 @admin_bp.route(
     "/variants/<int:variant_id>/inventory",

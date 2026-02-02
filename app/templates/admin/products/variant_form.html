@@ -1,4 +1,4 @@
-<h3>Add Variant – {{ product.name }}</h3>
+<h3>{{ variant and "Edit" or "Add" }} Variant – {{ product.name }}</h3>
 
 <form method="post" enctype="multipart/form-data">
   {{ form.hidden_tag() }}
@@ -12,17 +12,37 @@
   </div>
 
   <div class="mb-3">
-    {{ form.price_override.label }} {{ form.price_override(class="form-control") }}
+    {{ form.price_override.label }}
+    {{ form.price_override(class="form-control") }}
   </div>
 
   <div class="mb-3">
-    {{ form.stock_quantity.label }} {{ form.stock_quantity(class="form-control") }}
+    {{ form.stock_quantity.label }}
+    {{ form.stock_quantity(class="form-control") }}
   </div>
+
+  {% if variant and variant.image_filename %}
+    <div class="mb-3">
+      <label>Current Image</label><br>
+      <img
+        src="{{ url_for('static', filename=variant.image_filename) }}"
+        height="120"
+        class="mb-2 border"
+        alt="variant-image"
+      >
+      <form
+        method="post"
+        action="{{ url_for('admin.delete_variant_image', variant_id=variant.id) }}"
+      >
+        <button type="button" class="btn btn-sm btn-danger">Remove Image</button>
+      </form>
+    </div>
+  {% endif %}
 
   <div class="mb-3">
-    {{ form.image.label }} {{ form.image(class="form-control") }}
-    <small class="text-muted">Optional variant image (JPG, PNG)</small>
+    {{ form.image.label }}
+    {{ form.image(class="form-control") }}
   </div>
 
-  {{ form.submit(class="btn btn-success") }}
+  {{ form.submit(class="btn btn-primary") }}
 </form>
