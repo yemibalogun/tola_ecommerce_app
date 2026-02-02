@@ -6,6 +6,7 @@ from app.admin.decorators import admin_required
 from app.extensions.db import db
 from app.models.product import Product
 from app.models.product_variant import ProductVariant
+from werkzeug.utils import secure_filename
 import os 
 
 @admin_bp.route("/products/<int:product_id>/variants")
@@ -43,13 +44,26 @@ def create_variant(product_id: int):
 
     if form.validate_on_submit():
         try:
+            # Use default empty strings if data is None
+            name = (form.name.data or "").strip()
+            sku = (form.sku.data or "").strip()
+
+            # Validate requred fields
+            if not name or not sku:
+                flash("Name and SKU are required", "danger")
+                return render_template(
+                    "admin/variants/variant_form.html",
+                    form=form,
+                    product=product,
+                )
+            
             variant = ProductVariant()
             variant.product_id=product.id
             variant.tenant_id=current_user.tenant_id
-            variant.name=form.name.data.strip()
-            variant.sku=form.sku.data.strip()
+            variant.name=name
+            variant.sku=sku
             variant.price_override=form.price_override.data
-            variant.stock_quantity=form.stock_quantity.data
+            variant.stock_quantity=form.stock_quantity.data or 0
 
             # Handle image upload
             if form.image.data:
@@ -95,8 +109,21 @@ def edit_variant(variant_id: int):
     form = ProductVariantForm(obj=variant)
 
     if form.validate_on_submit():
-        variant.name = form.name.data.strip()
-        variant.sku = form.sku.data.strip()
+        # Use default empty strings if data is None
+        name = (form.name.data or "").strip()
+        sku = (form.sku.data or "").strip
+
+        # Validate required fields
+        if not name or not sku:
+            flash("Name and SKU are required", "danger")
+            return render_template(
+                "admin/product/variant_form.html",
+                form=form,
+                variant=variant,
+                product=variant.product
+            )
+        variant.name = name
+        variant.sku = sku
         variant.price_override = form.price_override.data
         variant.stock_quantity = form.stock_quantity.data
 

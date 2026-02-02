@@ -71,4 +71,7 @@ class ProductVariantForm(FlaskForm):
     submit = SubmitField("Save Variant")
 
 class InventoryAdjustForm(FlaskForm):
-    pass
+    # Used for one-click inventory adjustments (+1,-1, +10).
+
+    delta = IntegerField(validators=[DataRequired()])
+    submit = SubmitField()
