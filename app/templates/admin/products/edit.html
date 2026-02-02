@@ -1,39 +1,114 @@
-<h4 class="mt-4">Variants & Inventory</h4>
+<h4 class="mt-4 d-flex justify-content-between align-items-center">
+  <span>Variants & Inventory</span>
 
-<a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
-   class="btn btn-sm btn-primary mb-3">
-  + Add Variant
-</a>
+  <a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
+     class="btn btn-sm btn-primary">
+    + Add Variant
+  </a>
+</h4>
 
-<table class="table table-sm align-middle">
-  <thead>
+{% if product.variants %}
+<table class="table table-sm align-middle mt-3">
+  <thead class="table-light">
     <tr>
+      <th>Image</th>
       <th>Name</th>
       <th>SKU</th>
       <th>Price</th>
       <th>Stock</th>
       <th>Adjust</th>
+      <th></th>
     </tr>
   </thead>
+
   <tbody>
     {% for v in product.variants %}
     <tr>
-      <td>{{ v.name }}</td>
-      <td>{{ v.sku }}</td>
-      <td>
-        {{ v.price_override or product.price }}
+      <!-- Image -->
+      <td style="width: 60px">
+        {% if v.image_filename %}
+          <img
+            src="{{ url_for('static', filename=v.image_filename) }}"
+            class="img-thumbnail"
+            style="height: 40px; width: 40px; object-fit: cover"
+            alt="image-filename"
+          >
+        {% else %}
+          <span class="text-muted">—</span>
+        {% endif %}
       </td>
-      <td>{{ v.stock_quantity }}</td>
+
+      <!-- Name -->
+      <td>{{ v.name }}</td>
+
+      <!-- SKU -->
+      <td class="text-muted small">{{ v.sku }}</td>
+
+      <!-- Price -->
       <td>
-        <form method="post"
-              action="{{ url_for('admin.update_inventory', variant_id=v.id) }}"
-              class="d-flex gap-1">
-          {{ inventory_form.hidden_tag() }}
-          {{ inventory_form.delta(class="form-control form-control-sm", style="width:80px") }}
-          {{ inventory_form.submit(class="btn btn-sm btn-outline-primary") }}
+        {% if v.price_override %}
+          {{ v.price_override }}
+          <small class="text-muted">(override)</small>
+        {% else %}
+          {{ product.price }}
+        {% endif %}
+      </td>
+
+      <!-- Stock badge -->
+      <td>
+        {% if v.stock_quantity == 0 %}
+          <span class="badge bg-danger">Out</span>
+        {% elif v.stock_quantity <= 5 %}
+          <span class="badge bg-warning text-dark">
+            {{ v.stock_quantity }} low
+          </span>
+        {% else %}
+          <span class="badge bg-success">
+            {{ v.stock_quantity }}
+          </span>
+        {% endif %}
+      </td>
+
+      <!-- Inventory adjust -->
+      <td>
+        <form
+          method="post"
+          action="{{ url_for('admin.update_inventory', variant_id=v.id) }}"
+          class="d-flex gap-1 align-items-center"
+        >
+          {{ inventory_form.csrf_token }}
+
+          <input
+            type="number"
+            name="delta"
+            class="form-control form-control-sm"
+            style="width: 70px"
+            placeholder="+/-"
+            required
+          >
+
+          <button type="submit" class="btn btn-sm btn-outline-primary">
+            Apply
+          </button>
         </form>
+      </td>
+
+      <!-- Actions -->
+      <td class="text-end">
+        <a
+          href="{{ url_for('admin.edit_variant', variant_id=v.id) }}"
+          class="btn btn-sm btn-outline-secondary"
+        >
+          Edit
+        </a>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+
+{% else %}
+  <div class="alert alert-info mt-3">
+    No variants yet. Add at least one variant to manage inventory.
+  </div>
+{% endif %}
