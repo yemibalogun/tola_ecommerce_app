@@ -25,7 +25,7 @@
     {% for v in product.variants %}
     <tr>
       <!-- Image -->
-      <td style="width: 60px">
+      <td>
         {% if v.image_filename %}
           <img
             src="{{ url_for('static', filename=v.image_filename) }}"
@@ -81,7 +81,6 @@
             type="number"
             name="delta"
             class="form-control form-control-sm"
-            style="width: 70px"
             placeholder="+/-"
             required
           >
