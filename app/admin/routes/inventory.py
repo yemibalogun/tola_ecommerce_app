@@ -1,14 +1,18 @@
-from flask import redirect, url_for, flash, request
+from flask import redirect, url_for, flash, request, jsonify
 from app.extensions.db import db
 from app.models.product_variant import ProductVariant
 from app.admin.forms import InventoryAdjustForm
+from app.services.inventory_service import apply_inventory_delta
 from app.admin import admin_bp
 
 @admin_bp.route("/variants/<int:variant_id>/inventory", methods=["POST"])
 def update_inventory(variant_id: int):
+    """
+    Inventory update via standard HTML form.
+    Used as a fallback when JS is disabled.
+    """
     form = InventoryAdjustForm()
 
-    # Defensive: reject invalid form submissions
     if not form.validate_on_submit():
         flash("Invalid inventory adjustment.", "danger")
         return redirect(request.referrer or url_for("admin.dashboard"))
@@ -21,16 +25,44 @@ def update_inventory(variant_id: int):
 
     delta: int = form.delta.data or 0
 
-    # Optionally add a check to prevent 0 adjustments
     if delta == 0:
-        flash("Adjustment amount cannont be zero.", "danger")
+        flash("Adjustment amount cannot be zero.", "warning")
         return redirect(request.referrer or url_for("admin.dashboard"))
 
-    # Prevent negative stock edge case
-    new_stock = max(0, variant.stock_quantity + delta)
-
-    variant.stock_quantity = new_stock
-    db.session.commit()
+    apply_inventory_delta(variant, delta)
 
     flash(f"Inventory updated ({delta:+}).", "success")
     return redirect(request.referrer)
+
+
+@admin_bp.route("/variants/<int:variant_id>/inventory/ajax", methods=["POST"])
+def update_inventory_ajax(variant_id: int):
+    """
+    Inventory update via AJAX.
+    Expects JSON: { "delta": int }
+    Returns JSON with updated stock quantity.
+    """
+    data: dict | None = request.get_json(silent=True)
+
+    if not data or "delta" not in data:
+        return jsonify({"error": "Invalid payload"}), 400
+
+    try:
+        delta: int = int(data["delta"])
+    except (TypeError, ValueError):
+        return jsonify({"error": "Delta must be an integer"}), 400
+
+    if delta == 0:
+        return jsonify({"error": "Delta cannot be zero"}), 400
+
+    variant: ProductVariant | None = ProductVariant.query.get(variant_id)
+
+    if variant is None:
+        return jsonify({"error": "Variant not found"}), 404
+
+    apply_inventory_delta(variant, delta)
+
+    return jsonify({
+        "variant_id": variant.id,
+        "stock_quantity": variant.stock_quantity,
+    })

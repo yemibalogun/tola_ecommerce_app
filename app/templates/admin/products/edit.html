@@ -1,6 +1,8 @@
 <h4 class="mt-4 d-flex justify-content-between align-items-center">
   <span>Variants & Inventory</span>
 
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
      class="btn btn-sm btn-primary">
     + Add Variant
@@ -68,7 +70,7 @@
         {% endif %}
       </td>
 
-      <!-- Inventory adjust -->
+      <!-- One-click inventory controls -->
       <td>
         <form
           method="post"
