@@ -1,0 +1,14 @@
+<span
+  id="stock-badge-{{ variant.id }}"
+  class="badge
+    {% if variant.stock_quantity <= 0 %}
+        bg-danger
+    {% elif variant.stock_quantity <= 10 %}
+        bg-warning text-dark
+    {% else %}
+        bg-success
+    {% endif %}
+  "
+>
+  {{ variant.stock_quantity }}
+</span>

@@ -2,7 +2,7 @@ from flask import redirect, url_for, flash, request, jsonify
 from app.extensions.db import db
 from app.models.product_variant import ProductVariant
 from app.admin.forms import InventoryAdjustForm
-from app.services.inventory_service import apply_inventory_delta
+from app.services.inventory_service import apply_inventory_delta, get_stock_status
 from app.admin import admin_bp
 
 @admin_bp.route("/variants/<int:variant_id>/inventory", methods=["POST"])
@@ -65,4 +65,5 @@ def update_inventory_ajax(variant_id: int):
     return jsonify({
         "variant_id": variant.id,
         "stock_quantity": variant.stock_quantity,
+        "stock_status": get_stock_status(variant.stock_quantity)
     })
