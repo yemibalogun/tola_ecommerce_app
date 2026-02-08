@@ -1,25 +1,27 @@
 from app.extensions.db import db
-from app.models.product_variant import ProductVariant
 
 
-def decrease_stock(variant_id: int, quantity: int) -> None:
-    variant = ProductVariant.query.get_or_404(variant_id)
+class Inventory(db.Model):
+    __tablename__ = "inventory"
 
-    # Prevent overselling
-    if quantity <= 0:
-        raise ValueError("Quantity must be positive")
+    id = db.Column(db.Integer, primary_key=True)
 
-    if variant.stock_quantity < quantity:
-        raise ValueError("Insufficient stock")
+    tenant_id = db.Column(
+        db.Integer,
+        db.ForeignKey("tenant.id"),
+        nullable=False,
+        index=True
+    )
 
-    variant.stock_quantity -= quantity
-    db.session.commit()
+    variant_id = db.Column(
+        db.Integer,
+        db.ForeignKey("product_variant.id"),
+        nullable=False,
+        unique=True
+    )
 
-
-def increase_stock(variant_id: int, quantity: int) -> None:
-    if quantity <= 0:
-        raise ValueError("Quantity must be positive")
-
-    variant = ProductVariant.query.get_or_404(variant_id)
-    variant.stock_quantity += quantity
-    db.session.commit()
+    quantity_available = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
+    )

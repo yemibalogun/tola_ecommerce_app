@@ -5,6 +5,7 @@ from app.extensions.login import login_manager
 from app.extensions.cache import cache
 from sqlalchemy import create_engine, text
 import re, os
+from datetime import datetime
 
 migrate = Migrate()
 
@@ -38,6 +39,15 @@ def create_app(config_name: str = "development") -> Flask:
 
     app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
+    @app.context_processor
+    def inject_current_year():
+        "Injects the current year into all Jinja templates."
+        try:
+            return {"current_year": datetime.utcnow().year}
+        except Exception:
+            # Extremely defensive fallback to avoid to avoid template crashs
+            return {"current_year": "2026"}
+        
     # ---- Core Flask config ----
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
 

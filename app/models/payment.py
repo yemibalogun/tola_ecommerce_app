@@ -5,13 +5,35 @@ from .base import BaseModel
 
 class Payment(BaseModel):
     """
-    Payment record independent of provider.
+    Tenant-scoped payment record.
     """
 
-    order_id = Column(Integer, ForeignKey("order.id"), nullable=False)
-    provider = Column(String(50))  # stripe, paystack, flutterwave
-    reference = Column(String(255), unique=True)
+    tenant_id = Column(
+        Integer,
+        ForeignKey("tenant.id"),
+        nullable=False,
+        index=True
+    )
+
+    order_id = Column(
+        Integer,
+        ForeignKey("order.id"),
+        nullable=False
+    )
+
+    provider = Column(String(50), nullable=False)  # stripe, paystack, flutterwave
+
+    reference = Column(
+        String(255),
+        unique=True,
+        nullable=False
+    )
+
     amount = Column(Numeric(10, 2), nullable=False)
-    status = Column(String(50))  # initiated, success, failed
+
+    status = Column(
+        String(50),
+        nullable=False
+    )  # initiated, success, failed
 
     order = relationship("Order", back_populates="payment")
