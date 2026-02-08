@@ -8,10 +8,6 @@ from app.models.category import Category
 from flask_login import login_required
 
 
-@web_bp.route("/test-css")
-def test_css():
-    return send_from_directory("static/css", "style.css")
-
 @web_bp.route("/")
 def home():
     products = Product.query.limit(8).all()
