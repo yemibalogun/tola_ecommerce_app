@@ -513,24 +513,25 @@
               <h2 class="display-7">Shop Our Insta</h2>
             </div>
 
-            <div class="d-flex flex-wrap">
-              { % for product in products %}
-                <figure class="instagram-item pe-2">
-                  <a href="{{ url_for('product_detail', product_id=product.id) }}" class="image-link position-relative">
-                    <img src="{{ url_for('static', filename='uploads/products/' ~ product.image_filename) }}" alt="instagram" class="insta-image">
-                    <div class="icon-overlay position-absolute d-flex justify-content-center">
-                      <svg class="instagram">
-                        <use xlink:href="#instagram"></use>
-                      </svg>
-                    </div>
-                  </a>
-                </figure>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </section>
-{% endblock %}  
+            
+              <div class="d-flex flex-wrap">
+                  {% for product in products %}
+                  <figure class="instagram-item pe-2">
+                      <a href="{{ url_for('product_detail', product_id=product.id) }}" class="image-link position-relative">
+                          <img src="{{ url_for('static', filename='uploads/products/' ~ product.image_filename) }}"
+                              alt="{{ product.name }}" class="insta-image">
+                          <div class="icon-overlay position-absolute d-flex justify-content-center">
+                              <svg class="instagram">
+                                  <use xlink:href="#instagram"></use>
+                              </svg>
+                          </div>
+                      </a>
+                  </figure>
+                  {% endfor %}
+              </div>
+            
+
+{% endblock %}
       
       <script src="js/jquery-1.11.0.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
