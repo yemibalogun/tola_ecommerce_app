@@ -53,6 +53,19 @@
 
     }
 
+    var testimonialSwiper = new Swiper(".testimonial-swiper", {
+      loop: true,
+      navigation: {
+        nextEl: ".swiper-arrow-next",
+        prevEl: ".swiper-arrow-prev",
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+    });
+
+
     $(document).ready(function() {
 
       searchPopup();

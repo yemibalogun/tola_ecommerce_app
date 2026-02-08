@@ -1,17 +1,43 @@
-from flask import render_template, request, send_from_directory
+from flask import render_template, request, flash, url_for, send_from_directory, redirect
 from app.models.product import Product
+from app.models.testimonial import Testimonial
 from app.web import web_bp
+from app.extensions.db import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_
 from typing import List
 from app.models.category import Category
-from flask_login import login_required
+from app.web.forms import TestimonialForm
+from flask_login import login_required, current_user
 
 
 @web_bp.route("/")
 def home():
     products = Product.query.limit(8).all()
-    return render_template("index.html", products=products)
+    testimonials = Testimonial.query.order_by(Testimonial.created_at.desc()).limit(5).all()
+    return render_template("index.html", products=products, testimonials=testimonials)
+
+@web_bp.route("/testimonial/new", methods=["GET", "POST"])
+@login_required  # optional, depending on whether you want to allow anonymous testimonials
+def new_testimonial():
+    if not current_user.is_admin:
+        flash("You are not authorised.", "danger")
+        return redirect(url_for("web.home"))
+    
+    form = TestimonialForm()
+    if form.validate_on_submit():
+        testimonial = Testimonial()
+        testimonial.author_name=form.author_name.data or "Anonymous"
+        testimonial.content=form.content.data or ""
+        testimonial.rating=form.rating.data or 5
+        testimonial.tenant_id = current_user.tenant_id  # ensure tenant scoping
+        
+        db.session.add(testimonial)
+        db.session.commit()
+        flash("Thank you! Your testimonial has been submitted.", "success")
+        return redirect(url_for("web.home"))
+
+    return render_template("new_testimonial.html", form=form)
 
 @web_bp.route("/user", methods=["GET"])
 @login_required  # optional
