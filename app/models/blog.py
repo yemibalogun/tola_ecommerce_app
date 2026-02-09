@@ -24,9 +24,6 @@ class Blog(BaseModel):
     # Store image path relative to /static
     image_path: Mapped[Optional[str]] = mapped_column(String(255))
 
-    # Optional: relationship back to tenant
-    tenant = relationship("Tenant", back_populates="blogs")
-
     __table_args__ = (
         db.UniqueConstraint("tenant_id", "slug", name="uq_blog_tenant_slug"),
     )

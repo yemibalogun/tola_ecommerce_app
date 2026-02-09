@@ -55,3 +55,31 @@ def increase_stock(tenant_id: int, variant_id: int, quantity: int) -> None:
 
     inventory.quantity_available += quantity
     db.session.commit()
+
+
+def apply_inventory_delta(variant: ProductVariant, delta: int) -> None:
+    """
+    Apply a stock change to a product variant.
+
+    - Positive delta increases stock
+    - Negative delta decreases stock
+    - Prevents stock from going below zero
+    """
+
+    if variant is None:
+        raise ValueError("Variant is required")
+
+    if delta == 0:
+        raise ValueError("Delta cannot be zero")
+
+    new_quantity: int = variant.stock_quantity + delta
+
+    # Prevent negative stock
+    if new_quantity < 0:
+        raise ValueError("Inventory cannot go below zero")
+
+    variant.stock_quantity = new_quantity
+
+    db.session.add(variant)
+    db.session.commit()
+
