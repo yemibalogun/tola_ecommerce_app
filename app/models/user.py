@@ -14,6 +14,11 @@ class User(BaseModel, UserMixin):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     tenant_id: Mapped[int] = mapped_column(ForeignKey("tenant.id"), nullable=False)
+    is_tenant_admin_flag: Mapped[bool] = mapped_column(
+        Boolean, 
+        default=False, 
+        nullable=False
+    )
 
     # Relationships
     tenant = relationship("Tenant", back_populates="users")
@@ -25,3 +30,8 @@ class User(BaseModel, UserMixin):
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
+
+    # Tenant admin convenience property
+    @property
+    def is_tenant_admin(self) -> bool:
+        return bool(self.is_tenant_admin_flag)

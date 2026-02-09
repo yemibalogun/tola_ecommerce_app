@@ -14,10 +14,10 @@ from app.models.blog import Blog
 from app.admin.forms import BlogForm
 from app.utils.blog_utils import save_blog_image
 from app.utils.slug import generate_slug
-from app.web import web_blog_bp
+from app.admin import admin_bp
 
 
-@web_blog_bp.route("/blogs/create", methods=["GET", "POST"])
+@admin_bp.route("/blogs/create", methods=["GET", "POST"])
 @login_required
 def create_blog():
     if not current_user.tenant_id or not current_user.is_tenant_admin:
@@ -54,18 +54,3 @@ def create_blog():
 
     return render_template("admin/blogs/create.html", form=form)
 
-@web_blog_bp.route("/blogs")
-def list_blogs():
-    tenant_id = getattr(current_user, "tenant_id", None)
-
-    if not tenant_id:
-        blogs = []
-    else:
-        blogs = (
-            Blog.query
-            .filter_by(tenant_id=tenant_id)
-            .order_by(Blog.created_at.desc())
-            .all()
-        )
-
-    return render_template("blogs/list.html", blogs=blogs)

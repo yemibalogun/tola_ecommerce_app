@@ -127,15 +127,8 @@ def contact():
     except Exception as exc:
         return f"Error loading Contact page: {exc}", 500
 
-@web_bp.route("/blogs")
-def blog():
-        blogs = (
-            Blog.query.order_by(Blog.created_at.desc()).limit(6).all()
-        )
-    
-        return render_template("blog.html", blogs=blogs)
 
-@web_blog_bp.route("/blogs")
+@web_bp.route("/blogs")
 def list_blogs():
     tenant_id = getattr(current_user, "tenant_id", None)
 
@@ -149,7 +142,7 @@ def list_blogs():
             .all()
         )
 
-    return render_template("blogs/list.html", blogs=blogs)
+    return render_template("blog.html", blogs=blogs)
 
 
 @web_blog_bp.route("/blogs/<slug>")

@@ -7,8 +7,13 @@ admin_bp: Blueprint = Blueprint(
     url_prefix="/admin",
 )
 
+product_bp = Blueprint("admin_products", 
+                       __name__, 
+                       url_prefix="/admin/products"
+                    )
+
+
 # Import route modules so their view functions get registered
 # NOTE: imports are at the bottom to avoid circular imports
-from app.admin.routes import products  # noqa: E402
+from app.admin.routes import *
 
-__all__: list[str] = ["admin_bp"]

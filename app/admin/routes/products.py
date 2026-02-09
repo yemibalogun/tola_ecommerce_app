@@ -11,8 +11,8 @@ from sqlalchemy.exc import IntegrityError
 import re
 from app.utils.uploads import save_product_image
 from werkzeug.datastructures import FileStorage
+from app.admin import product_bp
 
-product_bp = Blueprint("admin_products", __name__, url_prefix="/admin/products")
 
 def slugify(name: str) -> str:
     """Generate a simple slug from a name."""

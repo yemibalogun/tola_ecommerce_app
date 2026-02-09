@@ -1,12 +1,9 @@
 # app/admin/routes/dashboard.py
 
-from flask import Blueprint, render_template
+from flask import  render_template
 from flask_login import login_required
 from app.admin.decorators import admin_required
-
-# This must be named admin_bp
-admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
-
+from app.admin import admin_bp
 
 @admin_bp.route("/dashboard")
 @login_required
