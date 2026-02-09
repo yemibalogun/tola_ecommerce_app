@@ -747,6 +747,10 @@ h3.cart-title {
     height: 45px;
     fill: var(--light-gray-color);
 }
+
+.submit-testimonial {
+  max-width: 767px;
+}
 .review-content .swiper-arrow {
     top: 0;
     bottom: 0;
@@ -757,6 +761,10 @@ h3.cart-title {
 }
 .review-content .quotation svg.quote {
     color: var(--light-blue-color);
+}
+
+.leave-testimonial {
+  padding: 1.5em;
 }
 
 @media only screen and (max-width: 767px) {

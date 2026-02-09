@@ -3,28 +3,30 @@
 {% block title %}Submit Testimonial{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="container my-5">
-    <h2 class="mb-4">Submit a Testimonial</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="mb-3">
-            {{ form.author_name.label(class="form-label") }}
-            {{ form.author_name(class="form-control") }}
+<section id="new-testimonial" class="padding-large">
+    <div class="container">
+        <div class="container my-5">
+            <h2 class="mb-4">Submit a Testimonial</h2>
+            <form method="POST" class="submit-testimonial">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.author_name.label(class="form-label") }}
+                    {{ form.author_name(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.content.label(class="form-label") }}
+                    {{ form.content(class="form-control", rows=4) }}
+                </div>
+                <div class="mb-3">
+                    {{ form.rating.label(class="form-label") }}
+                    {{ form.rating(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
         </div>
-        <div class="mb-3">
-            {{ form.content.label(class="form-label") }}
-            {{ form.content(class="form-control", rows=4) }}
-        </div>
-        <div class="mb-3">
-            {{ form.rating.label(class="form-label") }}
-            {{ form.rating(class="form-control") }}
-        </div>
-        <div class="mb-3">
-            {{ form.submit(class="btn btn-primary") }}
-        </div>
-    </form>
-</div>
-</div>
+    </div>
+</section>
 
 {% endblock %}

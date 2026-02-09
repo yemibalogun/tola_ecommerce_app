@@ -9,7 +9,7 @@ from wtforms import (
     IntegerField,
     BooleanField,
 )
-from wtforms.validators import DataRequired, Optional, NumberRange, Email
+from wtforms.validators import DataRequired, Optional, NumberRange, Email, Length
 from flask_wtf.file import FileField, FileAllowed
 
 
@@ -75,3 +75,16 @@ class InventoryAdjustForm(FlaskForm):
 
     delta = IntegerField(validators=[DataRequired()])
     submit = SubmitField()
+
+class BlogForm(FlaskForm):
+    title = StringField(
+        "Title",
+        validators=[DataRequired(), Length(max=200)]
+    )
+
+    content = TextAreaField(
+        "Content",
+        validators=[DataRequired()]
+    )
+
+    image = FileField("Featured Image")

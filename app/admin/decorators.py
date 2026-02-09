@@ -11,3 +11,4 @@ def admin_required(func):
             abort(403)  # Forbidden
         return func(*args, **kwargs)
     return wrapper
+

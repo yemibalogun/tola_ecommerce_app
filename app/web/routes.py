@@ -1,7 +1,8 @@
 from flask import render_template, request, flash, url_for, send_from_directory, redirect
 from app.models.product import Product
 from app.models.testimonial import Testimonial
-from app.web import web_bp
+from app.models.blog import Blog
+from app.web import web_bp, web_blog_bp
 from app.extensions.db import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_
@@ -128,33 +129,41 @@ def contact():
 
 @web_bp.route("/blogs")
 def blog():
-    """
-    Blog landing page.
-    Currently renders static posts.
-    Can be upgraded to DB-backed posts later.
-    """
-    try:
-        # Temporary static data to avoid DB coupling for now
-        posts: list[dict[str, str]] = [
-            {
-                "title": "Building Scalable E-commerce with Flask",
-                "excerpt": "Lessons learned while designing a modular Flask-based SaaS architecture.",
-                "slug": "scalable-ecommerce-with-flask",
-                "date": "Jan 2026",
-            },
-            {
-                "title": "Why HTMX is a Game Changer",
-                "excerpt": "Reducing frontend complexity without sacrificing interactivity.",
-                "slug": "why-htmx-matters",
-                "date": "Jan 2026",
-            },
-        ]
-
-        return render_template("blog.html", posts=posts)
-
-    except Exception as exc:
-        return f"Error loading Blog page: {exc}", 500
+        blogs = (
+            Blog.query.order_by(Blog.created_at.desc()).limit(6).all()
+        )
     
+        return render_template("blog.html", blogs=blogs)
+
+@web_blog_bp.route("/blogs")
+def list_blogs():
+    tenant_id = getattr(current_user, "tenant_id", None)
+
+    if not tenant_id:
+        blogs = []
+    else:
+        blogs = (
+            Blog.query
+            .filter_by(tenant_id=tenant_id)
+            .order_by(Blog.created_at.desc())
+            .all()
+        )
+
+    return render_template("blogs/list.html", blogs=blogs)
+
+
+@web_blog_bp.route("/blogs/<slug>")
+def blog_detail(slug: str):
+    tenant_id = getattr(current_user, "tenant_id", None)
+
+    blog = (
+        Blog.query
+        .filter_by(slug=slug, tenant_id=tenant_id)
+        .first_or_404()
+    )
+
+    return render_template("blogs/detail.html", blog=blog)
+
 
 @web_bp.route("/shop")
 def shop():

@@ -3,6 +3,8 @@ import uuid
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from flask import current_app
+from typing import Optional
+
 
 
 def save_product_image(file: FileStorage) -> str:
@@ -30,3 +32,4 @@ def save_product_image(file: FileStorage) -> str:
 
     # Store relative path in DB
     return f"admin/uploads/products/{new_filename}"
+

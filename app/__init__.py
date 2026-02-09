@@ -72,7 +72,7 @@ def create_app(config_name: str = "development") -> Flask:
     if config_name in ("development", "testing"):
         with app.app_context():
             # --- Import all models first ---
-            from app.models import base, tenant, user, product, order, category, product_variant, payment, order_item, inventory, testimonial
+            from app.models import base, tenant, user, product, order, category, product_variant, payment, order_item, inventory, testimonial, blog
             # --- Then create tables ---
             db.create_all()  # now all foreign keys are resolvable
 

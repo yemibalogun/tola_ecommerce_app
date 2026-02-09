@@ -25,6 +25,7 @@
                   </div>
                 </div>
               </div>
+
             </div>
             <div class="swiper-slide">
               <div class="container">
@@ -352,54 +353,40 @@
               </div>
             </div>
             <div class="post-grid d-flex flex-wrap justify-content-between">
+              {% for blog in blogs %}
               <div class="col-lg-4 col-sm-12">
                 <div class="card border-none me-3">
                   <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/post-item1.jpg') }}" alt="post-item1" class="img-fluid">
+                    <img
+                      src="{{ url_for('static', filename=blog.image) }}"
+                      alt="{{ blog.title }}"
+                      class="img-fluid"
+                    >
                   </div>
                 </div>
+
                 <div class="card-body text-uppercase">
                   <div class="card-meta text-muted">
-                    <span class="meta-date">feb 22, 2023</span>
-                    <span class="meta-category">- Gadgets</span>
+                    <span class="meta-date">
+                      {{ blog.created_at.strftime('%b %d, %Y') }}
+                    </span>
+                    <span class="meta-category">
+                      - {{ blog.category.name if blog.category else 'General' }}
+                    </span>
                   </div>
+
                   <h3 class="card-title">
-                    <a href="#">Get some cool gadgets in 2023</a>
+                    <a href="{{ url_for('web.blog_detail', slug=blog.slug) }}">
+                      {{ blog.title }}
+                    </a>
                   </h3>
                 </div>
               </div>
-              <div class="col-lg-4 col-sm-12">
-                <div class="card border-none me-3">
-                  <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/post-item2.jpg') }}" alt="" class="img-fluid">
-                  </div>
-                </div>
-                <div class="card-body text-uppercase">
-                  <div class="card-meta text-muted">
-                    <span class="meta-date">feb 25, 2023</span>
-                    <span class="meta-category">- Technology</span>
-                  </div>
-                  <h3 class="card-title">
-                    <a href="#">Technology Hack You Won't Get</a>
-                  </h3>
-                </div>
-              </div>
-              <div class="col-lg-4 col-sm-12">
-                <div class="card border-none me-3">
-                  <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/post-item3.jpg') }}" alt="" class="img-fluid">
-                  </div>
-                </div>
-                <div class="card-body text-uppercase">
-                  <div class="card-meta text-muted">
-                    <span class="meta-date">feb 22, 2023</span>
-                    <span class="meta-category">- Camera</span>
-                  </div>
-                  <h3 class="card-title">
-                    <a href="#">Top 10 Small Camera In The World</a>
-                  </h3>
-                </div>
-              </div>
+              {% else %}
+            
+                <!-- Edge case: no blogs -->
+                <p class="text-muted text-center">No blog posts yet.</p>
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -439,13 +426,23 @@
                                       </svg>
                                   {% endif %}
                               {% endfor %}
+
+                              
                           </div>
+                          
                           <div class="author-detail">
                               <div class="name text-dark text-uppercase pt-2">{{ testimonial.author_name }}</div>
                           </div>
+                          <div class="leave-testimonial">
+                            <a href="{{ url_for('web.new_testimonial') }}" class="btn btn-primary mb-4">
+                              Leave a Testimonial
+                            </a>
+                          </div>
+                          
                       </div>
                   </div>
                   {% endfor %}
+                  
               </div>
 
               </div>
@@ -457,9 +454,7 @@
             </div>
           </div>
         </div>
-        <a href="{{ url_for('web.new_testimonial') }}" class="btn btn-primary mb-4">
-            Leave a Testimonial
-        </a>
+        
         <div class="swiper-pagination"></div>
 
         

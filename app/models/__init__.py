@@ -10,5 +10,6 @@ from .payment import Payment
 from .product_variant import ProductVariant
 from .inventory import Inventory
 from .testimonial import Testimonial 
+from .blog import Blog
 
 # import all other models here
