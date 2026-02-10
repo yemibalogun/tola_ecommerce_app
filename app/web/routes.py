@@ -151,7 +151,7 @@ def blog_detail(slug: str):
 
     blog = (
         Blog.query
-        .filter_by(slug=slug, tenant_id=tenant_id)
+        .filter_by(slug=slug)
         .first_or_404()
     )
 
