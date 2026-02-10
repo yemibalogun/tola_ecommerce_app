@@ -142,10 +142,10 @@ def list_blogs():
             .all()
         )
 
-    return render_template("blog.html", blogs=blogs)
+    return render_template("/blog.html", blogs=blogs)
 
 
-@web_blog_bp.route("/blogs/<slug>")
+@web_bp.route("/blogs/<slug>")
 def blog_detail(slug: str):
     tenant_id = getattr(current_user, "tenant_id", None)
 
@@ -155,7 +155,7 @@ def blog_detail(slug: str):
         .first_or_404()
     )
 
-    return render_template("blogs/detail.html", blog=blog)
+    return render_template("web/detail.html", blog=blog)
 
 
 @web_bp.route("/shop")

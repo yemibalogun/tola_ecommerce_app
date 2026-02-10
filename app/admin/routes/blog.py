@@ -13,7 +13,7 @@ from app.extensions.db import db
 from app.models.blog import Blog
 from app.admin.forms import BlogForm
 from app.utils.blog_utils import save_blog_image
-from app.utils.slug import generate_slug
+from app.utils.slug import generate_unique_slug
 from app.admin import admin_bp
 
 
@@ -27,17 +27,15 @@ def create_blog():
 
     if form.validate_on_submit():
         try:
-            title: str | None = form.title.data
+            title: str = form.title.data.strip() if form.title.data else ""
+            image_path: str | None = None
 
-            # Explicit guard - narrows Optional[str] -> str
-            if not title:
-                raise ValueError("Blog title is required")
-            
-            image_path = save_blog_image(form.image.data)
+            if form.image.data:
+                image_path = save_blog_image(form.image.data)
 
             blog = Blog()
             blog.title=form.title.data or ""
-            blog.slug=generate_slug(title)
+            blog.slug = generate_unique_slug(title, current_user.tenant_id)
             blog.content=form.content.data or ""
             blog.image_path=image_path
             blog.tenant_id=current_user.tenant_id
@@ -46,7 +44,7 @@ def create_blog():
             db.session.commit()
 
             flash("Blog created successfully", "success")
-            return redirect(url_for("blog.list_blogs"))
+            return redirect(url_for("web.list_blogs"))
 
         except (ValueError, SQLAlchemyError) as e:
             db.session.rollback()

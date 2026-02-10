@@ -88,3 +88,5 @@ class BlogForm(FlaskForm):
     )
 
     image = FileField("Featured Image")
+
+    submit = SubmitField("Create Blog")

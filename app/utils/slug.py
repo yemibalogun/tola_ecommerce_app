@@ -1,6 +1,9 @@
 import re
 from typing import Any
 from app.extensions.db import db
+from app.models.blog import Blog
+import unicodedata
+
 
 
 def slugify(text: str) -> str:
@@ -28,30 +31,33 @@ def unique_slug(
     return slug
 
 
-def generate_slug(title: str) -> str:
-    """
-    Generate a URL-safe slug from a title.
+def generate_unique_slug(title: str, tenant_id: int) -> str:
+    """Generate a unique slug for a tenant."""
+    base_slug = generate_slug(title)
+    slug = base_slug
+    counter = 1
 
-    - Lowercases text
-    - Removes non-alphanumeric characters
-    - Collapses whitespace/dashes
-    - Guarantees non-empty output
-    """
-
-    if not title or not title.strip():
-        raise ValueError("Title is required to generate slug")
-
-    # Convert to lowercase
-    slug = title.lower().strip()
-
-    # Remove anything that isn't a letter, number, space, or dash
-    slug = re.sub(r"[^a-z0-9\s-]", "", slug)
-
-    # Replace whitespace with single dashes
-    slug = re.sub(r"\s+", "-", slug)
-
-    # Collapse multiple dashes
-    slug = re.sub(r"-{2,}", "-", slug)
+    # Check for existing slug in the tenant
+    while Blog.query.filter_by(tenant_id=tenant_id, slug=slug).first():
+        slug = f"{base_slug}-{counter}"
+        counter += 1
 
     return slug
+
+
+def generate_slug(title: str) -> str:
+    """
+    Generate a URL-friendly slug from a title.
+    Converts to lowercase, removes non-alphanumeric chars, replaces spaces with '-'.
+    """
+    # Normalize unicode chars
+    title = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode("ascii")
+    # Lowercase
+    title = title.lower()
+    # Remove non-alphanumeric characters except spaces
+    title = re.sub(r"[^a-z0-9\s-]", "", title)
+    # Replace spaces and repeated dashes with single dash
+    title = re.sub(r"[\s-]+", "-", title).strip("-")
+    return title
+
 

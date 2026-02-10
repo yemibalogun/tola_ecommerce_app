@@ -9,18 +9,21 @@
         </p>
 
         <div class="blog-list">
-            {% for post in posts %}
+            {% if blogs %}
+            {% for blog in blogs %}
                 <article class="blog-card">
-                    <h2>{{ post.title }}</h2>
-                    <small class="date">{{ post.date }}</small>
-                    <p>{{ post.excerpt }}</p>
+                    <h2>{{ blog.title }}</h2>
+                    <small class="date">{{ blog.date }}</small>
+                    <p>{{ blog.excerpt }}</p>
 
                     {# Placeholder link – wire to slug-based route later #}
-                    <a href="#" class="read-more">Read more →</a>
+                    <a href="{{ url_for('web.blog_detail', slug=blog.slug) }}" class="read-more">Read more →</a>
+
                 </article>
             {% else %}
                 <p>No blog posts available yet.</p>
             {% endfor %}
+            {% endif %}
         </div>
     </div>
 </section>
