@@ -53,32 +53,12 @@
 
     }
 
-    var testimonialSwiper = new Swiper(".testimonial-swiper", {
-      loop: true,
-      navigation: {
-        nextEl: ".swiper-arrow-next",
-        prevEl: ".swiper-arrow-prev",
-      },
-      pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-      },
-    });
-
 
     $(document).ready(function() {
 
       searchPopup();
       initProductQty();
-
-      var swiper = new Swiper(".main-swiper", {
-        speed: 500,
-        navigation: {
-          nextEl: ".swiper-arrow-prev",
-          prevEl: ".swiper-arrow-next",
-        },
-      });         
-
+      
       var swiper = new Swiper(".product-swiper", {
         slidesPerView: 4,
         spaceBetween: 10,
@@ -117,14 +97,35 @@
         },
       }); 
 
-      var swiper = new Swiper(".testimonial-swiper", {
+      var testimonialSwiper = new Swiper(".testimonial-swiper", {
+
+        slidesPerView: 1,
+        spaceBetween: 30,
+        centeredSlides: true,
+
         loop: true,
-        navigation: {
-          nextEl: ".swiper-arrow-prev",
-          prevEl: ".swiper-arrow-next",
+
+        autoplay: {
+          delay: 4000,
+          disableOnInteraction: false,
         },
-      }); 
+
+        speed: 800,
+
+        navigation: {
+          nextEl: ".swiper-arrow-next",
+          prevEl: ".swiper-arrow-prev",
+        },
+
+        pagination: {
+          el: ".swiper-pagination",
+          clickable: true,
+        }
+
+      });
+
 
     }); // End of a document ready
 
+    
 })(jQuery);

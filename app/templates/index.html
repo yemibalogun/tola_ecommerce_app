@@ -329,6 +329,7 @@
         </div>
         <div class="swiper-pagination position-absolute text-center"></div>
       </section>
+      
       <section id="yearly-sale" class="bg-light-blue overflow-hidden mt-5 padding-xlarge" style="background-image: url('images/single-image1.png');background-position: right; background-repeat: no-repeat;">
         <div class="row d-flex flex-wrap align-items-center">
           <div class="col-md-6 col-sm-12">
@@ -416,7 +417,10 @@
                   <svg class="quote">
                     <use xlink:href="#quote" />
                   </svg>
+                  <div class="swiper-pagination"></div>
                 </div>
+
+                <p>Total testimonials: {{ testimonials|length }}</p>
 
                 <div class="swiper-wrapper">
                   {% for testimonial in testimonials %}
@@ -465,7 +469,7 @@
           </div>
         </div>
         
-        <div class="swiper-pagination"></div>
+        
 
         
 
