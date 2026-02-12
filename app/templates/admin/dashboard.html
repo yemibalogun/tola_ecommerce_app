@@ -3,15 +3,95 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2>Dashboard</h2>
+<h1 style="margin-bottom: 25px;">Dashboard Overview</h1>
 
-<div class="stats">
-    <!-- admin/products/list.html -->
-    <div>
-        <a href="{{ url_for('admin_products.create_product') }}" class="btn btn-primary">Add Product</a>
-    </div> 
-    <div class="card">Products: {{ product_count }}</div>
-    <div class="card">Orders: {{ order_count }}</div>
-    <div class="card">Revenue: ₦{{ revenue }}</div>
+<!-- Metric Cards -->
+<div class="dashboard-grid">
+    <div class="card">
+        <h3>Total Products</h3>
+        <p>{{ total_products }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Categories</h3>
+        <p>{{ total_categories }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Orders</h3>
+        <p>{{ total_orders }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Revenue</h3>
+        <p>₦{{ "%.2f"|format(revenue) }}</p>
+    </div>
 </div>
+
+<!-- Recent Orders -->
+<div class="section">
+    <h2>Recent Orders</h2>
+
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in recent_orders %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('admin_orders.view_order', order_id=order.id) }}">
+                        #{{ order.id }}
+                    </a>
+                </td>
+                <td>
+                    <span class="badge {{ order.status }}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>₦{{ "%.2f"|format(order.total_amount) }}</td>
+                <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">No recent orders.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Low Stock -->
+<div class="section">
+    <h2>Low Stock Variants</h2>
+
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for variant in low_stock_variants %}
+            <tr>
+                <td>{{ variant.product.name }}</td>
+                <td>{{ variant.sku }}</td>
+                <td>{{ variant.stock }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">All stock levels are healthy.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 {% endblock %}
