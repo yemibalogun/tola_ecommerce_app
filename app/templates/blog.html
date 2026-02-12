@@ -1,29 +1,66 @@
 {% extends "layouts/base.html" %}
 
 {% block content %}
-<section class="blog-page">
+<section class="blog-page padding-large">
     <div class="container">
-        <h1>Blog</h1>
-        <p class="subtitle">
-            Insights, updates, and deep dives into building modern web systems.
-        </p>
 
-        <div class="blog-list">
+        <div class="display-header pb-4 text-center">
+            <h1 class="display-6 text-uppercase">Blog</h1>
+            <p class="text-muted">
+                Insights, updates, and deep dives into building modern web systems.
+            </p>
+        </div>
+
+        <div class="row g-4">
+
             {% if blogs %}
-            {% for blog in blogs %}
-                <article class="blog-card">
-                    <h2>{{ blog.title }}</h2>
-                    <small class="date">{{ blog.date }}</small>
-                    <p>{{ blog.excerpt }}</p>
+                {% for blog in blogs %}
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="card blog-card h-100 border-0 shadow-sm">
 
-                    {# Placeholder link – wire to slug-based route later #}
-                    <a href="{{ url_for('web.blog_detail', slug=blog.slug) }}" class="read-more">Read more →</a>
+                        {% if blog.image_path %}
+                        <div class="blog-card-image">
+                            <img 
+                                src="{{ url_for('static', filename=blog.image_path) }}"
+                                alt="{{ blog.title }}"
+                                class="img-fluid">
+                        </div>
+                        {% endif %}
 
-                </article>
+                        <div class="card-body d-flex flex-column">
+                            
+                            <div class="blog-meta text-muted mb-2">
+                                {{ blog.created_at.strftime('%b %d, %Y') }}
+                            </div>
+
+                            <h3 class="card-title h5">
+                                <a href="{{ url_for('web.blog_detail', slug=blog.slug) }}" 
+                                   class="text-dark text-decoration-none">
+                                    {{ blog.title }}
+                                </a>
+                            </h3>
+
+                            <p class="card-text text-muted">
+                                {{ blog.excerpt or blog.content[:140] ~ '...' }}
+                            </p>
+
+                            <div class="mt-auto">
+                                <a href="{{ url_for('web.blog_detail', slug=blog.slug) }}" 
+                                   class="btn btn-sm btn-outline-primary text-uppercase">
+                                    Read More
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             {% else %}
-                <p>No blog posts available yet.</p>
-            {% endfor %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">No blog posts available yet.</p>
+                </div>
             {% endif %}
+
         </div>
     </div>
 </section>

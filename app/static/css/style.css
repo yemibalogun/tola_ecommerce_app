@@ -72,6 +72,11 @@ CSS STRUCTURE:
 html {
   box-sizing: border-box;
 }
+
+main {
+    padding-top: 100px;
+}
+
 body {
   font-family: var(--body-font);
   font-size: 14px;
@@ -1026,4 +1031,88 @@ figure.instagram-item img.insta-image {
 .post-navigation:hover svg,
 .post-navigation:focus svg {
     fill: var(--primary-color);
+}
+
+/* Blog Detail Page */
+.blog-detail-page {
+    padding: 60px 0;
+}
+
+.blog-post {
+    max-width: 800px;          /* Standard readable blog width */
+    margin: 0 auto;            /* Center content */
+}
+
+.blog-post h1 {
+    margin-bottom: 10px;
+}
+
+.blog-post .date {
+    display: block;
+    margin-bottom: 30px;
+    color: #777;
+}
+
+/* Blog Image Container */
+.blog-image {
+    margin: 30px 0;
+    text-align: center;
+}
+
+/* Standardized Blog Image */
+.blog-image img {
+    width: 100%;               /* Responsive */
+    max-width: 800px;          /* Prevents over-stretching */
+    height: auto;         /* Standard blog hero height */
+    max-height: none;         /* Prevent distortion */
+    border-radius: 8px;        /* Modern look */
+}
+
+/* Blog Content */
+.blog-content {
+    line-height: 1.8;
+    font-size: 16px;
+    color: #333;
+}
+
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+}
+
+
+/* Blog Listing Page */
+.blog-page {
+    padding: 60px 0;
+}
+
+/* Card Image (Smaller than blog-detail hero image) */
+.blog-card-image {
+    overflow: hidden;
+}
+
+.blog-card-image img {
+    width: 100%;
+    height: 200px;         /* Smaller fixed height */
+    object-fit: cover;     /* Prevent distortion */
+    border-radius: 6px 6px 0 0;
+    transition: transform 0.3s ease;
+}
+
+.blog-card:hover .blog-card-image img {
+    transform: scale(1.05);   /* Subtle hover zoom */
+}
+
+/* Typography spacing */
+.blog-meta {
+    font-size: 0.85rem;
+}
+
+.blog-card h3 {
+    margin-bottom: 10px;
+}
+
+.blog-card p {
+    font-size: 0.95rem;
 }

@@ -13,10 +13,40 @@ from flask_login import login_required, current_user
 
 
 @web_bp.route("/")
-def home():
-    products = Product.query.limit(8).all()
-    testimonials = Testimonial.query.order_by(Testimonial.created_at.desc()).limit(5).all()
-    return render_template("index.html", products=products, testimonials=testimonials)
+def home() -> str:
+    try:
+        products = Product.query.limit(8).all()
+
+        testimonials = (
+            Testimonial.query
+            .order_by(Testimonial.created_at.desc())
+            .limit(5)
+            .all()
+        )
+
+        # Fetch latest 3 blogs
+        blogs = (
+            Blog.query
+            .order_by(Blog.created_at.desc())
+            .limit(3)  # Show only latest 3 on homepage
+            .all()
+        )
+
+        return render_template(
+            "index.html",
+            products=products,
+            testimonials=testimonials,
+            blogs=blogs  # <-- THIS WAS MISSING
+        )
+
+    except Exception as e:
+        print(f"Home route error: {e}")
+        return render_template(
+            "index.html",
+            products=[],
+            testimonials=[],
+            blogs=[]
+        )
 
 @web_bp.route("/testimonial/new", methods=["GET", "POST"])
 @login_required  # optional, depending on whether you want to allow anonymous testimonials
