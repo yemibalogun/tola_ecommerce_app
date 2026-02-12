@@ -40,7 +40,7 @@ def create_product():
     # Defensive check: admin must belong to a tenant
     if not current_user.tenant_id:
         flash("Tenant context missing", "danger")
-        return redirect(url_for("admin_products.list_products"))
+        return redirect("admin/products/list.html")
     
     form = ProductForm()
 
@@ -140,7 +140,9 @@ def edit_product(product_id: int):
     # Defensive check - no categories exist
     if not categories:
         flash("Please create a category before adding products.", "warning")
-        return redirect(url_for("admin_categories.create_category"))
+        return redirect(
+            url_for("admin_categories.create_category")
+        )
 
     # Populate select field choices
     form.category_id.choices = [
@@ -182,7 +184,7 @@ def edit_product(product_id: int):
 
             db.session.commit()
             flash("Product updated successfully", "success")
-            return redirect(url_for("admin_products.list_products"))
+            return redirect("admin/products/list.html")
         
         except IntegrityError as e:
             db.session.rollback()
@@ -285,7 +287,7 @@ def manage_variants(product_id: int):
     ).all()
 
     return render_template(
-        "admin/products/variants.html",
+        url_for("admin_products.manage_variants", product_id=product.id),
         product=product,
         variants=variants,
         form=form,
