@@ -343,54 +343,64 @@
           </div>
         </div>
       </section>
+      
       <section id="latest-blog" class="padding-large">
         <div class="container">
-          <div class="row">
-            <div class="display-header d-flex justify-content-between pb-3">
-              <h2 class="display-7 text-dark text-uppercase">Latest Posts</h2>
-              <div class="btn-right">
-                <a href="{{ url_for('web.list_blogs') }}" class="btn btn-medium btn-normal text-uppercase">Read Blog</a>
-              </div>
+          <div class="display-header d-flex justify-content-between pb-3">
+            <h2 class="display-7 text-dark text-uppercase">Latest Posts</h2>
+            <div class="btn-right">
+              <a href="{{ url_for('web.list_blogs') }}" class="btn btn-medium btn-normal text-uppercase">Read Blog</a>
             </div>
-            <div class="post-grid d-flex flex-wrap justify-content-between">
+          </div>
+
+          <div class="post-grid row g-4">
+            {% if blogs %}
               {% for blog in blogs %}
-              <div class="col-lg-4 col-sm-12">
-                <div class="card border-none me-3">
-                  <div class="card-image">
-                    <img
-                      src="{{ url_for('static', filename=blog.image) }}"
-                      alt="{{ blog.title }}"
-                      class="img-fluid"
-                    >
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                  <div class="card h-100 border-0 shadow-sm">
+                    
+                    {% if blog.image_path %}
+                      <div class="card-image">
+                        <img 
+                          src="{{ url_for('static', filename=blog.image_path) }}" 
+                          alt="{{ blog.title }}" 
+                          class="img-fluid" 
+                          style="max-height: 200px; object-fit: cover; width: 100%;">
+                      </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                      <div class="card-meta text-muted mb-2">
+                        <span class="meta-date">{{ blog.created_at.strftime('%b %d, %Y') }}</span>
+                        <span class="meta-category"> - {{ blog.category.name if blog.category else 'General' }}</span>
+                      </div>
+                      
+                      <h3 class="card-title h5">
+                        <a href="{{ url_for('web.blog_detail', slug=blog.slug) }}" class="text-dark text-decoration-none">
+                          {{ blog.title }}
+                        </a>
+                      </h3>
+                      
+                      <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;">
+                        {{ blog.excerpt or blog.content[:120] }}…
+                      </p>
+
+                      <a href="{{ url_for('web.blog_detail', slug=blog.slug) }}" class="btn btn-sm btn-outline-primary text-uppercase">
+                        Read More
+                      </a>
+                    </div>
                   </div>
                 </div>
-
-                <div class="card-body text-uppercase">
-                  <div class="card-meta text-muted">
-                    <span class="meta-date">
-                      {{ blog.created_at.strftime('%b %d, %Y') }}
-                    </span>
-                    <span class="meta-category">
-                      - {{ blog.category.name if blog.category else 'General' }}
-                    </span>
-                  </div>
-
-                  <h3 class="card-title">
-                    <a href="{{ url_for('web.blog_details', slug=blog.slug) }}">
-                      {{ blog.title }}
-                    </a>
-                  </h3>
-                </div>
-              </div>
-              {% else %}
-            
-                <!-- Edge case: no blogs -->
-                <p class="text-muted text-center">No blog posts yet.</p>
               {% endfor %}
-            </div>
+            {% else %}
+              <div class="col-12 text-center py-5">
+                <p class="text-muted">No blog posts yet.</p>
+              </div>
+            {% endif %}
           </div>
         </div>
       </section>
+
 
       <section id="testimonials" class="position-relative">
         <div class="container">

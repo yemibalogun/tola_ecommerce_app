@@ -130,19 +130,17 @@ def contact():
 
 @web_bp.route("/blogs")
 def list_blogs():
+    # If user is logged in, filter by tenant
     tenant_id = getattr(current_user, "tenant_id", None)
+    
+    query = Blog.query.order_by(Blog.created_at.desc())
 
-    if not tenant_id:
-        blogs = []
-    else:
-        blogs = (
-            Blog.query
-            .filter_by(tenant_id=tenant_id)
-            .order_by(Blog.created_at.desc())
-            .all()
-        )
-
-    return render_template("/blog.html", blogs=blogs)
+    if tenant_id:
+        query = query.filter_by(tenant_id=tenant_id)
+    
+    blogs = query.all()
+    
+    return render_template("blog.html", blogs=blogs)
 
 
 @web_bp.route("/blogs/<slug>")
@@ -155,7 +153,7 @@ def blog_detail(slug: str):
         .first_or_404()
     )
 
-    return render_template("web/detail.html", blog=blog)
+    return render_template("/detail.html", blog=blog)
 
 
 @web_bp.route("/shop")
