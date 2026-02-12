@@ -24,6 +24,13 @@ auth_bp = Blueprint(
     url_prefix="/admin/auth"
 )
 
+orders_bp = Blueprint(
+    "admin_orders",
+    __name__,
+    url_prefix="/admin/orders"
+)
+
+
 # Import route modules so their view functions get registered
 # NOTE: imports are at the bottom to avoid circular imports
 from app.admin.routes import *

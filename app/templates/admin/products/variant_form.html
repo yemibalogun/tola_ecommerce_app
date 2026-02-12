@@ -1,3 +1,7 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block content %}
+
 <h3>{{ variant and "Edit" or "Add" }} Variant – {{ product.name }}</h3>
 
 <form method="post" enctype="multipart/form-data">
@@ -46,3 +50,7 @@
 
   {{ form.submit(class="btn btn-primary") }}
 </form>
+
+<a href="{{ url_for('admin_products.edit_product', product_id=product.id) }}" class="btn btn-secondary mt-3">Back to Product</a>
+
+{% endblock %}

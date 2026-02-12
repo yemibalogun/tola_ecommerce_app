@@ -18,8 +18,8 @@
         <ul>
             <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
             <li><a href="{{ url_for('admin_products.list_products') }}">Products</a></li>
-            <li><a href="#">Categories</a></li>
-            <li><a href="#">Orders</a></li>
+            <li><a href="{{ url_for('admin_categories.list_categories') }}">Categories</a></li>
+            <li><a href="{{ url_for('admin_orders.list_orders') }}">Orders</a></li>
         </ul>
     </aside>
 

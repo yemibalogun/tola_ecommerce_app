@@ -22,7 +22,7 @@ def list_variants(product_id: int):
     ).all()
 
     return render_template(
-        "admin/variants/list.html",
+        "admin/products/list.html",
         product=product,
         variants=variants,
     )
@@ -52,7 +52,7 @@ def create_variant(product_id: int):
             if not name or not sku:
                 flash("Name and SKU are required", "danger")
                 return render_template(
-                    "admin/variants/variant_form.html",
+                    "admin/products/variant_form.html",
                     form=form,
                     product=product,
                 )
@@ -88,7 +88,7 @@ def create_variant(product_id: int):
             flash("SKU already exists", "danger")
 
     return render_template(
-        "admin/variants/variant_form.html",
+        "admin/products/variant_form.html",
         form=form,
         product=product,
     )
@@ -117,7 +117,7 @@ def edit_variant(variant_id: int):
         if not name or not sku:
             flash("Name and SKU are required", "danger")
             return render_template(
-                "admin/product/variant_form.html",
+                "admin/products/variant_form.html",
                 form=form,
                 variant=variant,
                 product=variant.product
@@ -159,7 +159,7 @@ def edit_variant(variant_id: int):
         )
 
     return render_template(
-        "admin/product/variant_form.html",
+        "admin/products/variant_form.html",
         form=form,
         variant=variant,
         product=variant.product
