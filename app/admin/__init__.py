@@ -12,6 +12,17 @@ product_bp = Blueprint("admin_products",
                        url_prefix="/admin/products"
                     )
 
+admin_categories = Blueprint(
+    "admin_categories",
+    __name__,
+    url_prefix="/admin/categories",
+)
+
+auth_bp = Blueprint(
+    "auth", 
+    __name__, 
+    url_prefix="/admin/auth"
+)
 
 # Import route modules so their view functions get registered
 # NOTE: imports are at the bottom to avoid circular imports

@@ -96,3 +96,16 @@ class BlogForm(FlaskForm):
     image = FileField("Featured Image")
 
     submit = SubmitField("Create Blog")
+
+
+
+class CategoryForm(FlaskForm):
+    name = StringField(
+        "Category Name",
+        validators=[
+            DataRequired(),
+            Length(min=2, max=255),
+        ],
+    )
+
+    submit = SubmitField("Save Category")

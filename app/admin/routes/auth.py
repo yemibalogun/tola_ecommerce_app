@@ -4,8 +4,8 @@ from flask_login import login_user, logout_user, current_user
 from app.admin.forms import AdminLoginForm
 from app.models.user import User
 from werkzeug.security import check_password_hash
+from app.admin import auth_bp
 
-auth_bp = Blueprint("auth", __name__, url_prefix="/admin/auth")
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():

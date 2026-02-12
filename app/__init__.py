@@ -79,14 +79,15 @@ def create_app(config_name: str = "development") -> Flask:
     # Register blueprints
     from app.web import web_bp
     from app.api import api_bp
-    from app.admin.routes.auth import auth_bp
-    from app.admin.routes.products import product_bp
-    from app.admin.routes.dashboard import admin_bp
+    from app.admin import auth_bp, product_bp, admin_bp, admin_categories
     
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(product_bp)
+    app.register_blueprint(admin_categories)
+    
+     # Create database if it doesn't exist (PostgreSQL only)
 
     return app

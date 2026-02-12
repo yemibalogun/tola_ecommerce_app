@@ -5,7 +5,7 @@ from .base import BaseModel
 
 class Category(BaseModel):
     
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str | None] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
     # Add tenant_id

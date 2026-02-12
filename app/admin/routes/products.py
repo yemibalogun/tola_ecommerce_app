@@ -49,9 +49,16 @@ def create_product():
     categories = Category.query.filter_by(
         tenant_id=current_user.tenant_id
         ).order_by(Category.name.asc()).all()
+    
+    # Defensive check - no categories exist
+    if not categories:
+        flash("Please create a category before adding products.", "warning")
+        return redirect(url_for("admin_categories.create_category"))
 
     # Populate select field choices
-    form.category_id.choices = [(c.id, c.name) for c in categories]
+    form.category_id.choices = [
+        (c.id, c.name) for c in categories
+    ]
 
     if form.validate_on_submit():
         image_path: Optional[str] = None
@@ -129,6 +136,16 @@ def edit_product(product_id: int):
     categories = Category.query.filter_by(
         tenant_id=current_user.tenant_id
         ).order_by(Category.name.asc()).all()
+    
+    # Defensive check - no categories exist
+    if not categories:
+        flash("Please create a category before adding products.", "warning")
+        return redirect(url_for("admin_categories.create_category"))
+
+    # Populate select field choices
+    form.category_id.choices = [
+        (c.id, c.name) for c in categories
+    ]
 
     form.category_id.choices = [(c.id, c.name) for c in categories]
 
