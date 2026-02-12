@@ -71,7 +71,7 @@ def create_variant(product_id: int):
                 upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
                 os.makedirs(os.path.dirname(upload_path), exist_ok=True)
                 form.image.data.save(upload_path)
-                variant.image_filename = f"uploads/{filename}"
+                variant.image = f"uploads/{filename}"
 
             db.session.add(variant)
             db.session.commit()

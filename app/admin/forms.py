@@ -29,7 +29,13 @@ class ProductForm(FlaskForm):
     )
     slug = StringField("Slug", validators=[DataRequired()])
     description = TextAreaField("Description")
-    category_id = SelectField("Category", coerce=int)
+    category_id = SelectField(
+        "Category",
+        coerce=int,
+        validators=[DataRequired()],
+        choices=[],  # To be populated dynamically in the route
+    )
+
     is_active = BooleanField("Active", default=True)
     image = FileField(
         "Product Image",

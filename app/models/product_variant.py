@@ -1,7 +1,8 @@
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy import ForeignKey, Integer, String, Numeric, ForeignKey
+from sqlalchemy import ForeignKey, Integer, String, Numeric
 from .base import BaseModel
 from decimal import Decimal
+from app.extensions.db import db
 
 
 class ProductVariant(BaseModel):
@@ -16,10 +17,13 @@ class ProductVariant(BaseModel):
         index=True,
     )
 
-    tenant_id: Mapped[int] = mapped_column(nullable=False, index=True)
-
+    tenant_id: Mapped[int] = mapped_column(
+        ForeignKey("tenant.id"),
+        nullable=False,
+        index=True,
+    )
     name: Mapped[str] = mapped_column(String(120), nullable=False)
-    sku: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    sku: Mapped[str] = mapped_column(String(120), nullable=False)
 
     price_override: Mapped[Decimal | None] = mapped_column(
         Numeric(10, 2),
@@ -32,7 +36,11 @@ class ProductVariant(BaseModel):
         default=0,
     )
 
-    image_filename: Mapped[str] = mapped_column(String(255), nullable=True)
+    image: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Relationship to Product
     product = relationship("Product", back_populates="variants")
+    
+    __table_args__ = (
+        db.UniqueConstraint("tenant_id", "sku", name="uq_variant_tenant_sku"),
+    )

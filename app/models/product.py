@@ -22,7 +22,7 @@ class Product(BaseModel):
         nullable=False
     )
    
-    slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    slug: Mapped[str] = mapped_column(String(255), nullable=False)
     image: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
@@ -43,3 +43,6 @@ class Product(BaseModel):
     def __repr__(self) -> str:
         return f"<Product {self.name} ({self.slug})>"
 
+    __table_args__ = (
+        db.UniqueConstraint("tenant_id", "slug", name="uq_product_tenant_slug"),
+    )

@@ -3,7 +3,6 @@ import uuid
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from flask import current_app
-from typing import Optional
 
 
 
