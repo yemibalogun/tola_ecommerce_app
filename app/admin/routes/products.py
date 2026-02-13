@@ -294,7 +294,7 @@ def manage_variants(product_id: int):
     ).all()
 
     return render_template(
-        url_for("admin_products.manage_variants", product_id=product.id),
+        "admin/products/manage_variants.html", 
         product=product,
         variants=variants,
         form=form,

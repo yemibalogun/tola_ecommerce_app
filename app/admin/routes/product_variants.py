@@ -10,6 +10,8 @@ from werkzeug.utils import secure_filename
 import os 
 
 @admin_bp.route("/products/<int:product_id>/variants")
+@login_required
+@admin_required
 def list_variants(product_id: int):
     product = Product.query.filter_by(
         id=product_id,
@@ -111,7 +113,7 @@ def edit_variant(variant_id: int):
     if form.validate_on_submit():
         # Use default empty strings if data is None
         name = (form.name.data or "").strip()
-        sku = (form.sku.data or "").strip
+        sku = (form.sku.data or "").strip()
 
         # Validate required fields
         if not name or not sku:
@@ -130,9 +132,11 @@ def edit_variant(variant_id: int):
         # Handle image replacement
         if form.image.data:
             # Delete old image if it exists
-            if variant.image_filename:
+            if variant.image:
                 old_path = os.path.join(
-                    current_app.root_path, "static", variant.image_filename
+                    current_app.root_path, 
+                    "static", 
+                    variant.image,
                 )
                 if os.path.exists(old_path):
                     os.remove(old_path)
@@ -170,6 +174,8 @@ def edit_variant(variant_id: int):
     "/variants/<int:variant_id>/delete",
     methods=["POST"],
 )
+@login_required
+@admin_required
 def delete_variant(variant_id: int):
     variant = ProductVariant.query.filter_by(
         id=variant_id,
@@ -177,40 +183,59 @@ def delete_variant(variant_id: int):
     ).first_or_404()
 
     product_id = variant.product_id
-    db.session.delete(variant)
-    db.session.commit()
 
-    flash("Variant deleted", "success")
+    try:
+        db.session.delete(variant)
+        db.session.commit()
+        flash("Variant deleted successfully", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting variant: {str(e)}", "danger")
+
     return redirect(
         url_for(
             "admin.list_variants",
-            product_id=product_id,
-        )
-    )
+            product_id=product_id
+        ))
 
 @admin_bp.route("/variants/<int:variant_id>/delete-image", methods=["POST"])
 @login_required
 @admin_required
 def delete_variant_image(variant_id: int):
-    variant = ProductVariant.query.filter_by(
+    """Remove variant image from disk and database."""
+    variant: ProductVariant = ProductVariant.query.filter_by(
         id=variant_id,
         tenant_id=current_user.tenant_id
     ).first_or_404()
 
-    if variant.image_filename:
-        image_path = os.path.join(
-            current_app.root_path, "static", variant.image_filename
+    if not variant.image:
+        flash("No image to delete.", "warning")
+        return redirect(
+            url_for("admin.edit_variant", variant_id=variant.id)
         )
+
+    try:
+        image_path: str = os.path.join(
+            current_app.root_path,
+            "static",
+            variant.image,
+        )
+
         if os.path.exists(image_path):
             os.remove(image_path)
 
-        variant.image_filename = None
+        variant.image = None
         db.session.commit()
-        flash("Variant image removed", "success")
+        flash("Variant image removed successfully", "success")
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error removing image: {str(e)}", "danger")
 
     return redirect(
         url_for("admin.edit_variant", variant_id=variant.id)
     )
+
 
 
 @admin_bp.route(

@@ -24,27 +24,22 @@
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
-
                         <div class="mb-3">
                             {{ form.name.label(class="form-label") }}
                             {{ form.name(class="form-control") }}
                         </div>
-
                         <div class="mb-3">
                             {{ form.price.label(class="form-label") }}
                             {{ form.price(class="form-control") }}
                         </div>
-
                         <div class="mb-3">
                             {{ form.description.label(class="form-label") }}
                             {{ form.description(class="form-control", rows=3) }}
                         </div>
-
                         <div class="mb-3">
                             {{ form.category_id.label(class="form-label") }}
                             {{ form.category_id(class="form-select") }}
                         </div>
-
                         <div class="mb-3">
                             {{ form.image.label(class="form-label") }}
                             {{ form.image(class="form-control") }}
@@ -53,12 +48,10 @@
                                      class="img-fluid mt-2" alt="Product Image">
                             {% endif %}
                         </div>
-
                         <div class="form-check mb-3">
                             {{ form.is_active(class="form-check-input") }}
                             {{ form.is_active.label(class="form-check-label") }}
                         </div>
-
                         {{ form.submit(class="btn btn-success w-100") }}
                     </form>
                 </div>
@@ -91,8 +84,7 @@
                     </thead>
                     <tbody>
                         {% for v in product.variants %}
-                        <tr>
-                            <!-- Variant Image -->
+                        <tr id="variant-row-{{ v.id }}">
                             <td>
                                 {% if v.image %}
                                     <img src="{{ url_for('static', filename=v.image) }}"
@@ -101,21 +93,13 @@
                                     <span class="text-muted">—</span>
                                 {% endif %}
                             </td>
-
-                            <!-- Name -->
                             <td>{{ v.name }}</td>
-
-                            <!-- SKU -->
                             <td class="text-muted small">{{ v.sku }}</td>
-
-                            <!-- Price -->
                             <td>
                                 {% set price = v.price_override if v.price_override else product.price %}
                                 ₦{{ "{:,.2f}".format(price) }}
                                 {% if v.price_override %}<small class="text-muted">(override)</small>{% endif %}
                             </td>
-
-                            <!-- Stock -->
                             <td>
                                 {% if v.stock_quantity == 0 %}
                                     <span class="badge bg-danger">Out</span>
@@ -125,7 +109,6 @@
                                     <span class="badge bg-success">{{ v.stock_quantity }}</span>
                                 {% endif %}
                             </td>
-
                             <!-- Inventory Adjust Form -->
                             <td>
                                 <form method="POST"
@@ -137,18 +120,20 @@
                                     {{ inventory_form.submit(class="btn btn-sm btn-outline-primary") }}
                                 </form>
                             </td>
-
-                            <!-- Actions -->
+                            <!-- Actions: Edit & Delete -->
                             <td class="text-end">
                                 <a href="{{ url_for('admin_products.edit_variant', variant_id=v.id) }}"
                                    class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-variant"
+                                        data-variant-id="{{ v.id }}">
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-
             {% else %}
                 <div class="alert alert-info">
                     No variants yet. Add at least one variant to manage inventory.
@@ -158,23 +143,20 @@
     </div>
 </div>
 
-<!-- Inventory AJAX script -->
+<!-- AJAX scripts -->
 {% if product.variants %}
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const inventoryForms = document.querySelectorAll("form.inventory-form");
 
+    // Inventory AJAX
+    const inventoryForms = document.querySelectorAll("form.inventory-form");
     inventoryForms.forEach(form => {
         form.addEventListener("submit", async e => {
             e.preventDefault();
             const variantId = form.dataset.variantId;
             const input = form.querySelector("input[name='stock']");
             const delta = parseInt(input.value);
-
-            if (isNaN(delta) || delta === 0) {
-                alert("Please enter a valid number other than 0");
-                return;
-            }
+            if (isNaN(delta) || delta === 0) { alert("Please enter a valid number other than 0"); return; }
 
             try {
                 const response = await fetch(`/admin/variants/${variantId}/inventory/ajax`, {
@@ -187,7 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const data = await response.json();
-
                 if (response.ok) {
                     const stockCell = form.closest("tr").querySelector("td:nth-child(5)");
                     const badgeClass = data.stock_quantity === 0
@@ -195,18 +176,45 @@ document.addEventListener("DOMContentLoaded", () => {
                         : data.stock_quantity <= 5
                         ? "bg-warning text-dark"
                         : "bg-success";
-
                     stockCell.innerHTML = `<span class="badge ${badgeClass}">${data.stock_quantity}${data.stock_quantity <=5 && data.stock_quantity > 0 ? " low" : ""}</span>`;
                     input.value = "";
                 } else {
                     alert(data.error || "Error updating inventory");
                 }
+            } catch (err) { console.error(err); alert("Unexpected error"); }
+        });
+    });
+
+    // Delete Variant AJAX
+    const deleteButtons = document.querySelectorAll(".btn-delete-variant");
+    deleteButtons.forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const variantId = btn.dataset.variantId;
+            if (!confirm("Are you sure you want to delete this variant? This action cannot be undone.")) return;
+
+            try {
+                const response = await fetch(`/admin/variants/${variantId}/delete`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": '{{ csrf_token() }}'
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById(`variant-row-${variantId}`).remove();
+                    alert("Variant deleted successfully");
+                } else {
+                    alert(data.error || "Error deleting variant");
+                }
             } catch (err) {
                 console.error(err);
-                alert("An unexpected error occurred");
+                alert("Unexpected error deleting variant");
             }
         });
     });
+
 });
 </script>
 {% endif %}
