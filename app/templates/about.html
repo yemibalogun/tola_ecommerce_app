@@ -1,35 +1,79 @@
 {% extends "layouts/base.html" %}
 
+{% block title %}About Tola{% endblock %}
+
 {% block content %}
-<section class="about-page">
+<section class="about-page padding-xlarge bg-light">
     <div class="container">
-        <h1>About Tola</h1>
 
-        <p>
-            Tola is a modern e-commerce platform built to deliver a seamless,
-            reliable, and secure shopping experience. Our focus is on simplicity,
-            speed, and trust — from product discovery to checkout.
-        </p>
+        <!-- Hero / Intro -->
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold">About Tola</h1>
+            <p class="text-muted fs-5 mt-3">
+                Tola is a modern e-commerce platform delivering seamless, reliable,
+                and secure shopping experiences. Simplicity, speed, and trust guide
+                everything we do — from product discovery to checkout.
+            </p>
+        </div>
 
-        <h2>What We Do</h2>
-        <ul>
-            <li>Curate quality products from trusted vendors</li>
-            <li>Provide fast and secure checkout experiences</li>
-            <li>Ensure reliable order tracking and support</li>
-        </ul>
+        <!-- What We Do Section -->
+        <div class="mb-5">
+            <h2 class="mb-4 text-center">What We Do</h2>
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <div class="icon-box p-4 bg-white rounded shadow-sm h-100">
+                        <svg class="mb-3" width="50" height="50" fill="var(--primary-color)">
+                            <use xlink:href="#icon-curate"/>
+                        </svg>
+                        <h5 class="fw-semibold mb-2">Curated Products</h5>
+                        <p class="text-muted">
+                            We select quality products from trusted vendors to ensure a premium experience.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="icon-box p-4 bg-white rounded shadow-sm h-100">
+                        <svg class="mb-3" width="50" height="50" fill="var(--primary-color)">
+                            <use xlink:href="#icon-secure"/>
+                        </svg>
+                        <h5 class="fw-semibold mb-2">Secure Checkout</h5>
+                        <p class="text-muted">
+                            Fast and secure checkout processes make shopping effortless.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="icon-box p-4 bg-white rounded shadow-sm h-100">
+                        <svg class="mb-3" width="50" height="50" fill="var(--primary-color)">
+                            <use xlink:href="#icon-tracking"/>
+                        </svg>
+                        <h5 class="fw-semibold mb-2">Reliable Support</h5>
+                        <p class="text-muted">
+                            Track your orders easily and reach support whenever needed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <h2>Why Tola</h2>
-        <p>
-            We believe shopping online should be effortless. That’s why Tola is
-            designed with clean interfaces, optimized performance, and a strong
-            backend architecture to scale with demand.
-        </p>
+        <!-- Why Tola Section -->
+        <div class="mb-5 bg-light-blue p-5 rounded">
+            <h2 class="mb-4 text-center">Why Tola</h2>
+            <p class="fs-5 text-center text-dark">
+                We believe shopping online should be effortless. Tola combines clean interfaces,
+                optimized performance, and a robust backend to scale with your demands.
+            </p>
+        </div>
 
-        <h2>Our Vision</h2>
-        <p>
-            To become a trusted digital marketplace that connects people with
-            products they love — efficiently and securely.
-        </p>
+        <!-- Vision Section -->
+        <div class="text-center">
+            <h2 class="mb-4">Our Vision</h2>
+            <p class="fs-5 text-muted">
+                To become a trusted digital marketplace connecting people with products
+                they love — efficiently, securely, and transparently.
+            </p>
+        </div>
+
     </div>
 </section>
 {% endblock %}

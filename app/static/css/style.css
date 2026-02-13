@@ -1012,107 +1012,543 @@ figure.instagram-item img.insta-image {
 }
 
 
-/* 12. Blog Page
---------------------------------------------------------------*/
-/*------------ Sidebar -----------*/
-.sidebar-post-item h4.card-title {
-    font-size: 1.2em;
+/* --- Blogs Page --- */
+.blog-page .display-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
 }
 
-/* 13. Sibgle Post Page
---------------------------------------------------------------*/
-#single-post-navigation .post-navigation span.page-nav-title {
-    font-size: 1.5em;
-}
-.post-navigation svg {
-    width: 30px;
-    height: 45px;
-}
-.post-navigation:hover svg,
-.post-navigation:focus svg {
-    fill: var(--primary-color);
+.blog-page .display-header p {
+    font-size: 1rem;
+    color: #6c757d;
 }
 
-/* Blog Detail Page */
-.blog-detail-page {
-    padding: 60px 0;
-}
-
-.blog-post {
-    max-width: 800px;          /* Standard readable blog width */
-    margin: 0 auto;            /* Center content */
-}
-
-.blog-post h1 {
-    margin-bottom: 10px;
-}
-
-.blog-post .date {
-    display: block;
-    margin-bottom: 30px;
-    color: #777;
-}
-
-/* Blog Image Container */
-.blog-image {
-    margin: 30px 0;
-    text-align: center;
-}
-
-/* Standardized Blog Image */
-.blog-image img {
-    width: 100%;               /* Responsive */
-    max-width: 800px;          /* Prevents over-stretching */
-    height: auto;         /* Standard blog hero height */
-    max-height: none;         /* Prevent distortion */
-    border-radius: 8px;        /* Modern look */
-}
-
-/* Blog Content */
-.blog-content {
-    line-height: 1.8;
-    font-size: 16px;
-    color: #333;
-}
-
-.blog-content img {
-    max-width: 100%;
-    height: auto;
-    margin: 20px 0;
-}
-
-
-/* Blog Listing Page */
-.blog-page {
-    padding: 60px 0;
-}
-
-/* Card Image (Smaller than blog-detail hero image) */
-.blog-card-image {
+.blog-card {
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
 }
 
 .blog-card-image img {
     width: 100%;
-    height: 200px;         /* Smaller fixed height */
-    object-fit: cover;     /* Prevent distortion */
-    border-radius: 6px 6px 0 0;
-    transition: transform 0.3s ease;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 1px solid #e0e0e0;
+    transition: transform 0.3s;
 }
 
-.blog-card:hover .blog-card-image img {
-    transform: scale(1.05);   /* Subtle hover zoom */
+.blog-card-image img:hover {
+    transform: scale(1.05);
 }
 
-/* Typography spacing */
 .blog-meta {
     font-size: 0.85rem;
+    color: #999;
 }
 
-.blog-card h3 {
-    margin-bottom: 10px;
+.blog-card .card-title a {
+    transition: color 0.3s;
 }
 
-.blog-card p {
+.blog-card .card-title a:hover {
+    color: #1f8a70;
+}
+
+.blog-card .card-text {
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
     font-size: 0.95rem;
+    color: #555;
+}
+
+.blog-card .btn-outline-primary {
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+}
+
+.blog-card .btn-outline-primary:hover {
+    background-color: #1f8a70;
+    color: #fff;
+    border-color: #1f8a70;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .blog-card-image img {
+        height: 200px;
+    }
+}
+
+
+/* --- Shop Page --- */
+.shop-page .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.shop-page .product-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.shop-page .product-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.shop-page .product-card .product-image {
+    overflow: hidden;
+}
+
+.shop-page .product-card .product-image img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.shop-page .product-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.shop-page .product-card .product-info {
+    padding: 1rem;
+}
+
+.shop-page .product-card .product-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.shop-page .product-card .product-info .price {
+    font-weight: 700;
+    color: #1f8a70;
+    margin-bottom: 0.75rem;
+}
+
+.shop-page .product-card .product-info .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #1f8a70;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.shop-page .product-card .product-info .btn:hover {
+    background: #16604f;
+}
+
+
+/* --- Product Detail Page --- */
+.product-detail .product-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    margin-top: 2rem;
+}
+
+.product-detail .product-image img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.product-detail .product-image img:hover {
+    transform: scale(1.03);
+}
+
+.product-detail .product-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-detail .product-info .product-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.product-detail .product-info .price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f8a70;
+    margin-bottom: 1.5rem;
+}
+
+.product-detail .product-info .description {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+.product-detail .product-info .actions .btn-primary {
+    padding: 0.75rem 1.5rem;
+    background: #1f8a70;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.product-detail .product-info .actions .btn-primary:hover {
+    background: #16604f;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .product-detail .product-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .product-detail .product-image img {
+        max-height: 400px;
+    }
+}
+
+
+#mobile-products .product-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+#mobile-products .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+#mobile-products .image-holder img {
+    width: 100%;
+    object-fit: cover;
+    height: 220px;
+    transition: transform 0.3s;
+}
+
+#mobile-products .image-holder img:hover {
+    transform: scale(1.05);
+}
+
+#mobile-products .card-detail a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+#mobile-products .card-detail a:hover {
+    color: #1f8a70;
+}
+
+#mobile-products .item-price {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1f8a70;
+}
+
+
+.contact-page {
+    background-color: #f8f9fa;
+}
+
+.contact-form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+}
+
+.contact-form-wrapper .form-control {
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    padding: 12px 15px;
+    font-size: 1rem;
+}
+
+.contact-form-wrapper .btn-primary {
+    padding: 12px 30px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.contact-form-wrapper .btn-primary:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+.alert {
+    padding: 10px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+
+.features-section {
+    background-color: #f9f9f9;
+    padding: 6rem 0;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f8a70;
+    margin-bottom: 0.5rem;
+}
+
+.section-header p {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1f8a70;
+}
+
+.feature-card p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+
+.subscribe-section {
+    background-color: #f4f8f6;
+    padding: 5rem 0;
+}
+
+.subscribe-content {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+.subscribe-text {
+    flex: 1 1 45%;
+    margin-bottom: 1rem;
+}
+
+.subscribe-text h2 {
+    font-size: 2rem;
+    color: #1f8a70;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.subscribe-text p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.subscription-form {
+    flex: 1 1 50%;
+}
+
+.form-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.subscription-form input[type="email"] {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.subscription-form input[type="email"]:focus {
+    border-color: #1f8a70;
+}
+
+.subscription-form button {
+    background-color: #1f8a70;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.subscription-form button:hover {
+    background-color: #166551;
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .subscribe-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .subscribe-text, .subscription-form {
+        flex: 1 1 100%;
+    }
+
+    .form-group {
+        flex-direction: column;
+    }
+
+    .subscription-form button {
+        width: 100%;
+    }
+}
+
+.instagram-section {
+    padding: 5rem 0;
+    background-color: #f4f8f6;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    color: #1f8a70;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.section-header p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 3rem;
+}
+
+.instagram-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.instagram-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.instagram-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+}
+
+.instagram-item:hover img {
+    transform: scale(1.05);
+}
+
+.instagram-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(31, 138, 112, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.instagram-item:hover .instagram-overlay {
+    opacity: 1;
+}
+
+.instagram-icon {
+    width: 40px;
+    height: 40px;
+    fill: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .instagram-section {
+        padding: 3rem 1rem;
+    }
+
+    .section-header p {
+        margin-bottom: 2rem;
+    }
 }

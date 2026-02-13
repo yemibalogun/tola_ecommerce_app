@@ -1,10 +1,10 @@
 {% extends "layouts/base.html" %}
 
 {% block content %}
-<section class="shop-page">
+<section class="shop-page py-5">
     <div class="container">
-        <h1>Shop</h1>
-        <p class="subtitle">
+        <h1 class="mb-3">Shop</h1>
+        <p class="subtitle mb-5">
             Browse our latest products and best deals.
         </p>
 
@@ -12,23 +12,18 @@
             {% for product in products %}
                 <div class="product-card">
                     <div class="product-image">
-                        
-                        <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}" 
-                            alt="{{ product.name }}"
-                            width="300" 
-                            class="insta-image">
+                        <img 
+                            src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}" 
+                            alt="{{ product.name }}">
                     </div>
 
                     <div class="product-info">
                         <h3>{{ product.name }}</h3>
-                        <p class="price">
-                            ₦{{ "{:,.2f}".format(product.price) }}
-                        </p>
+                        <p class="price">₦{{ "{:,.2f}".format(product.price) }}</p>
 
                         <a href="{{ url_for('web.product_detail', slug=product.slug) }}" class="btn">
                             View Product
                         </a>
-
                     </div>
                 </div>
             {% else %}

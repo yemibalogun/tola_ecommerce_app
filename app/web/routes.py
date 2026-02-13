@@ -10,11 +10,23 @@ from typing import List
 from app.models.category import Category
 from app.web.forms import TestimonialForm
 from flask_login import login_required, current_user
+import random
 
 
 @web_bp.route("/")
 def home() -> str:
     products = Product.query.limit(8).all()
+    # Filter mobile products
+    mobile_products = [p for p in products if p.category == 'mobile']
+
+    # Pick 3 random items
+    random_mobile_products = random.sample(mobile_products, k=min(3, len(mobile_products)))
+
+    # Filter smart watches
+    smart_watch_products = [p for p in products if p.category == 'smartwatch']
+
+    # Pick 3 random items safely
+    random_smart_watches = random.sample(smart_watch_products, k=min(3, len(smart_watch_products)))
 
     testimonials = (
         Testimonial.query
@@ -30,15 +42,12 @@ def home() -> str:
         .limit(3)  # Show only latest 3 on homepage
         .all()
     )
-    print("Testimonials:", testimonials)
-    print("Blogs:", blogs)
     
-
-
-
     return render_template(
         "index.html",
         products=products,
+        mobile_products=random_mobile_products,
+        smart_watch_products=random_smart_watches,
         testimonials=testimonials,
         blogs=blogs  # <-- THIS WAS MISSING
     )
