@@ -1,11 +1,17 @@
+# app/admin/routes/inventory.py
+
 from flask import redirect, url_for, flash, request, jsonify
 from app.extensions.db import db
 from app.models.product_variant import ProductVariant
 from app.admin.forms import InventoryAdjustForm
 from app.services.inventory_service import apply_inventory_delta, get_stock_status
 from app.admin import admin_bp
+from flask_login import login_required, current_user
+from app.admin.decorators import admin_required
 
 @admin_bp.route("/variants/<int:variant_id>/inventory", methods=["POST"])
+@login_required
+@admin_required
 def update_inventory(variant_id: int):
     """
     Inventory update via standard HTML form.
@@ -32,16 +38,14 @@ def update_inventory(variant_id: int):
     apply_inventory_delta(variant, delta)
 
     flash(f"Inventory updated ({delta:+}).", "success")
-    return redirect(request.referrer)
+    return redirect(request.referrer or url_for("admin.dashboard"))
 
 
 @admin_bp.route("/variants/<int:variant_id>/inventory/ajax", methods=["POST"])
+@login_required
+@admin_required
 def update_inventory_ajax(variant_id: int):
-    """
-    Inventory update via AJAX.
-    Expects JSON: { "delta": int }
-    Returns JSON with updated stock quantity.
-    """
+    """Inventory update via AJAX."""
     data: dict | None = request.get_json(silent=True)
 
     if not data or "delta" not in data:
@@ -55,12 +59,12 @@ def update_inventory_ajax(variant_id: int):
     if delta == 0:
         return jsonify({"error": "Delta cannot be zero"}), 400
 
-    variant: ProductVariant | None = ProductVariant.query.get(variant_id)
+    variant: ProductVariant = ProductVariant.query.get_or_404(variant_id)
 
-    if variant is None:
-        return jsonify({"error": "Variant not found"}), 404
-
-    apply_inventory_delta(variant, delta)
+    try:
+        apply_inventory_delta(variant, delta)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     return jsonify({
         "variant_id": variant.id,

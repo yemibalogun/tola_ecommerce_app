@@ -24,13 +24,14 @@
         <tr>
             <td>
                 {% if product.image %}
-                <img src="{{ url_for('static', filename=product.image) }}" width="50" alt="product-image">
+
+                <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}" width="50" alt="product-image">
                 {% endif %}
             </td>
             <td>{{ product.name }}</td>
-            <td>₦{{ product.price }}</td>
+            <td>₦{{ "{:,.2f}".format(product.price) }}</td>
             <td>
-                <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{{ url_for('admin_products.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning">Edit</a>
             </td>
         </tr>
         {% endfor %}

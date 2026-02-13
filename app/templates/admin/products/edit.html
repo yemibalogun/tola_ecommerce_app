@@ -1,114 +1,213 @@
-<h4 class="mt-4 d-flex justify-content-between align-items-center">
-  <span>Variants & Inventory</span>
+{% extends "admin/layouts/base.html" %}
 
-  <meta name="csrf-token" content="{{ csrf_token() }}">
+{% block title %}Edit Product - {{ product.name }}{% endblock %}
 
-  <a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
-     class="btn btn-sm btn-primary">
-    + Add Variant
-  </a>
-</h4>
+{% block content %}
+<div class="container-fluid py-4">
 
-{% if product.variants %}
-<table class="table table-sm align-middle mt-3">
-  <thead class="table-light">
-    <tr>
-      <th>Image</th>
-      <th>Name</th>
-      <th>SKU</th>
-      <th>Price</th>
-      <th>Stock</th>
-      <th>Adjust</th>
-      <th></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    {% for v in product.variants %}
-    <tr>
-      <!-- Image -->
-      <td>
-        {% if v.image_filename %}
-          <img
-            src="{{ url_for('static', filename=v.image_filename) }}"
-            class="img-thumbnail"            
-            alt="image-filename"
-          >
-        {% else %}
-          <span class="text-muted">—</span>
-        {% endif %}
-      </td>
-
-      <!-- Name -->
-      <td>{{ v.name }}</td>
-
-      <!-- SKU -->
-      <td class="text-muted small">{{ v.sku }}</td>
-
-      <!-- Price -->
-      <td>
-        {% if v.price_override %}
-          {{ v.price_override }}
-          <small class="text-muted">(override)</small>
-        {% else %}
-          {{ product.price }}
-        {% endif %}
-      </td>
-
-      <!-- Stock badge -->
-      <td>
-        {% if v.stock_quantity == 0 %}
-          <span class="badge bg-danger">Out</span>
-        {% elif v.stock_quantity <= 5 %}
-          <span class="badge bg-warning text-dark">
-            {{ v.stock_quantity }} low
-          </span>
-        {% else %}
-          <span class="badge bg-success">
-            {{ v.stock_quantity }}
-          </span>
-        {% endif %}
-      </td>
-
-      <!-- One-click inventory controls -->
-      <td>
-        <form
-          method="post"
-          action="{{ url_for('admin.update_inventory', variant_id=v.id) }}"
-          class="d-flex gap-1 align-items-center"
-        >
-          {{ inventory_form.csrf_token }}
-
-          <input
-            type="number"
-            name="delta"
-            class="form-control form-control-sm"
-            placeholder="+/-"
-            required
-          >
-
-          <button type="submit" class="btn btn-sm btn-outline-primary">
-            Apply
-          </button>
-        </form>
-      </td>
-
-      <!-- Actions -->
-      <td class="text-end">
-        <a
-          href="{{ url_for('admin.edit_variant', variant_id=v.id) }}"
-          class="btn btn-sm btn-outline-secondary"
-        >
-          Edit
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Edit Product</h2>
+        <a href="{{ url_for('admin_products.create_product') }}" class="btn btn-primary">
+            + Add Product
         </a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </div>
 
-{% else %}
-  <div class="alert alert-info mt-3">
-    No variants yet. Add at least one variant to manage inventory.
-  </div>
+    <div class="row">
+
+        <!-- Product Details Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    Product Details
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.price.label(class="form-label") }}
+                            {{ form.price(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows=3) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.category_id.label(class="form-label") }}
+                            {{ form.category_id(class="form-select") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.image.label(class="form-label") }}
+                            {{ form.image(class="form-control") }}
+                            {% if product.image %}
+                                <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}"
+                                     class="img-fluid mt-2" alt="Product Image">
+                            {% endif %}
+                        </div>
+
+                        <div class="form-check mb-3">
+                            {{ form.is_active(class="form-check-input") }}
+                            {{ form.is_active.label(class="form-check-label") }}
+                        </div>
+
+                        {{ form.submit(class="btn btn-success w-100") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variants & Inventory Card -->
+        <div class="col-lg-8 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4>Variants & Inventory</h4>
+                <a href="{{ url_for('admin_products.manage_variants', product_id=product.id) }}" 
+                   class="btn btn-sm btn-primary">
+                    + Add Variant
+                </a>
+            </div>
+
+            {% if product.variants %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>SKU</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Adjust</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in product.variants %}
+                        <tr>
+                            <!-- Variant Image -->
+                            <td>
+                                {% if v.image %}
+                                    <img src="{{ url_for('static', filename=v.image) }}"
+                                         class="img-thumbnail" width="50" alt="Variant Image">
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Name -->
+                            <td>{{ v.name }}</td>
+
+                            <!-- SKU -->
+                            <td class="text-muted small">{{ v.sku }}</td>
+
+                            <!-- Price -->
+                            <td>
+                                {% set price = v.price_override if v.price_override else product.price %}
+                                ₦{{ "{:,.2f}".format(price) }}
+                                {% if v.price_override %}<small class="text-muted">(override)</small>{% endif %}
+                            </td>
+
+                            <!-- Stock -->
+                            <td>
+                                {% if v.stock_quantity == 0 %}
+                                    <span class="badge bg-danger">Out</span>
+                                {% elif v.stock_quantity <= 5 %}
+                                    <span class="badge bg-warning text-dark">{{ v.stock_quantity }} low</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ v.stock_quantity }}</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Inventory Adjust Form -->
+                            <td>
+                                <form method="POST"
+                                      action="{{ url_for('admin.update_inventory', variant_id=v.id) }}"
+                                      class="inventory-form d-flex gap-1 align-items-center"
+                                      data-variant-id="{{ v.id }}">
+                                    {{ inventory_form.hidden_tag() }}
+                                    {{ inventory_form.stock(class="form-control form-control-sm", placeholder="+/-") }}
+                                    {{ inventory_form.submit(class="btn btn-sm btn-outline-primary") }}
+                                </form>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="text-end">
+                                <a href="{{ url_for('admin_products.edit_variant', variant_id=v.id) }}"
+                                   class="btn btn-sm btn-outline-secondary">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+                <div class="alert alert-info">
+                    No variants yet. Add at least one variant to manage inventory.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Inventory AJAX script -->
+{% if product.variants %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const inventoryForms = document.querySelectorAll("form.inventory-form");
+
+    inventoryForms.forEach(form => {
+        form.addEventListener("submit", async e => {
+            e.preventDefault();
+            const variantId = form.dataset.variantId;
+            const input = form.querySelector("input[name='stock']");
+            const delta = parseInt(input.value);
+
+            if (isNaN(delta) || delta === 0) {
+                alert("Please enter a valid number other than 0");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/variants/${variantId}/inventory/ajax`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": form.querySelector("input[name='csrf_token']").value
+                    },
+                    body: JSON.stringify({ delta })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const stockCell = form.closest("tr").querySelector("td:nth-child(5)");
+                    const badgeClass = data.stock_quantity === 0
+                        ? "bg-danger"
+                        : data.stock_quantity <= 5
+                        ? "bg-warning text-dark"
+                        : "bg-success";
+
+                    stockCell.innerHTML = `<span class="badge ${badgeClass}">${data.stock_quantity}${data.stock_quantity <=5 && data.stock_quantity > 0 ? " low" : ""}</span>`;
+                    input.value = "";
+                } else {
+                    alert(data.error || "Error updating inventory");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An unexpected error occurred");
+            }
+        });
+    });
+});
+</script>
 {% endif %}
+{% endblock %}

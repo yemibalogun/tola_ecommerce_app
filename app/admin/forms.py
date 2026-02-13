@@ -43,6 +43,7 @@ class ProductForm(FlaskForm):
             FileAllowed(["jpg", "jpeg", "png", "webp"], "Images only!")
         ]
     )
+    submit = SubmitField("Add Product")
 
 class ProductVariantForm(FlaskForm):
     name = StringField(
@@ -81,6 +82,17 @@ class InventoryAdjustForm(FlaskForm):
 
     delta = IntegerField(validators=[DataRequired()])
     submit = SubmitField()
+
+class InventoryForm(FlaskForm):
+    stock = IntegerField(
+        "Stock Quantity",
+        validators=[
+            DataRequired(),
+            NumberRange(min=0)
+        ]
+    )
+
+    submit = SubmitField("Update Stock")
 
 class BlogForm(FlaskForm):
     title = StringField(

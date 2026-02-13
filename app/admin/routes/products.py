@@ -13,6 +13,7 @@ from app.utils.uploads import save_product_image
 from werkzeug.datastructures import FileStorage
 from app.admin import product_bp
 from app.admin.forms import ProductVariantForm
+from app.admin.forms import InventoryForm
 from app.models.product_variant import ProductVariant
 
 
@@ -120,87 +121,93 @@ def create_product():
         categories=categories,
     )
 
+
+
 @product_bp.route("/<int:product_id>/edit", methods=["GET", "POST"])
 @login_required
 @admin_required
 def edit_product(product_id: int):
     """Edit an existing product."""
+    
     product = Product.query.filter_by(
         id=product_id,
         tenant_id=current_user.tenant_id,
     ).first_or_404()
 
+    # Main product form
     form = ProductForm(obj=product)
-    
-    # Load categories - should match create_product logic
+
+    # Inventory form pre-filled with current stock
+    inventory_form = InventoryForm(stock_quantity=product.stock if hasattr(product, "stock") else 0)
+
+    # Load categories
     categories = Category.query.filter_by(
         tenant_id=current_user.tenant_id
-        ).order_by(Category.name.asc()).all()
-    
-    # Defensive check - no categories exist
+    ).order_by(Category.name.asc()).all()
+
     if not categories:
         flash("Please create a category before adding products.", "warning")
-        return redirect(
-            url_for("admin_categories.create_category")
-        )
-
-    # Populate select field choices
-    form.category_id.choices = [
-        (c.id, c.name) for c in categories
-    ]
+        return redirect(url_for("admin_categories.create_category"))
 
     form.category_id.choices = [(c.id, c.name) for c in categories]
 
-    if form.validate_on_submit():
-        name_raw: Optional[str] = form.name.data
+    # Handle product update
+    if form.validate_on_submit() and form.submit.data:
+        name_raw = form.name.data
         if not name_raw:
             flash("Product name is required", "danger")
-            return render_template(
-                "admin/products/edit.html",
-                form=form,
-                product=product,
-            )
+        else:
+            name = name_raw.strip()
+            old_name = product.name
+            try:
+                product.name = name
+                product.description = form.description.data.strip() if form.description.data else None
+                product.price = form.price.data
+                product.is_active = form.is_active.data
+                product.category_id = form.category_id.data or None
 
-        name: str = name_raw.strip()
-        old_name: str = product.name
+                if name != old_name:
+                    product.slug = unique_slug(Product, name)
 
+                # Handle image upload
+                image_file = form.image.data
+                if image_file and image_file.filename:
+                    image_path = save_product_image(image_file)
+                    if image_path:
+                        product.image = image_path
+
+                db.session.commit()
+                flash("Product updated successfully", "success")
+                return redirect(url_for("admin_products.list_products"))
+
+            except IntegrityError as e:
+                db.session.rollback()
+                if "slug" in str(e.orig).lower():
+                    flash("A product with this slug already exists.", "danger")
+                else:
+                    flash("Error updating product. Please check your input.", "danger")
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Unexpected error updating product: {str(e)}", "danger")
+
+    # Handle inventory update
+    elif inventory_form.validate_on_submit() and inventory_form.submit.data:
         try:
-            product.name = name
-            product.description = form.description.data.strip() if form.description.data else None
-            product.price = form.price.data
-            product.is_active = form.is_active.data
-            product.category_id = form.category_id.data or None
-
-            # Only regenerate slug if name actually changed
-            if name != old_name:
-                product.slug = unique_slug(Product, name)
-
-            # Handle image upload
-            image_file: Optional[FileStorage] = form.image.data
-            if image_file and image_file.filename:
-                image_path = save_product_image(image_file)
-                if image_path:
-                    product.image = image_path
-
+            product.stock = inventory_form.stock.data
             db.session.commit()
-            flash("Product updated successfully", "success")
-            return redirect("admin/products/list.html")
-        
-        except IntegrityError as e:
+            flash("Inventory updated successfully.", "success")
+            return redirect(url_for("admin_products.edit_product", product_id=product.id))
+        except Exception:
             db.session.rollback()
-            if "slug" in str(e.orig).lower():
-                flash("A product with this slug already exists. Please use a different name.", "danger")
-            else:
-                flash("Error updating product. Please check your input.", "danger")
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Unexpected error updating product: {str(e)}", "danger")
+            flash("Error updating inventory.", "danger")
 
     return render_template(
         "admin/products/edit.html",
         form=form,
-        product=product,
+        inventory_form=inventory_form,
+        product=product
     )
+
 
 
 @product_bp.route("/<int:product_id>/delete", methods=["POST"])

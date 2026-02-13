@@ -4,6 +4,7 @@ from app.extensions.db import db
 from app.extensions.login import login_manager
 from app.extensions.cache import cache
 from sqlalchemy import create_engine, text
+from flask_wtf import CSRFProtect
 import re, os
 from datetime import datetime
 
@@ -68,6 +69,7 @@ def create_app(config_name: str = "development") -> Flask:
     login_manager.init_app(app)
     cache.init_app(app)
     migrate.init_app(app, db)
+    CSRFProtect(app)
     
     if config_name in ("development", "testing"):
         with app.app_context():
