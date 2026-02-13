@@ -1,5 +1,5 @@
-from typing import List, Optional
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from typing import Optional
+from flask import render_template, redirect, url_for, flash, request
 from app.admin.forms import ProductForm
 from app.utils.slug import unique_slug
 from app.extensions.db import db

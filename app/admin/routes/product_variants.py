@@ -1,3 +1,4 @@
+import uuid
 from flask import current_app, render_template, redirect, url_for, flash
 from flask_login import current_user, login_required
 from app.admin import admin_bp
@@ -7,6 +8,7 @@ from app.extensions.db import db
 from app.models.product import Product
 from app.models.product_variant import ProductVariant
 from werkzeug.utils import secure_filename
+from sqlalchemy.exc import IntegrityError
 import os 
 
 @admin_bp.route("/products/<int:product_id>/variants")
@@ -24,7 +26,7 @@ def list_variants(product_id: int):
     ).all()
 
     return render_template(
-        "admin/products/list.html",
+        "admin/products/variant_list.html",
         product=product,
         variants=variants,
     )
@@ -68,12 +70,33 @@ def create_variant(product_id: int):
             variant.stock_quantity=form.stock_quantity.data or 0
 
             # Handle image upload
-            if form.image.data:
-                filename = secure_filename(form.image.data.filename)
-                upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
-                os.makedirs(os.path.dirname(upload_path), exist_ok=True)
-                form.image.data.save(upload_path)
-                variant.image = f"uploads/{filename}"
+            if form.image.data and form.image.data.filename:
+                # Remove old image if exists
+                if variant.image:
+                    old_image_path = os.path.join(
+                        current_app.root_path, 
+                        "static", 
+                        variant.image,
+                    )
+                    if os.path.exists(old_image_path):
+                        os.remove(old_image_path)
+
+                unique_name: str = f"{uuid.uuid4().hex}_{secure_filename(form.image.data.filename)}"
+
+                upload_path = os.path.join(
+                    current_app.root_path, 
+                    'static', 
+                    'uploads',
+                )
+                os.makedirs(upload_path, exist_ok=True)
+
+                file_path: str = os.path.join(upload_path, unique_name)
+
+                # Save new file
+                form.image.data.save(file_path)
+
+                # Store relative path in DB
+                variant.image = f"uploads/{unique_name}"
 
             db.session.add(variant)
             db.session.commit()
@@ -85,9 +108,12 @@ def create_variant(product_id: int):
                     product_id=product.id,
                 )
             )
-        except Exception:
+        except IntegrityError:
             db.session.rollback()
             flash("SKU already exists", "danger")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Unexpected error: {str(e)}", "danger")
 
     return render_template(
         "admin/products/variant_form.html",

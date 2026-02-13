@@ -1,0 +1,102 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Variants{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Variants</h2>
+            <small class="text-muted">
+                Product: <strong>{{ product.name }}</strong>
+            </small>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
+               class="btn btn-primary">
+                + Add Variant
+            </a>
+
+            <a href="{{ url_for('admin_products.list_products') }}"
+               class="btn btn-outline-secondary">
+                Back to Products
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            {% if variants %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="70">Image</th>
+                            <th>Name</th>
+                            <th>SKU</th>
+                            <th>Price Override</th>
+                            <th>Stock</th>
+                            <th width="200" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variant in variants %}
+                        <tr>
+                            <td>
+                                {% if variant.image %}
+                                    <img src="{{ url_for('static', filename=variant.image) }}"
+                                         width="50"
+                                         class="rounded border"
+                                         alt="variant-image">
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ variant.name }}</td>
+                            <td>{{ variant.sku }}</td>
+                            <td>
+                                {% if variant.price_override %}
+                                    ₦{{ "{:,.2f}".format(variant.price_override) }}
+                                {% else %}
+                                    <span class="text-muted">Uses product price</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if variant.stock_quantity > 0 %}
+                                    <span class="badge bg-success">{{ variant.stock_quantity }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Out of stock</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end d-flex gap-2 justify-content-end">
+                                <a href="{{ url_for('admin.edit_variant', variant_id=variant.id) }}"
+                                   class="btn btn-sm btn-warning">Edit</a>
+
+                                <form method="POST"
+                                      action="{{ url_for('admin.delete_variant', variant_id=variant.id) }}"
+                                      onsubmit="return confirm('Delete this variant?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-5 text-center">
+                <h5 class="text-muted mb-3">No variants yet</h5>
+                <a href="{{ url_for('admin.create_variant', product_id=product.id) }}" class="btn btn-primary">
+                    + Add First Variant
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
