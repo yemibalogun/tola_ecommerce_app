@@ -507,8 +507,8 @@
               <div class="d-flex flex-wrap">
                   {% for product in products %}
                   <figure class="instagram-item pe-2">
-                      <a href="{{ url_for('product_detail', product_id=product.id) }}" class="image-link position-relative">
-                          <img src="{{ url_for('static', filename='uploads/products/' ~ product.image_filename) }}"
+                      <a href="{{ url_for('web.product_detail', slug=product.slug) }}" class="image-link position-relative">
+                          <img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}"
                               alt="{{ product.name }}" class="insta-image">
                           <div class="icon-overlay position-absolute d-flex justify-content-center">
                               <svg class="instagram">

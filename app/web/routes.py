@@ -1,4 +1,4 @@
-from flask import render_template, request, flash, url_for, send_from_directory, redirect
+from flask import abort, render_template, request, flash, url_for, send_from_directory, redirect
 from app.models.product import Product
 from app.models.testimonial import Testimonial
 from app.models.blog import Blog
@@ -14,39 +14,34 @@ from flask_login import login_required, current_user
 
 @web_bp.route("/")
 def home() -> str:
-    try:
-        products = Product.query.limit(8).all()
+    products = Product.query.limit(8).all()
 
-        testimonials = (
-            Testimonial.query
-            .order_by(Testimonial.created_at.desc())
-            .limit(5)
-            .all()
-        )
+    testimonials = (
+        Testimonial.query
+        .order_by(Testimonial.created_at.desc())
+        .limit(5)
+        .all()
+    )
 
-        # Fetch latest 3 blogs
-        blogs = (
-            Blog.query
-            .order_by(Blog.created_at.desc())
-            .limit(3)  # Show only latest 3 on homepage
-            .all()
-        )
+    # Fetch latest 3 blogs
+    blogs = (
+        Blog.query
+        .order_by(Blog.created_at.desc())
+        .limit(3)  # Show only latest 3 on homepage
+        .all()
+    )
+    print("Testimonials:", testimonials)
+    print("Blogs:", blogs)
+    
 
-        return render_template(
-            "index.html",
-            products=products,
-            testimonials=testimonials,
-            blogs=blogs  # <-- THIS WAS MISSING
-        )
 
-    except Exception as e:
-        print(f"Home route error: {e}")
-        return render_template(
-            "index.html",
-            products=[],
-            testimonials=[],
-            blogs=[]
-        )
+
+    return render_template(
+        "index.html",
+        products=products,
+        testimonials=testimonials,
+        blogs=blogs  # <-- THIS WAS MISSING
+    )
 
 @web_bp.route("/testimonial/new", methods=["GET", "POST"])
 @login_required  # optional, depending on whether you want to allow anonymous testimonials
@@ -83,7 +78,13 @@ def product_list():
 @web_bp.route("/product/<slug>")
 def product_detail(slug: str):
     product = Product.query.filter_by(slug=slug).first_or_404()
-    return render_template("layouts/product/detail.html", product= product)
+
+    if product is None:
+        abort(404)
+    return render_template(
+        "layouts/product/detail.html", 
+        product=product
+    )
 
 @web_bp.route("/cart")
 def cart():

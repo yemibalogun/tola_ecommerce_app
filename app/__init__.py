@@ -82,6 +82,7 @@ def create_app(config_name: str = "development") -> Flask:
     from app.web import web_bp
     from app.api import api_bp
     from app.admin import auth_bp, product_bp, admin_bp, admin_categories, orders_bp
+    print(app.url_map)
     
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp, url_prefix="/api")

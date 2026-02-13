@@ -12,22 +12,23 @@
             {% for product in products %}
                 <div class="product-card">
                     <div class="product-image">
-                        {# Fallback image prevents broken UI #}
-                        <img
-                            src="{{ product.image_url if product.image_url else url_for('static', filename='images/placeholder.png') }}"
+                        
+                        <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}" 
                             alt="{{ product.name }}"
-                        >
+                            width="300" 
+                            class="insta-image">
                     </div>
 
                     <div class="product-info">
                         <h3>{{ product.name }}</h3>
                         <p class="price">
-                            ₦{{ "%.2f"|format(product.price) }}
+                            ₦{{ "{:,.2f}".format(product.price) }}
                         </p>
 
-                        <a href="#" class="btn">
+                        <a href="{{ url_for('web.product_detail', slug=product.slug) }}" class="btn">
                             View Product
                         </a>
+
                     </div>
                 </div>
             {% else %}

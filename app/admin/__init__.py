@@ -7,10 +7,11 @@ admin_bp: Blueprint = Blueprint(
     url_prefix="/admin",
 )
 
-product_bp = Blueprint("admin_products", 
-                       __name__, 
-                       url_prefix="/admin/products"
-                    )
+product_bp = Blueprint(
+    "admin_products", 
+    __name__, 
+    url_prefix="/admin/products"
+)
 
 admin_categories = Blueprint(
     "admin_categories",

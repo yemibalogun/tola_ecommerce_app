@@ -1,3 +1,9 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Variants{% endblock %}
+
+{% block content %}
+
 <h3>{{ product.name }} — Variants</h3>
 
 <a href="{{ url_for('admin.create_variant', product_id=product.id) }}"
@@ -37,3 +43,5 @@
     {% endfor %}
   </tbody>
 </table>
+
+{% endblock %}

@@ -1,5 +1,6 @@
 import uuid
-from flask import current_app, render_template, redirect, url_for, flash
+from flask import current_app, render_template, redirect, url_for, flash, request
+from app.admin.forms import ProductVariantForm, InventoryAdjustForm
 from flask_login import current_user, login_required
 from app.admin import admin_bp
 from app.admin.forms import ProductVariantForm, InventoryAdjustForm
@@ -9,6 +10,8 @@ from app.models.product import Product
 from app.models.product_variant import ProductVariant
 from werkzeug.utils import secure_filename
 from sqlalchemy.exc import IntegrityError
+from app.utils.uploads import save_product_image
+from werkzeug.datastructures import FileStorage
 import os 
 
 @admin_bp.route("/products/<int:product_id>/variants")
@@ -293,3 +296,72 @@ def update_inventory(variant_id: int):
         url_for("admin.edit_product", product_id=variant.product_id)
     )
 
+
+@admin_bp.route("/<int:product_id>/variants", methods=["GET", "POST"])
+@login_required
+@admin_required
+def manage_variants(product_id: int):
+    """
+    Create and list variants for a product.
+    """
+
+    # Ensure product belongs to current tenant
+    product: Product = Product.query.filter_by(
+        id=product_id,
+        tenant_id=current_user.tenant_id,
+    ).first_or_404()
+
+    form = ProductVariantForm()
+
+    if form.validate_on_submit():
+        try:
+            # Validate name defensively
+            name_raw: str | None = form.name.data
+            if not name_raw:
+                flash("Variant name is required", "danger")
+                return redirect(request.url)
+
+            # Handle optional image
+            image_filename: str | None = None
+            image_file: FileStorage | None = form.image.data
+
+            if image_file and image_file.filename:
+                image_filename = save_product_image(image_file)
+
+            variant = ProductVariant()
+            variant.product_id=product.id
+            variant.tenant_id=current_user.tenant_id
+            variant.name=name_raw.strip()
+            variant.sku=form.sku.data.strip() if form.sku.data else ""
+            variant.price_override=form.price_override.data
+            stock_value: int = form.stock_quantity.data or 0
+
+            variant.stock_quantity = stock_value
+  
+            variant.image=image_filename 
+            
+
+            db.session.add(variant)
+            db.session.commit()
+
+            flash("Variant added successfully", "success")
+            return redirect(request.url)
+
+        except IntegrityError:
+            db.session.rollback()
+            flash("SKU must be unique.", "danger")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating variant: {str(e)}", "danger")
+
+    variants = ProductVariant.query.filter_by(
+        product_id=product.id,
+        tenant_id=current_user.tenant_id,
+    ).all()
+
+    return render_template(
+        "admin/products/manage_variants.html", 
+        product=product,
+        variants=variants,
+        form=form,
+    )
