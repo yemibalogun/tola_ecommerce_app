@@ -44,8 +44,7 @@ class TenantBanner(BaseModel):
     # Banner content
     title: Mapped[str] = mapped_column(String(255), nullable=False)  # Main headline
     subtitle: Mapped[str] = mapped_column(String(255), nullable=True)  # Optional subheadline
-    image_path: Mapped[str] = mapped_column(String(255), nullable=False)  # Banner image
-    image_alt: Mapped[str] = mapped_column(String(255), nullable=True, default="banner image")  # Alt text
+    image_file: Mapped[str | None] = mapped_column(String(255), nullable=False)  # Banner image
 
     # Call-to-action (CTA)
     cta_text: Mapped[str] = mapped_column(String(50), nullable=True)  # Button text

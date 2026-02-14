@@ -3,6 +3,7 @@ import uuid
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from flask import current_app
+from typing import Optional
 
 
 
@@ -32,3 +33,35 @@ def save_product_image(file: FileStorage) -> str:
     # Store relative path in DB
     return f"admin/uploads/products/{new_filename}"
 
+def save_banner_image(file: Optional[FileStorage]) -> Optional[str]:
+    """
+    Save uploaded file to static/uploads/banners.
+    Returns relative path for DB storage.
+    """
+
+    if file is None or file.filename == "":
+        return None
+
+    try:
+        # Generate unique filename
+        ext = os.path.splitext(file.filename)[1]
+        filename = f"{uuid.uuid4().hex}{ext}"
+
+        upload_folder = os.path.join(
+            current_app.root_path,
+            "static",
+            "uploads",
+            "banners",
+        )
+
+        os.makedirs(upload_folder, exist_ok=True)
+
+        file_path = os.path.join(upload_folder, secure_filename(filename))
+
+        file.save(file_path)
+
+        # Store relative path in DB
+        return f"uploads/banners/{filename}"
+
+    except Exception:
+        return None

@@ -1,0 +1,21 @@
+{% extends "admin/layouts/base.html" %}
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Billboard Settings</h2>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="card p-4 shadow-sm">
+      <div class="mb-3">
+        {{ form.hero_theme.label(class="form-label") }}
+        {{ form.hero_theme(class="form-select") }}
+      </div>
+
+      <div class="text-end">
+        {{ form.submit(class="btn btn-primary") }}
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

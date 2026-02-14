@@ -2,13 +2,18 @@ from flask import abort, render_template, g, request, flash, url_for, send_from_
 from app.models.product import Product
 from app.models.testimonial import Testimonial
 from app.models.blog import Blog
-from app.web import web_bp, web_blog_bp
+from app.models.category import Category
+from app.models.tenant import Tenant
+from app.models.tenant_banner import TenantBanner
+from app.web.forms import TestimonialForm, BillboardForm, TenantBannerForm
+from app.web import web_bp
+from app.web import bp
 from app.extensions.db import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_
-from typing import List
-from app.models.category import Category
-from app.web.forms import TestimonialForm
+from typing import List, Any
+from app.utils.uploads import save_banner_image
+
 from flask_login import login_required, current_user
 import random
 
@@ -264,3 +269,168 @@ def search():
         products=products,
         categories=categories,
     )
+
+def get_current_tenant() -> Tenant:
+    """
+    Replace with your tenant resolution logic.
+    """
+    tenant: Tenant | None = Tenant.query.first()
+
+    if tenant is None:
+        raise RuntimeError("No tenant found.")
+
+    return tenant
+
+
+# -------------------------------
+# Billboard Settings
+# -------------------------------
+
+@bp.route("/billboard", methods=["GET", "POST"])
+def edit_billboard() -> Any:
+    tenant: Tenant = get_current_tenant()
+    form = BillboardForm(obj=tenant)
+
+    if form.validate_on_submit():
+        tenant.hero_theme = form.hero_theme.data
+
+        db.session.commit()
+        flash("Billboard updated successfully.", "success")
+
+        return redirect(url_for("tenant_content.edit_billboard"))
+
+    return render_template(
+        "admin/tenant/billboard.html",
+        form=form,
+        tenant=tenant,
+    )
+
+
+# -------------------------------
+# Banner List
+# -------------------------------
+
+@bp.route("/banners")
+def banner_list() -> Any:
+    tenant: Tenant = get_current_tenant()
+
+    banners = (
+        TenantBanner.query
+        .filter_by(tenant_id=tenant.id)
+        .order_by(TenantBanner.order.asc())
+        .all()
+    )
+
+    return render_template(
+        "admin/tenant/banner_list.html",
+        banners=banners,
+    )
+
+
+# -------------------------------
+# Create Banner
+# -------------------------------
+
+@bp.route("/banners/create", methods=["GET", "POST"])
+def banner_create() -> Any:
+    tenant: Tenant = get_current_tenant()
+    form = TenantBannerForm()
+
+    if form.validate_on_submit():
+        image_path = save_banner_image(form.image_file.data)
+        background_path = save_banner_image(form.background_file.data)
+
+        banner = TenantBanner()
+        banner.tenant_id=tenant.id
+        banner.title=form.title.data or "New Banner"
+        banner.subtitle=form.subtitle.data or ""
+        banner.image_file=image_path  # stored relative path
+        banner.background_image=background_path
+        banner.hover_effect=form.hover_effect.data or ""
+        banner.cta_text=form.cta_text.data or ""
+        banner.cta_url=form.cta_url.data or ""
+        banner.bg_color=form.bg_color.data or ""
+        banner.text_color=form.text_color.data or "#000000"
+        banner.order=form.order.data or 0
+        banner.is_active=form.is_active.data
+        
+        db.session.add(banner)
+        db.session.commit()
+
+        flash("Banner created successfully.", "success")
+        return redirect(url_for("tenant_content.banner_list"))
+
+    return render_template(
+        "admin/tenant/banner_form.html",
+        form=form,
+        title="Create Banner",
+    )
+
+
+# -------------------------------
+# Edit Banner
+# -------------------------------
+
+@bp.route("/banners/<int:banner_id>/edit", methods=["GET", "POST"])
+def banner_edit(banner_id: int) -> Any:
+    tenant: Tenant = get_current_tenant()
+
+    banner = TenantBanner.query.filter_by(
+        id=banner_id,
+        tenant_id=tenant.id,
+    ).first_or_404()
+
+    form = TenantBannerForm(obj=banner)
+
+    if form.validate_on_submit():
+        new_image = save_banner_image(form.image_file.data)
+        new_background = save_banner_image(form.background_file.data)
+
+        # Only update if new file uploaded
+        if new_image:
+            banner.image_path = new_image
+
+        if new_background:
+            banner.background_image = new_background
+
+        banner.title = form.title.data
+        banner.subtitle = form.subtitle.data
+        banner.hover_effect = form.hover_effect.data
+        banner.cta_text = form.cta_text.data
+        banner.cta_url = form.cta_url.data
+        banner.bg_color = form.bg_color.data
+        banner.text_color = form.text_color.data
+        banner.order = form.order.data or 0
+        banner.is_active = form.is_active.data
+
+        db.session.commit()
+        flash("Banner updated successfully.", "success")
+
+        return redirect(url_for("tenant_content.banner_list"))
+
+    return render_template(
+        "admin/tenant/banner_form.html",
+        form=form,
+        banner=banner,
+        title="Edit Banner",
+    )
+
+
+# -------------------------------
+# Delete Banner
+# -------------------------------
+
+@bp.route("/banners/<int:banner_id>/delete", methods=["POST"])
+def banner_delete(banner_id: int) -> Any:
+    tenant: Tenant = get_current_tenant()
+
+    banner = TenantBanner.query.filter_by(
+        id=banner_id,
+        tenant_id=tenant.id,
+    ).first_or_404()
+
+    db.session.delete(banner)
+    db.session.commit()
+
+    flash("Banner deleted.", "info")
+    return redirect(url_for("tenant_content.banner_list"))

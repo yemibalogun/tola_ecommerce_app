@@ -121,3 +121,4 @@ class CategoryForm(FlaskForm):
     )
 
     submit = SubmitField("Save Category")
+

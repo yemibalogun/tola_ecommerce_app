@@ -1,0 +1,66 @@
+{% extends "admin/layouts/base.html" %}
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">{{ title }}</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="card p-4 shadow-sm">
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          {{ form.title.label(class="form-label") }}
+          {{ form.title(class="form-control") }}
+        </div>
+
+        <div class="col-md-6">
+          {{ form.subtitle.label(class="form-label") }}
+          {{ form.subtitle(class="form-control") }}
+        </div>
+
+        <div class="col-md-6">
+          {{ form.image_file.label(class="form-label") }}
+          {{ form.image_file(class="form-control") }}
+        </div>
+
+        <div class="col-md-6">
+          {{ form.background_file.label(class="form-label") }}
+          {{ form.background_file(class="form-control") }}
+        </div>
+
+        <div class="col-md-4">
+          {{ form.hover_effect.label(class="form-label") }}
+          {{ form.hover_effect(class="form-select") }}
+        </div>
+
+        <div class="col-md-4">
+          {{ form.order.label(class="form-label") }}
+          {{ form.order(class="form-control") }}
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check">
+            {{ form.is_active(class="form-check-input") }}
+            {{ form.is_active.label(class="form-check-label") }}
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          {{ form.cta_text.label(class="form-label") }}
+          {{ form.cta_text(class="form-control") }}
+        </div>
+
+        <div class="col-md-6">
+          {{ form.cta_url.label(class="form-label") }}
+          {{ form.cta_url(class="form-control") }}
+        </div>
+      </div>
+
+      <div class="text-end mt-4">
+        {{ form.submit(class="btn btn-primary") }}
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

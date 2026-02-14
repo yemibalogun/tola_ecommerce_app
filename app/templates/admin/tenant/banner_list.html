@@ -1,0 +1,57 @@
+{% extends "admin/layouts/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Banners</h2>
+    <a href="{{ url_for('tenant_content.banner_create') }}" class="btn btn-primary">
+      + New Banner
+    </a>
+  </div>
+
+  <div class="card shadow-sm">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Order</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for banner in banners %}
+        <tr>
+          <td>{{ banner.title }}</td>
+          <td>{{ banner.order }}</td>
+          <td>
+            {% if banner.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('tenant_content.banner_edit', banner_id=banner.id) }}" class="btn btn-sm btn-outline-primary">
+              Edit
+            </a>
+            <form method="POST"
+                  action="{{ url_for('tenant_content.banner_delete', banner_id=banner.id) }}"
+                  class="d-inline">
+              <button class="btn btn-sm btn-outline-danger">
+                Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center py-4 text-muted">
+            No banners yet.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
