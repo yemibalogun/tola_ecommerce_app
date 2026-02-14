@@ -1779,3 +1779,12 @@ figure.instagram-item img.insta-image {
     opacity: 0.85;
 }
 
+.img-fluid rounded {
+  max-height:120px;
+}
+
+.img-fluid {
+  max-height: 200px; 
+  object-fit: cover; 
+  width: 100%;
+}

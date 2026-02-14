@@ -1,4 +1,5 @@
 {% extends "admin/layouts/base.html" %}
+
 {% block content %}
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -37,7 +38,7 @@
             <form method="POST"
                   action="{{ url_for('tenant_content.banner_delete', banner_id=banner.id) }}"
                   class="d-inline">
-              <button class="btn btn-sm btn-outline-danger">
+              <button type="submit" class="btn btn-sm btn-outline-danger">
                 Delete
               </button>
             </form>

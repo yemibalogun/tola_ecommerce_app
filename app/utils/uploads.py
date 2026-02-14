@@ -6,7 +6,6 @@ from flask import current_app
 from typing import Optional
 
 
-
 def save_product_image(file: FileStorage) -> str:
     """
     Saves an uploaded product image and returns its relative path.
@@ -39,15 +38,26 @@ def save_banner_image(file: Optional[FileStorage]) -> Optional[str]:
     Returns relative path for DB storage.
     """
 
-    if file is None or file.filename == "":
+    if file is None:
+        return None
+    
+    filename: Optional[str] = file.filename
+
+    # Ensure filename exists and is not empty
+    if not filename:
         return None
 
     try:
         # Generate unique filename
-        ext = os.path.splitext(file.filename)[1]
-        filename = f"{uuid.uuid4().hex}{ext}"
+        _, ext = os.path.splitext(filename)
 
-        upload_folder = os.path.join(
+        # Normalize extension to lowercase
+        ext = ext.lower()
+
+        # Generate collision-safe filename
+        new_filename: str = f"{uuid.uuid4().hex}{ext}"
+
+        upload_folder: str = os.path.join(
             current_app.root_path,
             "static",
             "uploads",
@@ -56,12 +66,15 @@ def save_banner_image(file: Optional[FileStorage]) -> Optional[str]:
 
         os.makedirs(upload_folder, exist_ok=True)
 
-        file_path = os.path.join(upload_folder, secure_filename(filename))
+        file_path: str = os.path.join(
+            upload_folder, 
+            secure_filename(filename),
+        )
 
         file.save(file_path)
 
         # Store relative path in DB
-        return f"uploads/banners/{filename}"
+        return f"uploads/banners/{new_filename}"
 
     except Exception:
         return None

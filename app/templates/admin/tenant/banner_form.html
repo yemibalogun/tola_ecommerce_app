@@ -1,5 +1,7 @@
 {% extends "admin/layouts/base.html" %}
+
 {% block content %}
+
 <div class="container">
   <h2 class="mb-4">{{ title }}</h2>
 
@@ -22,11 +24,25 @@
         <div class="col-md-6">
           {{ form.image_file.label(class="form-label") }}
           {{ form.image_file(class="form-control") }}
+
+          {% if banner and banner.image_path %}
+            <div class="mt-2">
+                <img src="{{ url_for('static', filename=banner.image_path) }}"
+                    class="img-fluid rounded" alt="banner-image">
+            </div>
+        {% endif %}
         </div>
 
         <div class="col-md-6">
           {{ form.background_file.label(class="form-label") }}
           {{ form.background_file(class="form-control") }}
+
+        {% if banner and banner.background_image %}
+            <div class="mt-2">
+                <img src="{{ url_for('static', filename=banner.background_image) }}"
+                    class="img-fluid rounded" alt="banner-background">
+            </div>
+        {% endif %}
         </div>
 
         <div class="col-md-4">
@@ -63,4 +79,5 @@
     </div>
   </form>
 </div>
+
 {% endblock %}
