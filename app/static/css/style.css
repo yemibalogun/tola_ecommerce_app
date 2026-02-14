@@ -1552,3 +1552,230 @@ figure.instagram-item img.insta-image {
         margin-bottom: 2rem;
     }
 }
+
+/* =========================
+   Billboard Section
+========================= */
+
+.billboard-section {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Slide */
+.banner-slide {
+    position: relative;
+    padding: 7rem 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* When background image exists */
+.has-bg-image {
+    color: #fff;
+}
+
+
+.billboard-section {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Slide */
+.banner-slide {
+    position: relative;
+    padding: 7rem 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* When background image exists */
+.has-bg-image {
+    color: #fff;
+}
+
+.animate-text > * {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s ease forwards;
+}
+
+.animate-text > *:nth-child(1) {
+    animation-delay: 0.2s;
+}
+.animate-text > *:nth-child(2) {
+    animation-delay: 0.4s;
+}
+.animate-text > *:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.animate-text > * {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s ease forwards;
+}
+
+.animate-text > *:nth-child(1) {
+    animation-delay: 0.2s;
+}
+.animate-text > *:nth-child(2) {
+    animation-delay: 0.4s;
+}
+.animate-text > *:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.banner-title {
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.banner-subtitle {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+}
+
+.banner-cta {
+    display: inline-block;
+    padding: 0.9rem 2.2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.35s ease;
+}
+
+/* Light Theme */
+.theme-light .banner-cta {
+    background: #111;
+    color: #fff;
+}
+
+.theme-light .banner-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+/* Dark Theme */
+.theme-dark .banner-cta {
+    background: #fff;
+    color: #111;
+}
+
+.theme-dark .banner-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(255,255,255,0.2);
+}
+
+.banner-cta {
+    display: inline-block;
+    padding: 0.9rem 2.2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.35s ease;
+}
+
+/* Light Theme */
+.theme-light .banner-cta {
+    background: #111;
+    color: #fff;
+}
+
+.theme-light .banner-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+/* Dark Theme */
+.theme-dark .banner-cta {
+    background: #fff;
+    color: #111;
+}
+
+.theme-dark .banner-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(255,255,255,0.2);
+}
+
+.image-holder {
+    overflow: hidden;
+    border-radius: 18px;
+}
+
+.banner-img {
+    width: 100%;
+    transition: transform 0.7s ease, opacity 0.5s ease;
+}
+
+/* Zoom */
+.hover-zoom .banner-img:hover {
+    transform: scale(1.08);
+}
+
+/* Rotate */
+.hover-rotate .banner-img:hover {
+    transform: scale(1.05) rotate(1deg);
+}
+
+/* Lift */
+.hover-lift .banner-img:hover {
+    transform: translateY(-12px);
+}
+
+/* Fade */
+.hover-fade .banner-img:hover {
+    opacity: 0.85;
+}
+
+.image-holder {
+    overflow: hidden;
+    border-radius: 18px;
+}
+
+.banner-img {
+    width: 100%;
+    transition: transform 0.7s ease, opacity 0.5s ease;
+}
+
+/* Zoom */
+.hover-zoom .banner-img:hover {
+    transform: scale(1.08);
+}
+
+/* Rotate */
+.hover-rotate .banner-img:hover {
+    transform: scale(1.05) rotate(1deg);
+}
+
+/* Lift */
+.hover-lift .banner-img:hover {
+    transform: translateY(-12px);
+}
+
+/* Fade */
+.hover-fade .banner-img:hover {
+    opacity: 0.85;
+}
+

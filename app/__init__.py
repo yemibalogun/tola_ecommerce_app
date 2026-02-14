@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, g
 from flask_migrate import Migrate
 from app.extensions.db import db
 from app.extensions.login import login_manager
@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, text
 from flask_wtf import CSRFProtect
 import re, os
 from datetime import datetime
+from app.models import Tenant
 
 migrate = Migrate()
 
@@ -41,14 +42,20 @@ def create_app(config_name: str = "development") -> Flask:
     app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
     @app.context_processor
-    def inject_current_year():
-        "Injects the current year into all Jinja templates."
+    def inject_globals() -> dict[str, object]:
+        """
+        Inject global template variables.
+        """
         try:
-            return {"current_year": datetime.utcnow().year}
+            current_year: int = datetime.utcnow().year
         except Exception:
-            # Extremely defensive fallback to avoid to avoid template crashs
-            return {"current_year": "2026"}
-        
+            current_year = 2026
+
+        return {
+            "current_year": current_year,
+            "tenant": getattr(g, "tenant", None),
+        }
+
     # ---- Core Flask config ----
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
 
@@ -74,7 +81,7 @@ def create_app(config_name: str = "development") -> Flask:
     if config_name in ("development", "testing"):
         with app.app_context():
             # --- Import all models first ---
-            from app.models import base, tenant, user, product, order, category, product_variant, payment, order_item, inventory, testimonial, blog
+            from app.models import base, tenant, user, product, order, category, product_variant, payment, order_item, inventory, testimonial, blog, tenant_banner
             # --- Then create tables ---
             db.create_all()  # now all foreign keys are resolvable
 
@@ -82,7 +89,6 @@ def create_app(config_name: str = "development") -> Flask:
     from app.web import web_bp
     from app.api import api_bp
     from app.admin import auth_bp, product_bp, admin_bp, admin_categories, orders_bp
-    print(app.url_map)
     
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp, url_prefix="/api")
@@ -91,7 +97,55 @@ def create_app(config_name: str = "development") -> Flask:
     app.register_blueprint(product_bp)
     app.register_blueprint(admin_categories)
     app.register_blueprint(orders_bp)
+
+    # -------------------------------
+    # 1️⃣ Load tenant before request
+    # -------------------------------
+    @app.before_request
+    def load_current_tenant() -> None:
+        """
+        Resolve tenant from subdomain.
+        Stores tenant globally in flask.g.
+        Safe for localhost and production.
+        """
+
+        try:
+            host: str = request.host.split(":")[0]
+            parts: list[str] = host.split(".")
+
+            # Handle localhost (tenant.localhost)
+            if "localhost" in host:
+                if len(parts) >= 2:
+                    subdomain: str = parts[0]
+                else:
+                    g.tenant = None
+                    return
+            else:
+                # Production domain (tenant.domain.com)
+                if len(parts) >= 3:
+                    subdomain = parts[0]
+                else:
+                    g.tenant = None
+                    return
+
+            tenant: Tenant | None = (
+                db.session.query(Tenant)
+                .filter(Tenant.slug == subdomain)
+                .first()
+            )
+
+            g.tenant = tenant
+
+        except Exception:
+            # Fail safe — never break request cycle
+            g.tenant = None
+
+
+    # -------------------------------
+    # 2️⃣ Inject tenant into templates
+    # -------------------------------
     
+
      # Create database if it doesn't exist (PostgreSQL only)
 
     return app

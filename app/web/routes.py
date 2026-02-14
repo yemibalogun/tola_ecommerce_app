@@ -1,4 +1,4 @@
-from flask import abort, render_template, request, flash, url_for, send_from_directory, redirect
+from flask import abort, render_template, g, request, flash, url_for, send_from_directory, redirect
 from app.models.product import Product
 from app.models.testimonial import Testimonial
 from app.models.blog import Blog
@@ -81,7 +81,8 @@ def user() -> str:
 
 @web_bp.route("/products")
 def product_list():
-    products = Product.query.all()
+    products = Product.query.filter_by(tenant_id=g.tenant.id)
+
     return render_template("layouts/product/list.html", products=products)
 
 @web_bp.route("/product/<slug>")
