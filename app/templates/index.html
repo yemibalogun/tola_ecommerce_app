@@ -12,63 +12,59 @@
         <div class="swiper main-swiper">
             <div class="swiper-wrapper">
 
-                {% for banner in tenant.banners if banner.is_active %}
-                <div class="swiper-slide banner-slide
-                            {% if banner.background_image %}has-bg-image{% endif %}"
-                    style="
+                {% if tenant and tenant.banners %}
+                    {% for banner in tenant.banners if banner.is_active %}
+                    <div class="swiper-slide banner-slide
+                                {% if banner.background_image %}has-bg-image{% else %}has-bg-color{% endif %}"
+                        data-bg-image="{{ url_for('static', filename=banner.background_image) if banner.background_image else '' }}"
+                        data-bg-color="{{ banner.bg_color or '#f8f9fa' }}">
+
                         {% if banner.background_image %}
-                            background-image: url('{{ url_for('static', filename=banner.background_image) }}');
-                        {% else %}
-                            background-color: {{ banner.bg_color or '#f8f9fa' }};
+                            <div class="banner-overlay"></div>
                         {% endif %}
-                    ">
 
-                    <!-- Gradient Overlay -->
-                    <div class="banner-overlay"></div>
+                        <div class="container">
+                            <div class="row align-items-center flex-wrap">
 
-                    <div class="container">
-                        <div class="row align-items-center flex-wrap">
+                                <div class="col-md-6">
+                                    <div class="banner-content animate-text">
 
-                            <!-- Text Content -->
-                            <div class="col-md-6">
-                                <div class="banner-content animate-text">
+                                        <h1 class="banner-title">
+                                            {{ banner.title }}
+                                        </h1>
 
-                                    <h1 class="banner-title">
-                                        {{ banner.title }}
-                                    </h1>
+                                        {% if banner.subtitle %}
+                                        <p class="banner-subtitle">
+                                            {{ banner.subtitle }}
+                                        </p>
+                                        {% endif %}
 
-                                    {% if banner.subtitle %}
-                                    <p class="banner-subtitle">
-                                        {{ banner.subtitle }}
-                                    </p>
-                                    {% endif %}
+                                        {% if banner.cta_text and banner.cta_url %}
+                                        <a href="{{ banner.cta_url }}"
+                                          class="banner-cta">
+                                            {{ banner.cta_text }}
+                                        </a>
+                                        {% endif %}
 
-                                    {% if banner.cta_text and banner.cta_url %}
-                                    <a href="{{ banner.cta_url }}"
-                                      class="banner-cta">
-                                        {{ banner.cta_text }}
-                                    </a>
-                                    {% endif %}
-
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Image -->
-                            {% if banner.image_path %}
-                            <div class="col-md-5 offset-md-1">
-                                <div class="image-holder hover-{{ banner.hover_effect or 'zoom' }}">
-                                    <img src="{{ url_for('static', filename=banner.image_path) }}"
-                                        alt="{{ banner.image_alt }}"
-                                        class="banner-img">
+                                {% if banner.image_path %}
+                                <div class="col-md-5 offset-md-1">
+                                    <div class="hero-image-wrapper hover-{{ banner.hover_effect or 'zoom' }}">
+                                        <img src="{{ url_for('static', filename=banner.image_path) }}"
+                                            alt="{{ banner.image_alt or banner.title }}"
+                                            class="banner-img">
+                                    </div>
                                 </div>
-                            </div>
-                            {% endif %}
+                                {% endif %}
 
+                            </div>
                         </div>
-                    </div>
 
-                </div>
-                {% endfor %}
+                    </div>
+                    {% endfor %}
+                {% endif %}
 
             </div>
 
@@ -78,8 +74,11 @@
             <div class="swiper-arrow swiper-arrow-next">
                 <svg><use xlink:href="#chevron-right"></use></svg>
             </div>
+
         </div>
-    </section>
+</section>
+
+
 
 
 
@@ -134,117 +133,71 @@
         </div>
       </section>
 
-
-      <section id="mobile-products" class="product-store position-relative py-5">
+     {% for category_name, products in category_sections.items() %}
+     {% if products %}
+      <section class="product-store padding-large position-relative">
         <div class="container">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="display-7 text-dark text-uppercase">Mobile Products</h2>
-                <a href="{{ url_for('web.shop') }}" class="btn btn-medium btn-normal text-uppercase">
-                    Go to Shop
-                </a>
-            </div>
+            <div class="row">
 
-            <!-- Swiper Container -->
-            <div class="swiper product-swiper">
-                <div class="swiper-wrapper">
-                    {% for product in mobile_products %}
-                    <div class="swiper-slide">
-                        <div class="product-card position-relative">
-                            <div class="image-holder">
-                                <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}"
-                                    alt="{{ product.name }}" class="img-fluid">
-                            </div>
-                            <div class="cart-concern position-absolute">
-                                <div class="cart-button d-flex">
-                                    <a href="#" class="btn btn-medium btn-black">
-                                        Add to Cart
-                                        <svg class="cart-outline"><use xlink:href="#cart-outline"></use></svg>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="card-detail d-flex justify-content-between align-items-baseline pt-3">
-                                <h3 class="card-title text-uppercase">
-                                    <a href="{{ url_for('web.product_detail', slug=product.slug) }}">
-                                        {{ product.name }}
-                                    </a>
-                                </h3>
-                                <span class="item-price text-primary">
-                                    ₦{{ "{:,.2f}".format(product.price) }}
-                                </span>
-                            </div>
-                        </div>
+                <div class="display-header d-flex justify-content-between pb-3">
+                    <h2 class="display-7 text-dark text-uppercase">
+                        {{ category_name }}
+                    </h2>
+
+                    <div class="btn-right">
+                        <a href="{{ url_for('web.shop') }}" 
+                          class="btn btn-medium btn-normal text-uppercase">
+                            Go to Shop
+                        </a>
                     </div>
-                    {% endfor %}
-
                 </div>
 
-                <!-- Pagination -->
-                <div class="swiper-pagination position-absolute text-center"></div>
+                <div class="swiper product-watch-swiper">
+                    <div class="swiper-wrapper">
+
+                        {% for product in products %}
+                        <div class="insta-image">
+                            <div class="product-card position-relative">
+
+                                <div class="image-holder">
+                                    <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}"
+                                        alt="{{ product.name }}"
+                                        class="img-fluid">
+                                </div>
+
+                                <div class="cart-concern position-absolute">
+                                    <div class="cart-button d-flex">
+                                        <a href="#" class="btn btn-medium btn-black">
+                                            Add to Cart
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="card-detail d-flex justify-content-between align-items-baseline pt-3">
+                                    <h3 class="card-title text-uppercase">
+                                        <a href="{{ url_for('web.product_detail', slug=product.slug) }}">
+                                            {{ product.name }}
+                                        </a>
+                                    </h3>
+                                    <span class="item-price text-primary">
+                                        ₦{{ "{:,.2f}".format(product.price) }}
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+
             </div>
         </div>
-    </section>
 
-     <section id="smart-watches" class="product-store padding-large position-relative">
-      <div class="container">
-          <div class="row">
-              <div class="display-header d-flex justify-content-between pb-3">
-                  <h2 class="display-7 text-dark text-uppercase">Smart Watches</h2>
-                  <div class="btn-right">
-                      <a href="{{ url_for('web.shop') }}" class="btn btn-medium btn-normal text-uppercase">
-                          Go to Shop
-                      </a>
-                  </div>
-              </div>
-
-              <div class="swiper product-watch-swiper">
-                  <div class="swiper-wrapper">
-                      {% for product in smart_watch_products %}
-                      <div class="swiper-slide">
-                          <div class="product-card position-relative">
-
-                              <!-- Product Image -->
-                              <div class="image-holder">
-                                  <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}"
-                                      alt="{{ product.name }}"
-                                      class="img-fluid">
-                              </div>
-
-                              <!-- Cart Button -->
-                              <div class="cart-concern position-absolute">
-                                  <div class="cart-button d-flex">
-                                      <a href="#" class="btn btn-medium btn-black">
-                                          Add to Cart
-                                          <svg class="cart-outline">
-                                              <use xlink:href="#cart-outline"></use>
-                                          </svg>
-                                      </a>
-                                  </div>
-                              </div>
-
-                              <!-- Product Info -->
-                              <div class="card-detail d-flex justify-content-between align-items-baseline pt-3">
-                                  <h3 class="card-title text-uppercase">
-                                      <a href="{{ url_for('web.product_detail', slug=product.slug) }}">
-                                          {{ product.name }}
-                                      </a>
-                                  </h3>
-                                  <span class="item-price text-primary">
-                                      ₦{{ "{:,.2f}".format(product.price) }}
-                                  </span>
-                              </div>
-
-                          </div>
-                      </div>
-                      {% endfor %}
-                  </div>
-              </div>
-
-          </div>
-      </div>
-
-      <div class="swiper-pagination position-absolute text-center"></div>
-    </section>
+        <div class="swiper-pagination position-absolute text-center"></div>
+      </section>
+      {% endif %}
+      {% endfor %}
 
       <section id="yearly-sale" class="bg-light-blue overflow-hidden mt-5 padding-xlarge" style="background-image: url('images/single-image1.png');background-position: right; background-repeat: no-repeat;">
         <div class="row d-flex flex-wrap align-items-center">

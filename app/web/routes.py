@@ -10,28 +10,62 @@ from app.web import web_bp
 from app.web import bp
 from app.extensions.db import db
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 from sqlalchemy import or_
-from typing import List, Any
+from sqlalchemy.orm import selectinload
+from typing import List, Any, Dict
 from app.utils.uploads import save_banner_image
-
 from flask_login import login_required, current_user
 import random
 
 
+
 @web_bp.route("/")
 def home() -> str:
-    products = Product.query.limit(8).all()
-    # Filter mobile products
-    mobile_products = [p for p in products if p.category == 'mobile']
 
-    # Pick 3 random items
-    random_mobile_products = random.sample(mobile_products, k=min(3, len(mobile_products)))
+    # --- General products for other homepage sections ---
+    products: List[Product] = (
+        Product.query
+        .limit(5)
+        .all()
+    )
 
-    # Filter smart watches
-    smart_watch_products = [p for p in products if p.category == 'smartwatch']
+    # --- Categories that contain at least 1 product ---
+    categories: List[Category] = (
+        Category.query
+        .join(Product)
+        .options(selectinload(Category.products))
+        .group_by(Category.id)
+        .having(func.count(Product.id) > 0)
+        .order_by(func.random())
+        .limit(2)
+        .all()
+    )
 
-    # Pick 3 random items safely
-    random_smart_watches = random.sample(smart_watch_products, k=min(3, len(smart_watch_products)))
+    category_sections: Dict[str, List[Product]] = {}
+
+    if categories:
+        selected_categories = random.sample(
+            categories,
+            k=min(2, len(categories)),
+        )
+
+        for category in selected_categories:
+
+            name: str | None = category.name
+            if not name:
+                continue
+
+            products_categories: List[Product] = (
+                Product.query
+                .filter(Product.category_id == category.id)
+                .order_by(func.random())
+                .limit(4)
+                .all()
+            )
+
+            if products_categories:
+                category_sections[name] = products_categories
 
     testimonials = (
         Testimonial.query
@@ -40,22 +74,21 @@ def home() -> str:
         .all()
     )
 
-    # Fetch latest 3 blogs
     blogs = (
         Blog.query
         .order_by(Blog.created_at.desc())
-        .limit(3)  # Show only latest 3 on homepage
+        .limit(3)
         .all()
     )
-    
+
     return render_template(
         "index.html",
-        products=products,
-        mobile_products=random_mobile_products,
-        smart_watch_products=random_smart_watches,
+        products=products,  # 🔹 still available for other sections
+        category_sections=category_sections,
         testimonials=testimonials,
-        blogs=blogs  # <-- THIS WAS MISSING
+        blogs=blogs,
     )
+
 
 @web_bp.route("/testimonial/new", methods=["GET", "POST"])
 @login_required  # optional, depending on whether you want to allow anonymous testimonials

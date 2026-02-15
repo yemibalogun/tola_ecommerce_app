@@ -124,6 +124,22 @@
 
       });
 
+      document.addEventListener("DOMContentLoaded", function () {
+        const slides = document.querySelectorAll(".banner-slide");
+
+        slides.forEach(slide => {
+            const bgImage = slide.dataset.bgImage;
+            const bgColor = slide.dataset.bgColor;
+
+            if (bgImage) {
+                slide.style.setProperty("--banner-bg-image", `url(${bgImage})`);
+            } else if (bgColor) {
+                slide.style.setProperty("--banner-bg-color", bgColor);
+            }
+        });
+    });
+
+
 
     }); // End of a document ready
 

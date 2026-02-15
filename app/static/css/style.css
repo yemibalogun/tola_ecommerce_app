@@ -680,6 +680,40 @@ h3.cart-title {
   }
 }
 
+.banner-slide {
+    position: relative;
+    padding: 6rem 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Background image */
+.banner-slide.has-bg-image {
+    background-image: var(--banner-bg-image);
+}
+
+/* Background color */
+.banner-slide.has-bg-color {
+    background-color: var(--banner-bg-color);
+}
+
+.banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        rgba(0,0,0,0.55),
+        rgba(0,0,0,0.3)
+    );
+    z-index: 1;
+}
+
+.banner-content {
+    position: relative;
+    z-index: 2;
+}
+
+
 /* 3. Icon Box - Company Services
 /*----------------------------------------------*/
 .icon-box .icon-box-icon svg {
@@ -1787,4 +1821,210 @@ figure.instagram-item img.insta-image {
   max-height: 200px; 
   object-fit: cover; 
   width: 100%;
+}
+
+.blog-image {
+    width: 100%;
+    aspect-ratio: 16 / 9; /* Standard blog hero ratio */
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 1.5rem 0;
+}
+
+.blog-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;      /* 🔥 Crops instead of stretching */
+    object-position: center; /* Center crop */
+    display: block;
+}
+
+/* =========================================================
+   PRODUCT CATEGORY SECTION (CONSISTENT WITH FEATURES/SUBSCRIBE)
+========================================================= */
+
+
+
+.feature-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1f8a70;
+}
+
+.feature-card p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+.product-store {
+    background-color: #f9f9f9; /* same tone as features */
+    padding: 6rem 0;
+}
+
+/* Section Header (match features style) */
+.product-store .display-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.product-store .display-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f8a70;   /* same accent */
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.product-store .btn-normal {
+    background-color: transparent;
+    border: 1px solid #ddd;
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.product-store .btn-normal:hover {
+    background-color: #1f8a70;
+    color: #fff;
+    border-color: #1f8a70;
+}
+
+
+/* =========================
+   PRODUCT GRID
+========================= */
+
+.product-store .swiper-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2.5rem;
+}
+
+/* =========================
+   PRODUCT CARD (match feature-card softness)
+========================= */
+
+.product-card {
+    background: #ffffff;
+    border-radius: 12px; /* same as feature + subscribe */
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+/* Image container */
+.image-holder {
+    width: 100%;
+    height: 260px;          /* 🔥 Fixed height = perfectly consistent */
+    overflow: hidden;
+    border-radius: 12px;
+    background: #f4f8f6;
+    flex-shrink: 0;         /* Prevent collapsing */
+}
+
+/* Image behavior */
+.image-holder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;      /* Crops image proportionally */
+    display: block;         /* Removes inline spacing issues */
+    transition: transform 0.4s ease;
+}
+
+.product-card:hover .image-holder img {
+    transform: scale(1.05);
+}
+
+/* =========================
+   PRODUCT TEXT
+========================= */
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-title a {
+    color: #555;
+    font-size: 1rem;
+    transition: color 0.2s ease;
+}
+
+.card-title a:hover {
+    color: #1f8a70;
+}
+
+.item-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f8a70;
+    margin-bottom: 1rem;
+}
+.item-price span{
+    font-size: 1rem;
+    font-weight: 700;
+    
+}
+
+/* =========================
+   ADD TO CART BUTTON
+========================= */
+
+.cart-button .btn-black {
+    background-color: #1f8a70;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.cart-button .btn-black:hover {
+    background-color: #166551;
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+    .product-store {
+        padding: 4rem 1rem;
+    }
+
+    .product-store .display-header {
+        text-align: center;
+    }
 }

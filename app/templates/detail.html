@@ -3,25 +3,27 @@
 {% block title %}Blog{% endblock %}
 
 {% block content %}
+    <section class="blog-detail-page">
+        <div class="container">
+            <article class="blog-post">
+                <h1>{{ blog.title }}</h1>
+                <small class="date">{{ blog.created_at.strftime('%B %d, %Y') }}</small>
 
-<section class="blog-detail-page">
-    <div class="container">
-        <article class="blog-post">
-            <h1>{{ blog.title }}</h1>
-            <small class="date">{{ blog.created_at.strftime('%B %d, %Y') }}</small>
+                {% if blog.image_path %}
+                    <div class="blog-image">
+                        <img src="{{ url_for('static', filename=blog.image_path) }}" 
+                        alt="{{ blog.title }}"
+                        class="blog-hero-img"
+                    >
+                    </div>
+                {% endif %}
 
-            {% if blog.image_path %}
-            <div class="blog-image">
-                <img src="{{ url_for('static', filename=blog.image_path) }}" alt="{{ blog.title }}">
-            </div>
-            {% endif %}
+                <div class="blog-content">
+                    {{ blog.content | safe }}
+                </div>
 
-            <div class="blog-content">
-                {{ blog.content | safe }}
-            </div>
-
-            <a href="{{ url_for('web.list_blogs') }}" class="btn btn-secondary mt-4">← Back to all blogs</a>
-        </article>
-    </div>
-</section>
+                <a href="{{ url_for('web.list_blogs') }}" class="btn btn-secondary mt-4">← Back to all blogs</a>
+            </article>
+        </div>
+    </section>
 {% endblock %}
