@@ -22,14 +22,22 @@ import random
 
 @web_bp.route("/")
 def home() -> str:
+    # Tenant already loaded in before_request
+    tenant: Tenant | None = getattr(g, "tenant", None)
 
+    # Development fallback
+    if tenant is None:
+        tenant = Tenant.query.first()
+
+    if tenant is None:
+        abort(404)
     # --- General products for other homepage sections ---
     products: List[Product] = (
         Product.query
         .limit(5)
         .all()
     )
-
+    
     # --- Categories that contain at least 1 product ---
     categories: List[Category] = (
         Category.query
@@ -84,6 +92,7 @@ def home() -> str:
     return render_template(
         "index.html",
         products=products,  # 🔹 still available for other sections
+        tenant=tenant,
         category_sections=category_sections,
         testimonials=testimonials,
         blogs=blogs,

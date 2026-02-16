@@ -18,7 +18,7 @@ class Tenant(BaseModel):
         nullable=False
     )
 
-    slug: Mapped[str] = mapped_column(
+    slug: Mapped[str | None] = mapped_column(
         String(120),
         unique=True,
         nullable=False

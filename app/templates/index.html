@@ -49,10 +49,11 @@
                                     </div>
                                 </div>
 
-                                {% if banner.image_path %}
+                                {% if banner.image_file %}
+
                                 <div class="col-md-5 offset-md-1">
                                     <div class="hero-image-wrapper hover-{{ banner.hover_effect or 'zoom' }}">
-                                        <img src="{{ url_for('static', filename=banner.image_path) }}"
+                                        <img src="{{ url_for('static', filename=banner.image_file) }}"
                                             alt="{{ banner.image_alt or banner.title }}"
                                             class="banner-img">
                                     </div>
@@ -68,10 +69,10 @@
 
             </div>
 
-            <div class="swiper-arrow swiper-arrow-prev">
+            <div class="swiper-arrow swiper-button-prev">
                 <svg><use xlink:href="#chevron-left"></use></svg>
             </div>
-            <div class="swiper-arrow swiper-arrow-next">
+            <div class="swiper-arrow swiper-button-next">
                 <svg><use xlink:href="#chevron-right"></use></svg>
             </div>
 

@@ -647,24 +647,34 @@ h3.cart-title {
 /*------------Swiper Arrow -----------*/
 #billboard .swiper-arrow {
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 50%;                   /* center vertically */
+    transform: translateY(-50%); /* offset by half the arrow height */
     z-index: 2;
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 40px;                 /* optional arrow size */
+    height: 40px;
+    cursor: pointer;
 }
+
 .swiper-icon.swiper-arrow svg {
     fill: var(--light-gray-color);
+    width: 100%;
+    height: 100%;
 }
+
 .swiper-icon.swiper-arrow:hover svg,
 .swiper-icon.swiper-arrow:focus svg {
     fill: var(--primary-color);
 }
+
+
 #billboard .swiper-arrow.swiper-arrow-prev {
-    left: 0;
+    left: 10px;
 }
 #billboard .swiper-arrow.swiper-arrow-next {
-    right: 0;
+    right: 10px;
 }
 
 @media only screen and (max-width: 767px) {
@@ -691,12 +701,15 @@ h3.cart-title {
 /* Background image */
 .banner-slide.has-bg-image {
     background-image: var(--banner-bg-image);
+    background-size: cover;
+    background-position: center;
 }
 
 /* Background color */
 .banner-slide.has-bg-color {
     background-color: var(--banner-bg-color);
 }
+
 
 .banner-overlay {
     position: absolute;
@@ -1758,8 +1771,16 @@ figure.instagram-item img.insta-image {
     border-radius: 18px;
 }
 
+.hero-image-wrapper {
+    width: 100%;
+    max-width: 100%;
+}
+
+
 .banner-img {
     width: 100%;
+    height: auto;
+    display: block;
     transition: transform 0.7s ease, opacity 0.5s ease;
 }
 
