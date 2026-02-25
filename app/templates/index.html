@@ -15,10 +15,16 @@
                 {% if tenant and tenant.banners %}
                     {% for banner in tenant.banners if banner.is_active %}
                     <div class="swiper-slide banner-slide
-                                {% if banner.background_image %}has-bg-image{% else %}has-bg-color{% endif %}"
-                        data-bg-image="{{ url_for('static', filename=banner.background_image) if banner.background_image else '' }}"
-                        data-bg-color="{{ banner.bg_color or '#f8f9fa' }}">
-
+                         style="
+                            {% if banner.background_image %}
+                              background-image: url('{{ url_for('static', filename=banner.background_image) }}');
+                              background-size: cover;
+                              background-position: center;
+                            {% else %}
+                              background-color: {{ banner.bg_color or '#fff' }};
+                            {% endif %}
+                          ">      
+                        
                         {% if banner.background_image %}
                             <div class="banner-overlay"></div>
                         {% endif %}
@@ -69,10 +75,10 @@
 
             </div>
 
-            <div class="swiper-arrow swiper-button-prev">
+            <div class="swiper-arrow swiper-arrow-prev">
                 <svg><use xlink:href="#chevron-left"></use></svg>
             </div>
-            <div class="swiper-arrow swiper-button-next">
+            <div class="swiper-arrow swiper-arrow-next">
                 <svg><use xlink:href="#chevron-right"></use></svg>
             </div>
 
