@@ -1,0 +1,164 @@
+{% extends "platform/base.html" %}
+
+{% block body %}
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="brand" href="{{ url_for('web.home') }}">
+      <span class="brand-mark"><svg class="i"><use href="#i-bars"/></svg></span><span>Tola</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      {% if stores %}<li><a href="#stores">Stores</a></li>{% endif %}
+      {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+      {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Sign in</a></li>
+      {% endif %}
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn-primary btn-sm desktop" href="{{ url_for('web.signup') }}">Open your store</a>
+      <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-controls="nav-links" aria-expanded="false" aria-label="Menu">
+        <svg class="i"><use href="#i-menu"/></svg>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-slide">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="dot"><svg class="i"><use href="#i-sparkle"/></svg></span>Your store. Your link. Your brand.</span>
+      <h1>Launch your <span class="text-gradient">dream store</span> in minutes</h1>
+      <p class="hero-sub">Tola gives every seller a premium storefront, a link they can share anywhere, and a simple dashboard to run it all. No code, no designers.</p>
+
+      <form class="claim" action="{{ url_for('web.signup') }}" method="get">
+        <label for="claim-slug" class="claim-prefix">{{ request.host }}/store/</label>
+        <input id="claim-slug" name="slug" placeholder="your-store" autocomplete="off" pattern="[a-z0-9-]{3,40}" title="3–40 lowercase letters, numbers or dashes">
+        <button class="btn btn-primary btn-sm" type="submit">Claim link <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></button>
+      </form>
+      <p class="claim-note">Free to start · Your store goes live the moment you sign up</p>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="mock">
+        <div class="mock-bar"><i></i><i></i><i></i><span>{{ request.host }}/store/crescendo</span></div>
+        <div class="mock-hero">
+          <div class="mock-copy">
+            <b></b><b class="short"></b>
+            <em></em>
+            <span class="mock-btn"></span>
+          </div>
+          <div class="mock-orb"></div>
+        </div>
+        <div class="mock-grid">
+          <div><span></span><b></b><em></em></div>
+          <div><span></span><b></b><em></em></div>
+          <div><span></span><b></b><em></em></div>
+        </div>
+      </div>
+      <div class="float-card fc-order"><span class="dot"><svg class="i"><use href="#i-bag"/></svg></span><div><strong>New order</strong><small>2 items · just now</small></div></div>
+      <div class="float-card fc-theme"><small>Accent</small><span class="sw" style="--c:#6d5dfc"></span><span class="sw" style="--c:#ff6b4a"></span><span class="sw" style="--c:#12b886"></span><span class="sw" style="--c:#f5b82e"></span></div>
+    </div>
+  </div>
+
+  <div class="feature-strip">
+    <div class="feat"><svg class="i"><use href="#i-link"/></svg><span>Your own link<small>Share it anywhere</small></span></div>
+    <div class="feat"><svg class="i"><use href="#i-brush"/></svg><span>Custom branding<small>Logo, colours, hero</small></span></div>
+    <div class="feat"><svg class="i"><use href="#i-box"/></svg><span>Products & stock<small>Variants and inventory</small></span></div>
+    <div class="feat"><svg class="i"><use href="#i-receipt"/></svg><span>Orders dashboard<small>Everything in one place</small></span></div>
+  </div>
+</section>
+
+<div class="sheet">
+  <div class="wrap">
+
+    <section class="section" id="how">
+      <div class="section-head" style="justify-content:center;text-align:center">
+        <div><span class="kicker">How it works</span><h2>From idea to open in three steps</h2></div>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <span class="num">01</span>
+          <h3>Claim your link</h3>
+          <p>Pick a store name and a link like <code>/store/your-brand</code>. It's yours instantly.</p>
+        </div>
+        <div class="step reveal">
+          <span class="num">02</span>
+          <h3>Make it yours</h3>
+          <p>Upload your logo, choose an accent colour and theme, and write your headline.</p>
+        </div>
+        <div class="step reveal">
+          <span class="num">03</span>
+          <h3>Add products & share</h3>
+          <p>List products with photos and variants, then share your link on WhatsApp, Instagram and beyond.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="feature-split">
+        <div>
+          <span class="kicker">Built for sellers</span>
+          <h2 style="font-size:clamp(28px,3.2vw,40px)">A storefront that looks like you spent a fortune on it</h2>
+          <p class="lead">Every Tola store ships with a polished, mobile-first design that adapts to your brand colour. Customers get a fast, trustworthy shopping experience; you get a dashboard that stays out of your way.</p>
+          <ul class="ticks">
+            <li><svg class="i"><use href="#i-check"/></svg>Custom accent colour, logo and dark or light theme</li>
+            <li><svg class="i"><use href="#i-check"/></svg>Hero banners with your own headlines and imagery</li>
+            <li><svg class="i"><use href="#i-check"/></svg>Categories, variants and stock tracking</li>
+            <li><svg class="i"><use href="#i-check"/></svg>Separate carts per store — shoppers never mix stores</li>
+          </ul>
+          <a class="btn btn-primary" href="{{ url_for('web.signup') }}" style="margin-top:28px">Open your store <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+        </div>
+        <div class="swatch-demo reveal" aria-hidden="true">
+          {% for c in ['#6d5dfc', '#ff6b4a', '#12b886'] %}
+          <div class="swatch-card" style="--accent: {{ c }}">
+            <span class="p-badge" style="position:static;display:inline-block">New</span>
+            <div class="swatch-orb"></div>
+            <b></b><em></em>
+            <span class="p-add" style="width:34px;height:34px"><svg class="i i-sm"><use href="#i-cart"/></svg></span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    {% if stores %}
+    <section class="section" id="stores">
+      <div class="section-head">
+        <div><span class="kicker">Live on Tola</span><h2>Stores open right now</h2></div>
+      </div>
+      <div class="store-grid">
+        {% for store, count in stores %}
+        <a class="store-card reveal" href="{{ url_for('store.home', store_slug=store.slug) }}" style="--accent: {{ store.accent_color or '#6d5dfc' }}">
+          <span class="store-avatar">
+            {% if store.logo %}<img src="{{ media_url(store.logo) }}" alt="">{% else %}{{ store.name[:1]|upper }}{% endif %}
+          </span>
+          <div class="store-meta">
+            <h3>{{ store.name }}</h3>
+            <p>{{ store.tagline or (count ~ ' product' ~ ('' if count == 1 else 's')) }}</p>
+          </div>
+          <span class="store-go"><svg class="i"><use href="#i-arrow"/></svg></span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="section">
+      <div class="why cta-band reveal">
+        <h2>Ready to open your store?</h2>
+        <p>It takes about two minutes. Your link is live the moment you sign up.</p>
+        <a class="btn btn-primary" href="{{ url_for('web.signup') }}">Get started free <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer class="site-footer" style="padding-top:0">
+  <div class="wrap footer-bottom" style="margin-top:0">
+    <span>© {{ current_year }} Tola. Built for independent sellers.</span>
+    <span><a href="{{ url_for('auth.login') }}">Seller sign in</a></span>
+  </div>
+</footer>
+{% endblock %}

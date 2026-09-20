@@ -1,0 +1,61 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import page_hero %}
+
+{% block title %}Your cart{% endblock %}
+
+{% block content %}
+{{ page_hero('Your cart', (cart.count ~ ' item' ~ ('' if cart.count == 1 else 's')) if cart['items'] else None, '<span>Cart</span>') }}
+
+<div class="sheet">
+  <div class="wrap">
+    {% if cart['items'] %}
+    <div class="cart-layout">
+      <div class="panel">
+        {% for item in cart['items'] %}
+        {% set p = item.product %}
+        <div class="cart-line">
+          <a class="thumb" href="{{ url_for('store.product_detail', slug=p.slug) }}"><img src="{{ media_url(p.image) }}" alt=""></a>
+          <div>
+            <h3><a href="{{ url_for('store.product_detail', slug=p.slug) }}">{{ p.name }}</a></h3>
+            <div class="unit">{{ p.price|money }} each</div>
+            <div class="controls">
+              <form method="post" action="{{ url_for('store.cart_update', product_id=p.id) }}" data-autosubmit>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="qty qty-sm" data-qty>
+                  <button type="button" data-step="-1" aria-label="Decrease quantity"><svg class="i i-sm"><use href="#i-minus"/></svg></button>
+                  <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="99" aria-label="Quantity for {{ p.name }}">
+                  <button type="button" data-step="1" aria-label="Increase quantity"><svg class="i i-sm"><use href="#i-plus"/></svg></button>
+                </div>
+              </form>
+              <form method="post" action="{{ url_for('store.cart_remove', product_id=p.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="link-btn" type="submit"><svg class="i i-sm"><use href="#i-trash"/></svg> Remove</button>
+              </form>
+            </div>
+          </div>
+          <div class="line-total">{{ item.line_total|money }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <aside class="panel summary">
+        <h2>Order summary</h2>
+        <div class="row"><span>Subtotal</span><strong>{{ cart.total|money }}</strong></div>
+        <div class="row"><span>Delivery</span><span>Calculated at checkout</span></div>
+        <div class="row total"><span>Total</span><span>{{ cart.total|money }}</span></div>
+        <a class="btn btn-primary btn-block" href="{{ url_for('store.checkout') }}">Checkout <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-outline btn-block btn-sm" style="margin-top:10px" href="{{ url_for('store.products') }}">Continue shopping</a>
+        <p class="fine"><svg class="i i-sm"><use href="#i-shield"/></svg> Secure checkout</p>
+      </aside>
+    </div>
+    {% else %}
+    <div class="empty">
+      <span class="ico"><svg class="i"><use href="#i-bag"/></svg></span>
+      <h3>Your cart is empty</h3>
+      <p>Looks like you haven't added anything yet. Let's fix that.</p>
+      <a class="btn btn-primary" href="{{ url_for('store.products') }}">Start shopping <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

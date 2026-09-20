@@ -1,0 +1,8 @@
+{% macro render_field(field, placeholder=None, type=None, hint=None) %}
+<div class="field {{ 'has-error' if field.errors }}">
+  {{ field.label }}
+  {% if type %}{{ field(placeholder=placeholder or '', type=type) }}{% else %}{{ field(placeholder=placeholder or '') }}{% endif %}
+  {% if hint %}<span class="hint-text">{{ hint }}</span>{% endif %}
+  {% for e in field.errors %}<span class="err">{{ e }}</span>{% endfor %}
+</div>
+{% endmacro %}

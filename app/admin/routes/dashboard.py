@@ -5,7 +5,7 @@ from flask_login import login_required
 from app.admin.decorators import admin_required
 from app.admin import admin_bp
 
-from flask import render_template
+from flask import render_template, url_for
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from typing import Any, Dict, List
@@ -15,6 +15,8 @@ from app.models.product import Product
 from app.models.category import Category
 from app.models.order import Order
 from app.models.product_variant import ProductVariant
+from app.models.tenant import DEFAULT_ACCENT
+from app.models.tenant_banner import TenantBanner
 
 
 
@@ -70,7 +72,12 @@ def dashboard():
             .all()
         )
 
+        total_banners: int = TenantBanner.query.filter_by(
+            tenant_id=tenant_id
+        ).count()
+
         metrics: Dict[str, Any] = {
+            "total_banners": total_banners,
             "total_products": total_products,
             "total_categories": total_categories,
             "total_orders": total_orders,
@@ -82,6 +89,7 @@ def dashboard():
     except Exception:
         # Defensive fallback
         metrics = {
+            "total_banners": 0,
             "total_products": 0,
             "total_categories": 0,
             "total_orders": 0,
@@ -90,7 +98,25 @@ def dashboard():
             "low_stock_variants": [],
         }
 
+    tenant = current_user.tenant
+
+    # Onboarding checklist shown until every step is done
+    branded: bool = bool(
+        tenant.logo
+        or tenant.hero_title
+        or tenant.tagline
+        or (tenant.accent_color or DEFAULT_ACCENT).lower() != DEFAULT_ACCENT
+    )
+    checklist: List[Dict[str, Any]] = [
+        {"label": "Create a category", "hint": "Group products so shoppers can browse", "done": metrics["total_categories"] > 0, "url": url_for("admin_categories.create_category")},
+        {"label": "Add your first product", "hint": "Name, price and a great photo", "done": metrics["total_products"] > 0, "url": url_for("admin_products.create_product")},
+        {"label": "Make the store yours", "hint": "Logo, accent colour and headline", "done": branded, "url": url_for("tenant_content.store_settings")},
+        {"label": "Share your store link", "hint": "Post it on WhatsApp, Instagram, anywhere", "done": metrics["total_orders"] > 0, "url": url_for("store.home", store_slug=tenant.slug)},
+    ]
+
     return render_template(
         "admin/dashboard.html",
+        tenant=tenant,
+        checklist=checklist,
         **metrics
     )

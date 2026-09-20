@@ -1,356 +1,219 @@
-from flask import abort, render_template, g, request, flash, url_for, send_from_directory, redirect
+from typing import Any
+
+from flask import abort, flash, g, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user
+from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
+
+from app.extensions.db import db
 from app.models.product import Product
-from app.models.testimonial import Testimonial
-from app.models.blog import Blog
-from app.models.category import Category
 from app.models.tenant import Tenant
 from app.models.tenant_banner import TenantBanner
-from app.web.forms import TestimonialForm, BillboardForm, TenantBannerForm
-from app.web import web_bp
-from app.web import bp
-from app.extensions.db import db
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func
-from sqlalchemy import or_
-from sqlalchemy.orm import selectinload
-from typing import List, Any, Dict
-from app.utils.uploads import save_banner_image
-from flask_login import login_required, current_user
-import random
+from app.models.testimonial import Testimonial
+from app.models.user import User
+from app.store.routes import render_store_home
+from app.utils.uploads import save_banner_image, save_store_image
+from app.web import bp, web_bp
+from app.web.forms import (
+    SignupForm,
+    StoreSettingsForm,
+    TenantBannerForm,
+    TestimonialForm,
+)
 
 
+def add_error(field: Any, message: str) -> None:
+    """Attach a server-side validation error to a WTForms field."""
+    field.errors = [*field.errors, message]
+
+
+# -------------------------------
+# Platform (tola) pages
+# -------------------------------
 
 @web_bp.route("/")
 def home() -> str:
-    # Tenant already loaded in before_request
+    # A subdomain request (mystore.example.com) renders that store directly
     tenant: Tenant | None = getattr(g, "tenant", None)
+    if tenant is not None:
+        return render_store_home(tenant)
 
-    # Development fallback
-    if tenant is None:
-        tenant = Tenant.query.first()
-
-    if tenant is None:
-        abort(404)
-    # --- General products for other homepage sections ---
-    products: List[Product] = (
-        Product.query
-        .limit(5)
-        .all()
-    )
-    
-    # --- Categories that contain at least 1 product ---
-    categories: List[Category] = (
-        Category.query
-        .join(Product)
-        .options(selectinload(Category.products))
-        .group_by(Category.id)
-        .having(func.count(Product.id) > 0)
-        .order_by(func.random())
-        .limit(2)
+    # Otherwise show the platform landing page with a few live stores
+    stores = (
+        db.session.query(Tenant, func.count(Product.id))
+        .join(Product, (Product.tenant_id == Tenant.id) & Product.is_active.is_(True))
+        .group_by(Tenant.id)
+        .order_by(func.count(Product.id).desc())
+        .limit(6)
         .all()
     )
 
-    category_sections: Dict[str, List[Product]] = {}
+    return render_template("platform/landing.html", stores=stores)
 
-    if categories:
-        selected_categories = random.sample(
-            categories,
-            k=min(2, len(categories)),
-        )
 
-        for category in selected_categories:
+@web_bp.route("/signup", methods=["GET", "POST"])
+def signup() -> Any:
+    """
+    Self-serve onboarding: create a store (tenant) and its owner in one go.
+    """
+    if current_user.is_authenticated:
+        return redirect(url_for("admin.dashboard"))
 
-            name: str | None = category.name
-            if not name:
-                continue
+    form = SignupForm()
 
-            products_categories: List[Product] = (
-                Product.query
-                .filter(Product.category_id == category.id)
-                .order_by(func.random())
-                .limit(4)
-                .all()
-            )
+    if form.validate_on_submit():
+        store_name = (form.store_name.data or "").strip()
+        slug = (form.slug.data or "").strip().lower()
+        email = (form.email.data or "").strip().lower()
 
-            if products_categories:
-                category_sections[name] = products_categories
+        taken = False
+        if Tenant.query.filter(func.lower(Tenant.name) == store_name.lower()).first():
+            add_error(form.store_name, "A store with this name already exists.")
+            taken = True
+        if Tenant.query.filter_by(slug=slug).first():
+            add_error(form.slug, "This link is already taken.")
+            taken = True
+        if User.query.filter_by(email=email).first():
+            add_error(form.email, "An account with this email already exists.")
+            taken = True
 
-    testimonials = (
-        Testimonial.query
-        .order_by(Testimonial.created_at.desc())
-        .limit(5)
-        .all()
-    )
+        if not taken:
+            tenant = Tenant()
+            tenant.name = store_name
+            tenant.slug = slug
+            tenant.hero_theme = "dark"
+            tenant.contact_email = email
 
-    blogs = (
-        Blog.query
-        .order_by(Blog.created_at.desc())
-        .limit(3)
-        .all()
-    )
+            user = User()
+            user.email = email
+            user.set_password(form.password.data or "")
+            user.is_admin = True
+            user.is_tenant_admin_flag = True
+            user.tenant = tenant
 
-    return render_template(
-        "index.html",
-        products=products,  # 🔹 still available for other sections
-        tenant=tenant,
-        category_sections=category_sections,
-        testimonials=testimonials,
-        blogs=blogs,
-    )
+            db.session.add_all([tenant, user])
+
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                flash("That store name, link or email was just taken. Please try another.", "danger")
+                return render_template("auth/signup.html", form=form), 409
+
+            login_user(user)
+            flash("Your store is live! Add a category and your first product to get started.", "success")
+            return redirect(url_for("admin.dashboard"))
+
+    return render_template("auth/signup.html", form=form)
 
 
 @web_bp.route("/testimonial/new", methods=["GET", "POST"])
-@login_required  # optional, depending on whether you want to allow anonymous testimonials
+@login_required
 def new_testimonial():
     if not current_user.is_admin:
         flash("You are not authorised.", "danger")
         return redirect(url_for("web.home"))
-    
+
     form = TestimonialForm()
     if form.validate_on_submit():
         testimonial = Testimonial()
-        testimonial.author_name=form.author_name.data or "Anonymous"
-        testimonial.content=form.content.data or ""
-        testimonial.rating=form.rating.data or 5
+        testimonial.author_name = form.author_name.data or "Anonymous"
+        testimonial.content = form.content.data or ""
+        testimonial.rating = form.rating.data or 5
         testimonial.tenant_id = current_user.tenant_id  # ensure tenant scoping
-        
+
         db.session.add(testimonial)
         db.session.commit()
-        flash("Thank you! Your testimonial has been submitted.", "success")
-        return redirect(url_for("web.home"))
+        flash("Testimonial added to your storefront.", "success")
+        return redirect(url_for("admin.dashboard"))
 
-    return render_template("new_testimonial.html", form=form)
+    return render_template("admin/testimonials/form.html", form=form)
 
-@web_bp.route("/user", methods=["GET"])
-@login_required  # optional
-def user() -> str:
-    return render_template("web/user.html")
 
-@web_bp.route("/products")
-def product_list():
-    products = Product.query.filter_by(tenant_id=g.tenant.id)
+# -------------------------------
+# Store owner: customisation & banners
+# -------------------------------
 
-    return render_template("layouts/product/list.html", products=products)
-
-@web_bp.route("/product/<slug>")
-def product_detail(slug: str):
-    product = Product.query.filter_by(slug=slug).first_or_404()
-
-    if product is None:
-        abort(404)
-    return render_template(
-        "layouts/product/detail.html", 
-        product=product
-    )
-
-@web_bp.route("/cart")
-def cart():
-    cart_items = []  # replace with real cart session logic
-    cart_total = 0
-    return render_template(
-        "checkout/cart.html",
-        cart_items=cart_items,
-        cart_total=cart_total
-    )
-
-@web_bp.route("/checkout", methods=["GET", "POST"])
-def checkout():
-    cart_items = []
-    cart_total = 0
-
-    if request.method == "POST":
-        # handle order creation here
-        pass
-
-    return render_template(
-        "checkout/checkout.html",
-        cart_items=cart_items,
-        cart_total=cart_total
-    )
-
-@web_bp.route("/about")
-def about():
+@bp.before_request
+@login_required
+def require_store_owner() -> None:
     """
-    Renders the About page.
-    No DB access required.
+    Every /admin/tenant route acts on the signed-in owner's own store.
     """
-    try:
-        return render_template("about.html")
-    except Exception as exc:
-        # Basic safety net: surface a clean error instead of a hard crash
-        return f"Error loading About page: {exc}", 500
+    if not current_user.is_admin or current_user.tenant is None:
+        abort(403)
 
-
-@web_bp.route("/contact", methods=["GET", "POST"])
-def contact():
-    """
-    Renders the Contact page.
-    Handles basic POST submission without persistence.
-    """
-    try:
-        if request.method == "POST":
-            # Basic form extraction with safe defaults
-            name: str = request.form.get("name", "").strip()
-            email: str = request.form.get("email", "").strip()
-            message: str = request.form.get("message", "").strip()
-
-            # Minimal validation (no DB / email integration yet)
-            if not name or not email or not message:
-                return render_template(
-                    "contact.html",
-                    error="All fields are required."
-                )
-
-            # Placeholder for future logic:
-            # - save to DB
-            # - send email
-            # - push to queue
-            return render_template(
-                "contact.html",
-                success="Thanks for reaching out. We’ll get back to you shortly."
-            )
-
-        return render_template("contact.html")
-
-    except Exception as exc:
-        return f"Error loading Contact page: {exc}", 500
-
-
-@web_bp.route("/blogs")
-def list_blogs():
-    # If user is logged in, filter by tenant
-    tenant_id = getattr(current_user, "tenant_id", None)
-    
-    query = Blog.query.order_by(Blog.created_at.desc())
-
-    if tenant_id:
-        query = query.filter_by(tenant_id=tenant_id)
-    
-    blogs = query.all()
-    
-    return render_template("blog.html", blogs=blogs)
-
-
-@web_bp.route("/blogs/<slug>")
-def blog_detail(slug: str):
-    tenant_id = getattr(current_user, "tenant_id", None)
-
-    blog = (
-        Blog.query
-        .filter_by(slug=slug)
-        .first_or_404()
-    )
-
-    return render_template("/detail.html", blog=blog)
-
-
-@web_bp.route("/shop")
-def shop():
-    """
-    Shop page – lists available products.
-    """
-    try:
-        # Defensive query: avoid breaking the page if DB is empty
-        products: list[Product] = Product.query.limit(24).all()
-
-        return render_template("shop.html", products=products)
-
-    except SQLAlchemyError as exc:
-        # Basic error handling to avoid crashing the UI
-        return f"Database error loading shop: {exc}", 500
- 
-
-@web_bp.route("/search", methods=["GET"])
-def search():
-    query: str = request.args.get("q", "").strip()
-
-    # Empty query → no DB hit
-    if not query:
-        return render_template(
-            "web/search.html",
-            query=query,
-            products=[],
-            categories=[],
-        )
-
-    # ----------------------------
-    # Build product search filters
-    # ----------------------------
-    product_filters = []
-
-    if hasattr(Product, "name"):
-        product_filters.append(Product.name.ilike(f"%{query}%"))
-
-    if hasattr(Product, "description"):
-        product_filters.append(Product.description.ilike(f"%{query}%"))
-
-    products: List[Product] = []
-    if product_filters:
-        products = (
-            Product.query
-            .filter(or_(*product_filters))  # ✅ only SQL expressions
-            .limit(24)
-            .all()
-        )
-
-    # ----------------------------
-    # Category search
-    # ----------------------------
-    categories: List[Category] = []
-    if hasattr(Category, "name"):
-        categories = (
-            Category.query
-            .filter(Category.name.ilike(f"%{query}%"))
-            .limit(10)
-            .all()
-        )
-
-    return render_template(
-        "web/search.html",
-        query=query,
-        products=products,
-        categories=categories,
-    )
 
 def get_current_tenant() -> Tenant:
-    """
-    Replace with your tenant resolution logic.
-    """
-    tenant: Tenant | None = Tenant.query.first()
-
-    if tenant is None:
-        raise RuntimeError("No tenant found.")
-
-    return tenant
+    return current_user.tenant
 
 
-# -------------------------------
-# Billboard Settings
-# -------------------------------
+@bp.route("/settings", methods=["GET", "POST"])
+def store_settings() -> Any:
+    tenant: Tenant = get_current_tenant()
+    form = StoreSettingsForm(obj=tenant)
+
+    if form.validate_on_submit():
+        name = (form.name.data or "").strip()
+        slug = (form.slug.data or "").strip().lower()
+
+        clash = False
+        if Tenant.query.filter(func.lower(Tenant.name) == name.lower(), Tenant.id != tenant.id).first():
+            add_error(form.name, "Another store already uses this name.")
+            clash = True
+        if Tenant.query.filter(Tenant.slug == slug, Tenant.id != tenant.id).first():
+            add_error(form.slug, "This link is already taken.")
+            clash = True
+
+        if not clash:
+            slug_changed = slug != tenant.slug
+
+            tenant.name = name
+            tenant.slug = slug
+            tenant.tagline = (form.tagline.data or "").strip() or None
+            tenant.about = (form.about.data or "").strip() or None
+            tenant.accent_color = (form.accent_color.data or "").lower()
+            tenant.hero_theme = form.hero_theme.data or "dark"
+            tenant.currency_symbol = form.currency_symbol.data or "₦"
+            tenant.hero_title = (form.hero_title.data or "").strip() or None
+            tenant.hero_subtitle = (form.hero_subtitle.data or "").strip() or None
+            tenant.contact_email = (form.contact_email.data or "").strip() or None
+            tenant.contact_phone = (form.contact_phone.data or "").strip() or None
+            tenant.instagram_url = (form.instagram_url.data or "").strip() or None
+
+            if form.remove_logo.data:
+                tenant.logo = None
+            new_logo = save_store_image(form.logo.data)
+            if new_logo:
+                tenant.logo = new_logo
+
+            if form.remove_hero_image.data:
+                tenant.hero_image = None
+            new_hero = save_store_image(form.hero_image.data)
+            if new_hero:
+                tenant.hero_image = new_hero
+
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                flash("That name or link was just taken. Please try another.", "danger")
+                return render_template("admin/tenant/settings.html", form=form, tenant=tenant), 409
+
+            if slug_changed:
+                flash("Saved. Your store link changed — share the new one below.", "warning")
+            else:
+                flash("Store updated.", "success")
+            return redirect(url_for("tenant_content.store_settings"))
+
+    return render_template("admin/tenant/settings.html", form=form, tenant=tenant)
+
 
 @bp.route("/billboard", methods=["GET", "POST"])
 def edit_billboard() -> Any:
-    tenant: Tenant = get_current_tenant()
-    form = BillboardForm(obj=tenant)
+    # Theme now lives on the full settings page
+    return redirect(url_for("tenant_content.store_settings"))
 
-    if form.validate_on_submit():
-        tenant.hero_theme = form.hero_theme.data
-
-        db.session.commit()
-        flash("Billboard updated successfully.", "success")
-
-        return redirect(url_for("tenant_content.edit_billboard"))
-
-    return render_template(
-        "admin/tenant/billboard.html",
-        form=form,
-        tenant=tenant,
-    )
-
-
-# -------------------------------
-# Banner List
-# -------------------------------
 
 @bp.route("/banners")
 def banner_list() -> Any:
@@ -369,33 +232,32 @@ def banner_list() -> Any:
     )
 
 
-# -------------------------------
-# Create Banner
-# -------------------------------
-
 @bp.route("/banners/create", methods=["GET", "POST"])
 def banner_create() -> Any:
     tenant: Tenant = get_current_tenant()
     form = TenantBannerForm()
+
+    if request.method == "GET":
+        form.is_active.data = True
 
     if form.validate_on_submit():
         image_path = save_banner_image(form.image_file.data)
         background_path = save_banner_image(form.background_file.data)
 
         banner = TenantBanner()
-        banner.tenant_id=tenant.id
-        banner.title=form.title.data or "New Banner"
-        banner.subtitle=form.subtitle.data or ""
-        banner.image_file=image_path  # stored relative path
-        banner.background_image=background_path
-        banner.hover_effect=form.hover_effect.data or ""
-        banner.cta_text=form.cta_text.data or ""
-        banner.cta_url=form.cta_url.data or ""
-        banner.bg_color=form.bg_color.data or ""
-        banner.text_color=form.text_color.data or "#000000"
-        banner.order=form.order.data or 0
-        banner.is_active=form.is_active.data
-        
+        banner.tenant_id = tenant.id
+        banner.title = form.title.data or "New Banner"
+        banner.subtitle = form.subtitle.data or ""
+        banner.image_file = image_path or ""  # column is NOT NULL
+        banner.background_image = background_path
+        banner.hover_effect = form.hover_effect.data or "zoom"
+        banner.cta_text = form.cta_text.data or ""
+        banner.cta_url = form.cta_url.data or ""
+        banner.bg_color = form.bg_color.data or ""
+        banner.text_color = form.text_color.data or "#000000"
+        banner.order = form.order.data or 0
+        banner.is_active = form.is_active.data
+
         db.session.add(banner)
         db.session.commit()
 
@@ -408,10 +270,6 @@ def banner_create() -> Any:
         title="Create Banner",
     )
 
-
-# -------------------------------
-# Edit Banner
-# -------------------------------
 
 @bp.route("/banners/<int:banner_id>/edit", methods=["GET", "POST"])
 def banner_edit(banner_id: int) -> Any:
@@ -430,7 +288,7 @@ def banner_edit(banner_id: int) -> Any:
 
         # Only update if new file uploaded
         if new_image:
-            banner.image_path = new_image
+            banner.image_file = new_image
 
         if new_background:
             banner.background_image = new_background
@@ -457,10 +315,6 @@ def banner_edit(banner_id: int) -> Any:
         title="Edit Banner",
     )
 
-
-# -------------------------------
-# Delete Banner
-# -------------------------------
 
 @bp.route("/banners/<int:banner_id>/delete", methods=["POST"])
 def banner_delete(banner_id: int) -> Any:

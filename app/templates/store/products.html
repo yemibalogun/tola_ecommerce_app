@@ -1,0 +1,53 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import product_card, page_hero %}
+
+{% block title %}{{ active_category.name if active_category else 'Shop' }}{% endblock %}
+
+{% block content %}
+{% if query %}
+  {{ page_hero('Results for “' ~ query ~ '”', products|length ~ ' product' ~ ('' if products|length == 1 else 's') ~ ' found', '<span>Search</span>') }}
+{% elif active_category %}
+  {{ page_hero(active_category.name, 'Explore our ' ~ active_category.name|lower ~ ' collection.', '<a href="' ~ url_for('store.products') ~ '">Shop</a><span>/</span><span>' ~ active_category.name|e ~ '</span>') }}
+{% else %}
+  {{ page_hero('Shop all', tenant.tagline or 'Everything we love, in one place.', '<span>Shop</span>') }}
+{% endif %}
+
+<div class="sheet">
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="chips">
+        <a class="chip {{ 'is-active' if not active_category }}" href="{{ url_for('store.products', q=query or None, sort=sort) }}">All</a>
+        {% for item in categories %}
+        <a class="chip {{ 'is-active' if active_category and active_category.id == item.category.id }}"
+           href="{{ url_for('store.products', category=item.category.slug, q=query or None, sort=sort) }}">
+          {{ item.category.name }} <span class="n">{{ item.count }}</span>
+        </a>
+        {% endfor %}
+      </div>
+      <form method="get" class="sort">
+        {% if active_category %}<input type="hidden" name="category" value="{{ active_category.slug }}">{% endif %}
+        {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+        <label class="sr-only" for="sort">Sort by</label>
+        <select class="select" id="sort" name="sort" onchange="this.form.submit()">
+          <option value="new" {{ 'selected' if sort == 'new' }}>Newest first</option>
+          <option value="price_asc" {{ 'selected' if sort == 'price_asc' }}>Price: low to high</option>
+          <option value="price_desc" {{ 'selected' if sort == 'price_desc' }}>Price: high to low</option>
+        </select>
+      </form>
+    </div>
+
+    {% if products %}
+      <div class="product-grid">
+        {% for product in products %}{{ product_card(product) }}{% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">
+        <span class="ico"><svg class="i"><use href="#i-search"/></svg></span>
+        <h3>Nothing here yet</h3>
+        <p>{% if query %}We couldn't find anything matching “{{ query }}”. Try a different word.{% else %}New products are on their way. Check back soon.{% endif %}</p>
+        <a class="btn btn-dark btn-sm" href="{{ url_for('store.products') }}">See all products</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

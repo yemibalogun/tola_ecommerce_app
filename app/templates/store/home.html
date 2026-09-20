@@ -1,0 +1,165 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import product_card, waves, stars %}
+
+{% block title %}{{ tenant.display_hero_title|plain }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="wrap">
+    <div class="swiper hero-swiper" data-slides="{{ slides|length }}">
+      <div class="swiper-wrapper">
+        {% for slide in slides %}
+        <div class="swiper-slide">
+          <div class="hero-slide">
+            <div class="hero-copy">
+              {% if tenant.tagline and loop.first %}
+              <span class="eyebrow"><span class="dot"><svg class="i"><use href="#i-sparkle"/></svg></span>{{ tenant.tagline }}</span>
+              {% endif %}
+              {% if loop.first %}<h1>{{ slide.title|highlight }}</h1>{% else %}<h2 class="h1" style="font-size:clamp(40px,5.6vw,68px);font-weight:800;letter-spacing:-.035em;line-height:1.04">{{ slide.title|highlight }}</h2>{% endif %}
+              {% if slide.subtitle %}<p class="hero-sub">{{ slide.subtitle }}</p>{% endif %}
+              <div class="hero-cta">
+                <a class="btn btn-primary" href="{{ slide.cta_url or url_for('store.products') }}">
+                  {{ slide.cta_text }} <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg>
+                </a>
+                <a class="btn btn-ghost" href="#featured">Explore More</a>
+              </div>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+              <div class="orb">
+                <div class="podium"></div>
+                <div class="orb-ring"></div>
+                <div class="orb-media"><img src="{{ media_url(slide.image) }}" alt="" {% if not loop.first %}loading="lazy"{% endif %}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% if slides|length > 1 %}<div class="swiper-pagination"></div>{% endif %}
+    </div>
+  </div>
+
+  <div class="feature-strip">
+    <div class="feat"><svg class="i"><use href="#i-badge"/></svg><span>Quality<small>Carefully selected</small></span></div>
+    <div class="feat"><svg class="i"><use href="#i-truck"/></svg><span>Fast delivery<small>Straight to your door</small></span></div>
+    <div class="feat"><svg class="i"><use href="#i-shield"/></svg><span>Secure checkout<small>Your details stay safe</small></span></div>
+    <div class="feat"><svg class="i"><use href="#i-return"/></svg><span>Easy returns<small>Hassle-free support</small></span></div>
+  </div>
+</section>
+
+<div class="sheet">
+  <div class="wrap">
+
+    <section class="section" id="featured">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Handpicked</span>
+          <h2>Featured Products</h2>
+        </div>
+        <a class="btn btn-outline btn-sm" href="{{ url_for('store.products') }}">View All Products <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+      </div>
+
+      {% if featured %}
+      <div class="product-grid">
+        {% for product in featured %}
+          {{ product_card(product, badge='New arrival' if loop.index <= 2 else None) }}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty">
+        <span class="ico"><svg class="i"><use href="#i-box"/></svg></span>
+        <h3>Our shelves are being stocked</h3>
+        <p>{{ tenant.name }} is getting ready. Check back soon for the first drop.</p>
+      </div>
+      {% endif %}
+    </section>
+
+    {% if categories %}
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Browse</span>
+          <h2>Shop By Category</h2>
+        </div>
+      </div>
+      <div class="cat-grid">
+        {% for item in categories %}
+        <a class="cat-card reveal" href="{{ url_for('store.products', category=item.category.slug) }}">
+          {{ waves() }}
+          <h3>{{ item.category.name }}</h3>
+          <p>{{ item.count }} product{{ '' if item.count == 1 else 's' }} to explore.</p>
+          <span class="link">Shop Now <svg class="i"><use href="#i-arrow"/></svg></span>
+          {% if item.cover %}<span class="cat-img"><img src="{{ media_url(item.cover.image) }}" alt="" loading="lazy"></span>{% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="section">
+      <div class="why reveal">
+        <h2>Why Shop With {{ tenant.name }}?</h2>
+        <div class="why-grid">
+          <div class="why-item">
+            <span class="ico"><svg class="i"><use href="#i-truck"/></svg></span>
+            <div><h3>Reliable Delivery</h3><p>Orders are packed with care and shipped promptly.</p></div>
+          </div>
+          <div class="why-item">
+            <span class="ico"><svg class="i"><use href="#i-box"/></svg></span>
+            <div><h3>Easy Returns</h3><p>Not quite right? Reach out and we'll make it easy.</p></div>
+          </div>
+          <div class="why-item">
+            <span class="ico"><svg class="i"><use href="#i-shield"/></svg></span>
+            <div><h3>Shop With Confidence</h3><p>Genuine products and a secure checkout, every time.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% if testimonials %}
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Kind words</span>
+          <h2>Loved by customers</h2>
+        </div>
+      </div>
+      <div class="quote-grid">
+        {% for t in testimonials %}
+        <figure class="quote-card reveal">
+          <svg class="i i-quote"><use href="#i-quote"/></svg>
+          <blockquote>{{ t.content }}</blockquote>
+          <figcaption class="who"><span>{{ t.author_name }}</span>{{ stars(t.rating or 5) }}</figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if blogs %}
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Journal</span>
+          <h2>Latest stories</h2>
+        </div>
+        <a class="btn btn-outline btn-sm" href="{{ url_for('store.blog') }}">Read the journal <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="post-grid">
+        {% for post in blogs %}
+        <a class="post-card reveal" href="{{ url_for('store.blog_post', slug=post.slug) }}">
+          <div class="cover">{% if post.image_path %}<img src="{{ media_url(post.image_path) }}" alt="" loading="lazy">{% endif %}</div>
+          <div class="body">
+            <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%b %d, %Y') }}</time>
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content|striptags|truncate(160) }}</p>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

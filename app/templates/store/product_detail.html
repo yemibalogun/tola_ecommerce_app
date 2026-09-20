@@ -1,0 +1,79 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import product_card %}
+
+{% block title %}{{ product.name }}{% endblock %}
+{% block head %}
+  <meta property="og:type" content="product">
+  <meta property="og:image" content="{{ media_url(product.image) }}">
+{% endblock %}
+
+{% block content %}
+<section class="page-hero" style="padding:28px 0 36px">
+  <div class="wrap">
+    <div class="crumbs" style="margin:0">
+      <a href="{{ url_for('store.home') }}">Home</a><span>/</span>
+      <a href="{{ url_for('store.products') }}">Shop</a>
+      {% if product.category %}<span>/</span><a href="{{ url_for('store.products', category=product.category.slug) }}">{{ product.category.name }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="sheet">
+  <div class="wrap">
+    <div class="pd">
+      <div class="pd-media">
+        <img src="{{ media_url(product.image) }}" alt="{{ product.name }}">
+      </div>
+
+      <div class="pd-info">
+        {% if product.category %}<span class="p-cat">{{ product.category.name }}</span>{% endif %}
+        <h1>{{ product.name }}</h1>
+        <div class="pd-price">{{ product.price|money }}</div>
+
+        {% if product.description %}
+          <p class="pd-desc">{{ product.description }}</p>
+        {% endif %}
+
+        {% if product.variants %}
+        <div class="variants">
+          <h4>Available options</h4>
+          <div class="chips">
+            {% for v in product.variants %}
+            <span class="chip">{{ v.name }}{% if v.price_override %} <span class="n">{{ v.price_override|money }}</span>{% endif %}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <form class="pd-buy" method="post" action="{{ url_for('store.cart_add', product_id=product.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="next" value="cart">
+          <div class="qty" data-qty>
+            <button type="button" data-step="-1" aria-label="Decrease quantity"><svg class="i i-sm"><use href="#i-minus"/></svg></button>
+            <input type="number" name="quantity" value="1" min="1" max="99" aria-label="Quantity">
+            <button type="button" data-step="1" aria-label="Increase quantity"><svg class="i i-sm"><use href="#i-plus"/></svg></button>
+          </div>
+          <button class="btn btn-primary" type="submit" style="flex:1">
+            <svg class="i"><use href="#i-cart"/></svg> Add to cart
+          </button>
+        </form>
+
+        <div class="pd-perks">
+          <div><svg class="i"><use href="#i-truck"/></svg> Fast, tracked delivery</div>
+          <div><svg class="i"><use href="#i-return"/></svg> Easy returns if it isn't right</div>
+          <div><svg class="i"><use href="#i-shield"/></svg> Secure checkout</div>
+        </div>
+      </div>
+    </div>
+
+    {% if related %}
+    <section class="section" style="margin-top:88px">
+      <div class="section-head"><div><span class="kicker">You may also like</span><h2>More from {{ product.category.name }}</h2></div></div>
+      <div class="product-grid">
+        {% for p in related %}{{ product_card(p) }}{% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

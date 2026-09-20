@@ -1,0 +1,13 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toasts" role="status" aria-live="polite">
+  {% for category, message in messages %}
+  <div class="toast {{ category }}" data-toast>
+    <span class="dot"><svg class="i"><use href="{{ '#i-close' if category == 'danger' else '#i-check' }}"/></svg></span>
+    <span>{{ message }}</span>
+    <button type="button" data-toast-close aria-label="Dismiss"><svg class="i i-sm"><use href="#i-close"/></svg></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ tenant.name }}{% endblock %} · {{ tenant.name }}</title>
+  <meta name="description" content="{{ tenant.tagline or tenant.display_hero_subtitle }}">
+  <meta name="theme-color" content="#060918">
+  <meta property="og:title" content="{{ tenant.name }}">
+  <meta property="og:description" content="{{ tenant.tagline or tenant.display_hero_subtitle }}">
+  {% if tenant.hero_image %}<meta property="og:image" content="{{ media_url(tenant.hero_image) }}">{% endif %}
+  {% if tenant.logo %}<link rel="icon" href="{{ media_url(tenant.logo) }}">{% endif %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tola.css') }}">
+  {% block head %}{% endblock %}
+</head>
+{% set ep = request.endpoint or '' %}
+<body class="theme-{{ tenant.hero_theme or 'dark' }}" style="--accent: {{ tenant.accent_color or '#6d5dfc' }}">
+  {% include "partials/icons.html" %}
+
+  <header class="site-header" id="top">
+    <nav class="wrap nav" aria-label="Main">
+      <a class="brand" href="{{ url_for('store.home', store_slug=tenant.slug) }}">
+        {% if tenant.logo %}
+          <img src="{{ media_url(tenant.logo) }}" alt="{{ tenant.name }}">
+        {% else %}
+          <span class="brand-mark"><svg class="i"><use href="#i-bars"/></svg></span>
+          <span>{{ tenant.name }}</span>
+        {% endif %}
+      </a>
+
+      <ul class="nav-links" id="nav-links">
+        <li><a href="{{ url_for('store.home', store_slug=tenant.slug) }}" class="{{ 'is-active' if ep in ('store.home', 'web.home') }}">Home</a></li>
+        <li><a href="{{ url_for('store.products', store_slug=tenant.slug) }}" class="{{ 'is-active' if ep in ('store.products', 'store.product_detail') }}">Products</a></li>
+        <li><a href="{{ url_for('store.about', store_slug=tenant.slug) }}" class="{{ 'is-active' if ep == 'store.about' }}">About</a></li>
+        <li><a href="{{ url_for('store.contact', store_slug=tenant.slug) }}" class="{{ 'is-active' if ep == 'store.contact' }}">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <form class="nav-search" action="{{ url_for('store.products', store_slug=tenant.slug) }}" method="get" role="search">
+          <input type="search" name="q" placeholder="Search products…" aria-label="Search products" value="{{ request.args.get('q', '') }}">
+          <button class="icon-btn" type="button" data-search-toggle aria-label="Search">
+            <svg class="i"><use href="#i-search"/></svg>
+          </button>
+        </form>
+        <a class="icon-btn cart-btn" href="{{ url_for('store.cart', store_slug=tenant.slug) }}" aria-label="Cart ({{ cart_count }} items)">
+          <svg class="i"><use href="#i-cart"/></svg>
+          {% if cart_count %}<span class="cart-count">{{ cart_count }}</span>{% endif %}
+        </a>
+        <a class="btn btn-primary btn-sm desktop" href="{{ url_for('store.products', store_slug=tenant.slug) }}">Shop Now</a>
+        <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-controls="nav-links" aria-expanded="false" aria-label="Menu">
+          <svg class="i"><use href="#i-menu"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  {% include "partials/toasts.html" %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="{{ url_for('store.home', store_slug=tenant.slug) }}">
+            <span class="brand-mark"><svg class="i"><use href="#i-bars"/></svg></span>
+            <span>{{ tenant.name }}</span>
+          </a>
+          <p>{{ tenant.tagline or tenant.display_hero_subtitle }}</p>
+          {% if tenant.instagram_url or tenant.contact_email %}
+          <div class="socials">
+            {% if tenant.instagram_url %}<a href="{{ tenant.instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram"><svg class="i i-sm"><use href="#i-instagram"/></svg></a>{% endif %}
+            {% if tenant.contact_email %}<a href="mailto:{{ tenant.contact_email }}" aria-label="Email"><svg class="i i-sm"><use href="#i-mail"/></svg></a>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+        <div>
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="{{ url_for('store.products', store_slug=tenant.slug) }}">All products</a></li>
+            <li><a href="{{ url_for('store.products', store_slug=tenant.slug, sort='new') }}">New arrivals</a></li>
+            <li><a href="{{ url_for('store.cart', store_slug=tenant.slug) }}">Your cart</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="{{ url_for('store.about', store_slug=tenant.slug) }}">About us</a></li>
+            <li><a href="{{ url_for('store.blog', store_slug=tenant.slug) }}">Journal</a></li>
+            <li><a href="{{ url_for('store.contact', store_slug=tenant.slug) }}">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <ul class="contact">
+            {% if tenant.contact_email %}<li><svg class="i"><use href="#i-mail"/></svg><a href="mailto:{{ tenant.contact_email }}">{{ tenant.contact_email }}</a></li>{% endif %}
+            {% if tenant.contact_phone %}<li><svg class="i"><use href="#i-phone"/></svg><a href="tel:{{ tenant.contact_phone|replace(' ', '') }}">{{ tenant.contact_phone }}</a></li>{% endif %}
+            {% if not tenant.contact_email and not tenant.contact_phone %}<li><svg class="i"><use href="#i-chat"/></svg><a href="{{ url_for('store.contact', store_slug=tenant.slug) }}">Send us a message</a></li>{% endif %}
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© {{ current_year }} {{ tenant.name }}. All rights reserved.</span>
+        <span>Powered by <a href="{{ url_for('web.home') }}">Tola</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/tola.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

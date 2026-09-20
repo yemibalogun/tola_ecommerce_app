@@ -87,10 +87,15 @@ def create_app(config_name: str = "development") -> Flask:
 
     # Register blueprints
     from app.web import web_bp, bp
+    from app.store import store_bp
     from app.api import api_bp
     from app.admin import auth_bp, product_bp, admin_bp, admin_categories, orders_bp
-    
+    from app.web.filters import register_template_helpers
+
+    register_template_helpers(app)
+
     app.register_blueprint(web_bp)
+    app.register_blueprint(store_bp)
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
@@ -110,24 +115,35 @@ def create_app(config_name: str = "development") -> Flask:
         Safe for localhost and production.
         """
 
+        # /store/<slug>/ routes resolve their own tenant from the path
+        if getattr(g, "tenant", None) is not None or request.endpoint == "static":
+            return
+
+        g.tenant = None
+
         try:
             host: str = request.host.split(":")[0]
             parts: list[str] = host.split(".")
 
+            # IP addresses (127.0.0.1) never carry a store subdomain
+            if host.replace(".", "").isdigit():
+                return
+
             # Handle localhost (tenant.localhost)
-            if "localhost" in host:
+            if host.endswith("localhost"):
                 if len(parts) >= 2:
                     subdomain: str = parts[0]
                 else:
-                    g.tenant = None
                     return
             else:
                 # Production domain (tenant.domain.com)
                 if len(parts) >= 3:
                     subdomain = parts[0]
                 else:
-                    g.tenant = None
                     return
+
+            if subdomain == "www":
+                return
 
             tenant: Tenant | None = (
                 db.session.query(Tenant)

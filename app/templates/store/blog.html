@@ -1,0 +1,33 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import page_hero %}
+
+{% block title %}Journal{% endblock %}
+
+{% block content %}
+{{ page_hero('Journal', 'Stories, guides and news from ' ~ tenant.name ~ '.', '<span>Journal</span>') }}
+
+<div class="sheet">
+  <div class="wrap">
+    {% if posts %}
+    <div class="post-grid">
+      {% for post in posts %}
+      <a class="post-card reveal" href="{{ url_for('store.blog_post', slug=post.slug) }}">
+        <div class="cover">{% if post.image_path %}<img src="{{ media_url(post.image_path) }}" alt="" loading="lazy">{% endif %}</div>
+        <div class="body">
+          <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%b %d, %Y') }}</time>
+          <h3>{{ post.title }}</h3>
+          <p>{{ post.content|striptags|truncate(160) }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+      <span class="ico"><svg class="i"><use href="#i-sparkle"/></svg></span>
+      <h3>No stories yet</h3>
+      <p>The first post is coming soon.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

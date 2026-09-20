@@ -39,7 +39,7 @@ def create_product():
     # Defensive check: admin must belong to a tenant
     if not current_user.tenant_id:
         flash("Tenant context missing", "danger")
-        return redirect("admin/products/list.html")
+        return redirect(url_for("admin_products.list_products"))
     
     form = ProductForm()
 
@@ -99,7 +99,7 @@ def create_product():
             
             return redirect(
                 url_for(
-                    "admin_products.manage_variants",
+                    "admin_products.edit_product",
                     product_id=product.id
                 )
             )

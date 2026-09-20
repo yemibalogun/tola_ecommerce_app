@@ -1,0 +1,30 @@
+{% extends "store/base.html" %}
+
+{% block title %}Thank you{% endblock %}
+
+{% block content %}
+<section class="page-hero" style="padding:80px 0 96px;text-align:center">
+  <div class="wrap" style="position:relative;display:grid;justify-items:center">
+    <span class="brand-mark" style="width:72px;height:72px;border-radius:50%;margin-bottom:26px"><svg class="i i-lg"><use href="#i-check"/></svg></span>
+    <h1>Thank you, {{ customer.full_name.split(' ')[0] }}!</h1>
+    <p style="margin-inline:auto">Your order has been received. {{ tenant.name }} will be in touch at <strong>{{ customer.email }}</strong> to confirm delivery.</p>
+  </div>
+</section>
+
+<div class="sheet">
+  <div class="wrap" style="max-width:560px">
+    <div class="panel summary" style="position:static">
+      <h2>Order summary</h2>
+      {% for item in cart['items'] %}
+      <div class="mini-line">
+        <span class="thumb"><img src="{{ media_url(item.product.image) }}" alt=""><span>{{ item.quantity }}</span></span>
+        <span class="name">{{ item.product.name }}</span>
+        <span class="amt">{{ item.line_total|money }}</span>
+      </div>
+      {% endfor %}
+      <div class="row total"><span>Total</span><span>{{ cart.total|money }}</span></div>
+      <a class="btn btn-primary btn-block" href="{{ url_for('store.products') }}">Keep shopping <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</div>
+{% endblock %}

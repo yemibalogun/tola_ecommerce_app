@@ -1,0 +1,50 @@
+{% macro product_card(product, badge=None) %}
+<article class="p-card reveal">
+  <a class="p-media" href="{{ url_for('store.product_detail', slug=product.slug) }}" aria-label="{{ product.name }}">
+    {% if badge %}<span class="p-badge">{{ badge }}</span>{% endif %}
+    <img src="{{ media_url(product.image) }}" alt="{{ product.name }}" loading="lazy">
+  </a>
+  <div class="p-body">
+    <span class="p-cat">{{ product.category.name if product.category else 'Featured' }}</span>
+    <h3 class="p-name"><a href="{{ url_for('store.product_detail', slug=product.slug) }}">{{ product.name }}</a></h3>
+    <div class="p-foot">
+      <span class="p-price">{{ product.price|money }}</span>
+      <form method="post" action="{{ url_for('store.cart_add', product_id=product.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="p-add" type="submit" aria-label="Add {{ product.name }} to cart">
+          <svg class="i"><use href="#i-cart"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+</article>
+{% endmacro %}
+
+{% macro page_hero(title, subtitle=None, crumb=None) %}
+<section class="page-hero">
+  <div class="wrap" style="position:relative">
+    <div class="crumbs">
+      <a href="{{ url_for('store.home') }}">Home</a>
+      {% if crumb %}<span>/</span>{{ crumb|safe }}{% endif %}
+    </div>
+    <h1>{{ title }}</h1>
+    {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+  </div>
+</section>
+{% endmacro %}
+
+{% macro waves() %}
+<svg class="waves" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
+  <g fill="none" stroke="currentColor" stroke-width="1.2">
+    {% for i in range(9) %}
+    <path d="M0 {{ 120 - i*6 }} C 90 {{ 40 + i*9 }}, 180 {{ 170 - i*4 }}, 280 {{ 90 + i*3 }} S 380 {{ 50 + i*8 }}, 400 {{ 60 + i*6 }}"/>
+    {% endfor %}
+  </g>
+</svg>
+{% endmacro %}
+
+{% macro stars(n) %}
+<span class="stars" aria-label="{{ n }} out of 5">
+  {% for i in range(1, 6) %}<svg class="i {{ '' if i <= n else 'off' }}"><use href="#i-star"/></svg>{% endfor %}
+</span>
+{% endmacro %}

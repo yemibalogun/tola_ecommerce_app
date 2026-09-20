@@ -35,8 +35,11 @@ def login():
             flash("Welcome back!", "success")
 
             # Redirect to 'next' if specified in query params
-            next_page = request.args.get("next")
-            return redirect(next_page or url_for("admin.dashboard"))
+            # Only follow local paths to avoid an open redirect
+            next_page = request.args.get("next") or ""
+            if not next_page.startswith("/") or next_page.startswith("//"):
+                next_page = url_for("admin.dashboard")
+            return redirect(next_page)
         
         flash("Invalid email or password", "danger")
 

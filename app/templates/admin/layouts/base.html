@@ -1,36 +1,81 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Admin{% endblock %}</title>
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/admin.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · {{ current_user.tenant.name if current_user.is_authenticated and current_user.tenant else 'Tola' }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/admin.css') }}">
+  {% block head %}{% endblock %}
 </head>
-<body>
+{% set shop = current_user.tenant if current_user.is_authenticated else None %}
+{% set ep = request.endpoint or '' %}
+<body class="admin" style="--accent: {{ shop.accent_color if shop else '#6d5dfc' }}">
+  {% include "partials/icons.html" %}
 
-<div class="admin-wrapper">
+  <aside class="side" id="side">
+    {% if shop %}
+    <div class="side-store">
+      <span class="side-avatar">{% if shop.logo %}<img src="{{ media_url(shop.logo) }}" alt="">{% else %}{{ shop.name[:1]|upper }}{% endif %}</span>
+      <div>
+        <strong>{{ shop.name }}</strong>
+        <a href="{{ url_for('store.home', store_slug=shop.slug) }}" target="_blank" rel="noopener">View store <svg class="i"><use href="#i-external"/></svg></a>
+      </div>
+    </div>
+    {% endif %}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <h4>Admin</h4>
-        <ul>
-            <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('admin_products.list_products') }}">Products</a></li>
-            <li><a href="{{ url_for('admin_categories.list_categories') }}">Categories</a></li>
-            <li><a href="{{ url_for('admin_orders.list_orders') }}">Orders</a></li>
-        </ul>
-    </aside>
+    <nav class="side-nav">
+      <span class="side-label">Overview</span>
+      <a href="{{ url_for('admin.dashboard') }}" class="{{ 'is-active' if ep == 'admin.dashboard' }}"><svg class="i"><use href="#i-home"/></svg>Dashboard</a>
 
-    <!-- Main Content -->
+      <span class="side-label">Catalogue</span>
+      <a href="{{ url_for('admin_products.list_products') }}" class="{{ 'is-active' if ep.startswith('admin_products') or 'variant' in ep }}"><svg class="i"><use href="#i-box"/></svg>Products</a>
+      <a href="{{ url_for('admin_categories.list_categories') }}" class="{{ 'is-active' if ep.startswith('admin_categories') }}"><svg class="i"><use href="#i-grid"/></svg>Categories</a>
+
+      <span class="side-label">Sales</span>
+      <a href="{{ url_for('admin_orders.list_orders') }}" class="{{ 'is-active' if ep.startswith('admin_orders') }}"><svg class="i"><use href="#i-receipt"/></svg>Orders</a>
+
+      <span class="side-label">Storefront</span>
+      <a href="{{ url_for('tenant_content.store_settings') }}" class="{{ 'is-active' if ep == 'tenant_content.store_settings' }}"><svg class="i"><use href="#i-brush"/></svg>Customise store</a>
+      <a href="{{ url_for('tenant_content.banner_list') }}" class="{{ 'is-active' if 'banner' in ep }}"><svg class="i"><use href="#i-image"/></svg>Hero banners</a>
+      <a href="{{ url_for('web.new_testimonial') }}" class="{{ 'is-active' if ep == 'web.new_testimonial' }}"><svg class="i"><use href="#i-chat"/></svg>Testimonials</a>
+    </nav>
+
+    {% if current_user.is_authenticated %}
+    <div class="side-foot">
+      <span class="side-user" title="{{ current_user.email }}">{{ current_user.email }}</span>
+      <a href="{{ url_for('auth.logout') }}" class="side-logout" aria-label="Sign out" title="Sign out"><svg class="i"><use href="#i-logout"/></svg></a>
+    </div>
+    {% endif %}
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn side-toggle" type="button" onclick="document.body.classList.toggle('side-open')" aria-label="Menu"><svg class="i"><use href="#i-menu"/></svg></button>
+      <h1 class="topbar-title">{% block page_title %}{{ self.title() }}{% endblock %}</h1>
+      {% if shop %}
+      <button type="button" class="share-pill" data-copy="{{ url_for('store.home', store_slug=shop.slug, _external=True) }}" title="Copy your store link">
+        <svg class="i"><use href="#i-link"/></svg>
+        <span class="share-url">{{ url_for('store.home', store_slug=shop.slug, _external=True)|replace('http://', '')|replace('https://', '') }}</span>
+        <span class="share-cta" data-copy-label>Copy link</span>
+      </button>
+      {% endif %}
+    </header>
+
+    {% include "partials/toasts.html" %}
+
     <main class="content">
-        {% include "partials/messages.html" %}
-        {% block content %}{% endblock %}
+      {% block content %}{% endblock %}
     </main>
+  </div>
 
-</div>
+  <div class="side-scrim" onclick="document.body.classList.remove('side-open')"></div>
 
-<script src="{{ url_for('static', filename='admin/js/admin.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/tola.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

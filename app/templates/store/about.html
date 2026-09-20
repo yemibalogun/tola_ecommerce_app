@@ -1,0 +1,33 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import page_hero %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+{{ page_hero('About ' ~ tenant.name, tenant.tagline, '<span>About</span>') }}
+
+<div class="sheet">
+  <div class="wrap" style="max-width:860px">
+    <div class="panel form-card" style="padding:44px">
+      <span class="kicker">Our story</span>
+      {% if tenant.about %}
+        <p style="font-size:18px;line-height:1.8;white-space:pre-line">{{ tenant.about }}</p>
+      {% else %}
+        <p style="font-size:18px;line-height:1.8">{{ tenant.name }} brings together products we genuinely love, chosen for quality and built to last. Every order is packed with care, and we're always a message away if you need anything.</p>
+      {% endif %}
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:32px">
+        <a class="btn btn-primary" href="{{ url_for('store.products') }}">Browse the shop <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-outline" href="{{ url_for('store.contact') }}">Get in touch</a>
+      </div>
+    </div>
+
+    <div class="why reveal" style="margin-top:32px">
+      <div class="why-grid">
+        <div class="why-item"><span class="ico"><svg class="i"><use href="#i-badge"/></svg></span><div><h3>Quality first</h3><p>Every item is chosen with care.</p></div></div>
+        <div class="why-item"><span class="ico"><svg class="i"><use href="#i-truck"/></svg></span><div><h3>Delivered fast</h3><p>Shipped promptly, tracked end-to-end.</p></div></div>
+        <div class="why-item"><span class="ico"><svg class="i"><use href="#i-chat"/></svg></span><div><h3>Real support</h3><p>Talk to a human, not a ticket queue.</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

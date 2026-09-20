@@ -1,0 +1,36 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import page_hero %}
+
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+{{ page_hero('Get in touch', 'Questions about an order or a product? We usually reply within a day.', '<span>Contact</span>') }}
+
+<div class="sheet">
+  <div class="wrap">
+    <div class="cart-layout" style="grid-template-columns:1fr 360px">
+      <form class="panel form-card" method="post" action="{{ url_for('store.contact') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <h2>Send a message</h2>
+        <p class="hint">Fill in the form and {{ tenant.name }} will get back to you.</p>
+        <div class="grid-2">
+          <div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required value="{{ request.form.get('name', '') }}"></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required value="{{ request.form.get('email', '') }}"></div>
+        </div>
+        <div class="field"><label for="message">Message</label><textarea id="message" name="message" required>{{ request.form.get('message', '') }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Send message <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></button>
+      </form>
+
+      <aside class="panel summary">
+        <h2>Other ways to reach us</h2>
+        <div class="pd-perks" style="margin:0;padding:0;border:0">
+          {% if tenant.contact_email %}<div><svg class="i"><use href="#i-mail"/></svg><a href="mailto:{{ tenant.contact_email }}">{{ tenant.contact_email }}</a></div>{% endif %}
+          {% if tenant.contact_phone %}<div><svg class="i"><use href="#i-phone"/></svg><a href="tel:{{ tenant.contact_phone|replace(' ', '') }}">{{ tenant.contact_phone }}</a></div>{% endif %}
+          {% if tenant.instagram_url %}<div><svg class="i"><use href="#i-instagram"/></svg><a href="{{ tenant.instagram_url }}" target="_blank" rel="noopener">Instagram</a></div>{% endif %}
+          {% if not (tenant.contact_email or tenant.contact_phone or tenant.instagram_url) %}<div><svg class="i"><use href="#i-chat"/></svg>Use the form — it comes straight to us.</div>{% endif %}
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

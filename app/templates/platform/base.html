@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Tola — Launch your online store in minutes{% endblock %}</title>
+  <meta name="description" content="Tola gives every seller a beautiful storefront, their own shareable link and a simple dashboard to run it.">
+  <meta name="theme-color" content="#060918">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tola.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}theme-dark{% endblock %}">
+  {% include "partials/icons.html" %}
+  {% include "partials/toasts.html" %}
+  {% block body %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/tola.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

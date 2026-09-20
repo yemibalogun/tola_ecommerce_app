@@ -1,0 +1,61 @@
+{% extends "auth/base.html" %}
+{% from "auth/_fields.html" import render_field %}
+
+{% block title %}Open your store · Tola{% endblock %}
+
+{% block art_copy %}
+<h2>Open your store in <span class="text-gradient">two minutes</span>.</h2>
+<p>Pick a name, claim your link, and you're live. Customise everything afterwards.</p>
+{% endblock %}
+
+{% block form %}
+<h1>Open your store</h1>
+<p class="sub">Already selling on Tola? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+  {{ render_field(form.store_name, 'e.g. Crescendo Audio') }}
+
+  <div class="field {{ 'has-error' if form.slug.errors }}">
+    {{ form.slug.label }}
+    <div class="slug-input">
+      <span>{{ request.host }}/store/</span>
+      {{ form.slug(placeholder='crescendo-audio', autocomplete='off', value=form.slug.data or request.args.get('slug', '')) }}
+    </div>
+    {% for e in form.slug.errors %}<span class="err">{{ e }}</span>{% endfor %}
+  </div>
+
+  {{ render_field(form.email, 'you@example.com', 'email') }}
+  <div class="grid-2">
+    {{ render_field(form.password, 'At least 8 characters') }}
+    {{ render_field(form.confirm, 'Repeat password') }}
+  </div>
+
+  <div class="link-preview">
+    <svg class="i"><use href="#i-link"/></svg>
+    <span>Your store will live at <strong data-link-preview>{{ request.host_url }}store/{{ form.slug.data or request.args.get('slug') or 'your-store' }}</strong></span>
+  </div>
+
+  <button class="btn btn-primary btn-block" type="submit">Create my store <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Suggest a link from the store name until the owner edits it themselves
+  (function () {
+    var name = document.getElementById("store_name");
+    var slug = document.getElementById("slug");
+    var preview = document.querySelector("[data-link-preview]");
+    var base = {{ (request.host_url ~ 'store/')|tojson }};
+    var touched = !!slug.value;
+    var slugify = function (s) {
+      return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+    };
+    var sync = function () { preview.textContent = base + (slug.value || "your-store"); };
+    name.addEventListener("input", function () { if (!touched) { slug.value = slugify(name.value); sync(); } });
+    slug.addEventListener("input", function () { touched = true; slug.value = slugify(slug.value); sync(); });
+  })();
+</script>
+{% endblock %}

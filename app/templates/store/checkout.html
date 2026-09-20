@@ -1,0 +1,54 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import page_hero %}
+
+{% block title %}Checkout{% endblock %}
+
+{% macro field(name, label, type='text', autocomplete=None, textarea=False) %}
+<div class="field {{ 'has-error' if errors.get(name) }}">
+  <label for="{{ name }}">{{ label }}</label>
+  {% if textarea %}
+    <textarea id="{{ name }}" name="{{ name }}" {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}>{{ form[name] }}</textarea>
+  {% else %}
+    <input id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ form[name] }}" {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}>
+  {% endif %}
+  {% if errors.get(name) %}<span class="err">{{ errors[name] }}</span>{% endif %}
+</div>
+{% endmacro %}
+
+{% block content %}
+{{ page_hero('Checkout', 'Almost there — just a few details.', '<a href="' ~ url_for('store.cart') ~ '">Cart</a><span>/</span><span>Checkout</span>') }}
+
+<div class="sheet">
+  <div class="wrap">
+    <form class="cart-layout" method="post" action="{{ url_for('store.checkout') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="panel form-card">
+        <h2>Delivery details</h2>
+        <p class="hint">We'll use these to get your order to you.</p>
+        <div class="grid-2">
+          {{ field('full_name', 'Full name', autocomplete='name') }}
+          {{ field('phone', 'Phone (optional)', 'tel', 'tel') }}
+        </div>
+        {{ field('email', 'Email', 'email', 'email') }}
+        {{ field('address', 'Delivery address', autocomplete='street-address', textarea=True) }}
+      </div>
+
+      <aside class="panel summary">
+        <h2>Your order</h2>
+        {% for item in cart['items'] %}
+        <div class="mini-line">
+          <span class="thumb"><img src="{{ media_url(item.product.image) }}" alt=""><span>{{ item.quantity }}</span></span>
+          <span class="name">{{ item.product.name }}</span>
+          <span class="amt">{{ item.line_total|money }}</span>
+        </div>
+        {% endfor %}
+        <div class="row" style="margin-top:10px"><span>Subtotal</span><strong>{{ cart.total|money }}</strong></div>
+        <div class="row total"><span>Total</span><span>{{ cart.total|money }}</span></div>
+        <button class="btn btn-primary btn-block" type="submit">Place order <svg class="i i-arrow-anim"><use href="#i-arrow"/></svg></button>
+        <p class="fine"><svg class="i i-sm"><use href="#i-shield"/></svg> Your details are only shared with {{ tenant.name }}</p>
+      </aside>
+    </form>
+  </div>
+</div>
+{% endblock %}

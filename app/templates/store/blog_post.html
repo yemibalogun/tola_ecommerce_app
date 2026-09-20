@@ -1,0 +1,18 @@
+{% extends "store/base.html" %}
+{% from "store/_macros.html" import page_hero %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+{{ page_hero(post.title, post.created_at.strftime('%B %d, %Y'), '<a href="' ~ url_for('store.blog') ~ '">Journal</a>') }}
+
+<div class="sheet">
+  <article class="wrap" style="max-width:780px">
+    {% if post.image_path %}
+      <img src="{{ media_url(post.image_path) }}" alt="" style="width:100%;border-radius:var(--radius-lg);margin-bottom:36px;aspect-ratio:16/9;object-fit:cover">
+    {% endif %}
+    <div style="font-size:18px;line-height:1.85;white-space:pre-line">{{ post.content }}</div>
+    <a class="btn btn-outline" style="margin-top:40px" href="{{ url_for('store.blog') }}"><svg class="i"><use href="#i-arrow-left"/></svg> Back to journal</a>
+  </article>
+</div>
+{% endblock %}

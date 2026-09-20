@@ -44,7 +44,7 @@ def create_blog():
             db.session.commit()
 
             flash("Blog created successfully", "success")
-            return redirect(url_for("web.list_blogs"))
+            return redirect(url_for("store.blog", store_slug=current_user.tenant.slug))
 
         except (ValueError, SQLAlchemyError) as e:
             db.session.rollback()
