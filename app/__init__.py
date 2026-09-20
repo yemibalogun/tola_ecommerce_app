@@ -4,6 +4,7 @@ from app.extensions.db import db
 from app.extensions.login import login_manager
 from app.extensions.cache import cache
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 from flask_wtf import CSRFProtect
 import re, os
 from datetime import datetime
@@ -88,16 +89,30 @@ def create_app(config_name: str = "development") -> Flask:
             # tables, so running it over a migrated database hides drift and
             # makes `flask db upgrade` collide with columns it just created.
             from sqlalchemy import inspect as sa_inspect
+            from sqlalchemy.exc import OperationalError
 
-            if not sa_inspect(db.engine).get_table_names():
-                db.create_all()  # now all foreign keys are resolvable
-                # Record that the fresh schema is already at the latest
-                # revision, so future `flask db upgrade` runs start cleanly.
-                try:
-                    from flask_migrate import stamp
-                    stamp(revision="head")
-                except Exception:
-                    app.logger.warning("Could not stamp the new database at head", exc_info=True)
+            try:
+                if not sa_inspect(db.engine).get_table_names():
+                    db.create_all()  # now all foreign keys are resolvable
+                    # Record that the fresh schema is already at the latest
+                    # revision, so future `flask db upgrade` runs start cleanly.
+                    try:
+                        from flask_migrate import stamp
+                        stamp(revision="head")
+                    except Exception:
+                        app.logger.warning("Could not stamp the new database at head", exc_info=True)
+            except OperationalError as exc:
+                # Don't bury an unreachable database under a wall of traceback:
+                # the app still builds, and every request will report the real
+                # problem. A common cause is DATABASE_URL pointing at the
+                # docker-compose host "db" from outside the compose network.
+                host = make_url(app.config["SQLALCHEMY_DATABASE_URI"]).host
+                app.logger.error(
+                    "Cannot reach the database at host %r: %s\n"
+                    "Check DATABASE_URL in .env: use 'localhost' from your terminal; "
+                    "the hostname 'db' only resolves inside docker-compose.",
+                    host, str(exc.orig).strip(),
+                )
 
     # Register blueprints
     from app.web import web_bp, bp
