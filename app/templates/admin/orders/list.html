@@ -1,38 +1,45 @@
 {% extends "admin/layouts/base.html" %}
 
-{% block content %}
-<h2>Orders</h2>
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
 
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Date</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>#{{ order.id }}</td>
-            <td>{{ order.user.email }}</td>
-            <td>{{ order.status }}</td>
-            <td>{{ order.total_amount }}</td>
-            <td>{{ order.created_at }}</td>
-            <td>
-                <a href="{{ url_for('admin_orders.view_order', order_id=order.id) }}">
-                    View
-                </a>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="6">No orders found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+{% block content %}
+<div class="page-head">
+  <div>
+    <h2>Orders</h2>
+    <p>Every order placed on your storefront.</p>
+  </div>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Order</th>
+      <th>Customer</th>
+      <th>Status</th>
+      <th>Total</th>
+      <th>Date</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td><a href="{{ url_for('admin_orders.view_order', order_id=order.id) }}">#{{ order.id }}</a></td>
+      <td>
+        {{ order.customer_label }}
+        {% if order.customer_email %}<div class="muted" style="font-size:13px">{{ order.customer_email }}</div>{% endif %}
+      </td>
+      <td><span class="badge {{ order.status }}">{{ order.status }}</span></td>
+      <td>{{ order.total_amount|money(current_user.tenant.currency_symbol) }}</td>
+      <td class="muted">{{ order.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_orders.view_order', order_id=order.id) }}">View</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="muted">No orders yet. Share your store link to get your first one.</td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endblock %}

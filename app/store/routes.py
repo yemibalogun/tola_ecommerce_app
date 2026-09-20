@@ -1,11 +1,15 @@
 from typing import Any, Dict, List
 
-from flask import abort, flash, g, redirect, render_template, request, url_for
+from flask import abort, current_app, flash, g, redirect, render_template, request, url_for
+from flask_login import current_user
 from sqlalchemy import func, or_
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.extensions.db import db
 from app.models.blog import Blog
 from app.models.category import Category
+from app.models.order import Order
+from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.models.tenant import Tenant
 from app.models.testimonial import Testimonial
@@ -261,6 +265,41 @@ def cart_remove(product_id: int) -> Any:
     return redirect(url_for("store.cart"))
 
 
+def place_order(tenant_id: int, cart: Dict[str, Any], customer: Dict[str, str]) -> Order:
+    """
+    Persist an order and its line items in a single transaction.
+
+    Prices come from the freshly loaded products (never the session), and each
+    line snapshots the price so later price changes don't rewrite history.
+    Shoppers don't need an account, so user_id is only set when signed in.
+    """
+    order = Order()
+    order.tenant_id = tenant_id
+    order.status = "pending"
+    order.total_amount = cart["total"]
+    order.user_id = current_user.id if current_user.is_authenticated else None
+    order.customer_name = customer["full_name"]
+    order.customer_email = customer["email"]
+    order.customer_phone = customer["phone"] or None
+    order.shipping_address = customer["address"]
+
+    for item in cart["items"]:
+        line = OrderItem()
+        line.tenant_id = tenant_id
+        line.product_id = item["product"].id
+        line.quantity = item["quantity"]
+        line.unit_price = item["product"].price
+        order.items.append(line)
+
+    db.session.add(order)
+    db.session.commit()
+
+    current_app.logger.info(
+        "Order %s placed for tenant %s (%s items)", order.id, tenant_id, len(order.items)
+    )
+    return order
+
+
 @store_bp.route("/checkout", methods=["GET", "POST"])
 def checkout() -> Any:
     cart = build_cart_items(g.tenant.id)
@@ -284,12 +323,20 @@ def checkout() -> Any:
             errors["email"] = "Enter a valid email"
 
         if not errors:
-            # TODO: persist Order / OrderItem once guest orders are supported
+            try:
+                order = place_order(g.tenant.id, cart, form)
+            except SQLAlchemyError:
+                db.session.rollback()
+                current_app.logger.exception("Checkout failed for tenant %s", g.tenant.id)
+                flash("Something went wrong placing your order. Please try again.", "danger")
+                return render_template("store/checkout.html", cart=cart, form=form, errors=errors), 500
+
             clear_cart(g.tenant.id)
             return render_template(
                 "store/order_success.html",
                 customer=form,
                 cart=cart,
+                order=order,
             )
 
     return render_template("store/checkout.html", cart=cart, form=form, errors=errors)

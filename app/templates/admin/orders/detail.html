@@ -1,26 +1,80 @@
 {% extends "admin/layouts/base.html" %}
 
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block page_title %}Order #{{ order.id }}{% endblock %}
+
 {% block content %}
-<h2>Order #{{ order.id }}</h2>
+<div class="page-head">
+  <div>
+    <h2>Order #{{ order.id }}</h2>
+    <p>Placed {{ order.created_at.strftime('%d %B %Y at %H:%M') }} by {{ order.customer_label }}</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin_orders.list_orders') }}">
+    <svg class="i"><use href="#i-arrow-left"/></svg> Back to orders
+  </a>
+</div>
 
-<p><strong>Status:</strong> {{ order.status }}</p>
-<p><strong>Total:</strong> {{ order.total_amount }}</p>
-<p><strong>Date:</strong> {{ order.created_at }}</p>
+<div class="grid-2col">
+  <div class="panel">
+    <div class="panel-head"><h3>Items</h3></div>
+    <table class="table">
+      <thead><tr><th>Product</th><th>Qty</th><th>Price</th></tr></thead>
+      <tbody>
+        {% for item in order.items %}
+        <tr>
+          <td>
+            {% if item.product %}
+              <a href="{{ url_for('admin_products.edit_product', product_id=item.product_id) }}">{{ item.product.name }}</a>
+            {% else %}
+              <span class="muted">Deleted product #{{ item.product_id }}</span>
+            {% endif %}
+            {% if item.variant %}<div class="muted" style="font-size:13px">{{ item.variant.name }}</div>{% endif %}
+          </td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.unit_price|money(current_user.tenant.currency_symbol) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="muted">No line items recorded for this order.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-<form method="POST"
-      action="{{ url_for('admin_orders.update_order_status', order_id=order.id) }}">
-    <select title="order-status" name="status">
-        <option value="pending">Pending</option>
-        <option value="paid">Paid</option>
-        <option value="shipped">Shipped</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
-    </select>
-    <button type="submit">Update Status</button>
-</form>
+  <div>
+  <div class="panel">
+    <div class="panel-head"><h3>Customer</h3></div>
+    <div class="panel-body">
+      <div class="pd-perks" style="margin:0;padding:0;border:0;display:grid;gap:12px">
+        <div><svg class="i"><use href="#i-chat"/></svg> {{ order.customer_label }}</div>
+        {% if order.customer_email %}<div><svg class="i"><use href="#i-mail"/></svg> <a href="mailto:{{ order.customer_email }}">{{ order.customer_email }}</a></div>{% endif %}
+        {% if order.customer_phone %}<div><svg class="i"><use href="#i-phone"/></svg> <a href="tel:{{ order.customer_phone|replace(' ', '') }}">{{ order.customer_phone }}</a></div>{% endif %}
+        {% if order.shipping_address %}<div style="align-items:flex-start"><svg class="i"><use href="#i-truck"/></svg> <span style="white-space:pre-line">{{ order.shipping_address }}</span></div>{% endif %}
+      </div>
+    </div>
+  </div>
 
-<a href="{{ url_for('admin_orders.list_orders') }}">
-    Back to Orders
-</a>
+  <div class="panel" style="margin-top:20px">
+    <div class="panel-head"><h3>Summary</h3></div>
+    <div class="panel-body">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <span class="muted">Status</span><span class="badge {{ order.status }}">{{ order.status }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:18px">
+        <span>Total</span><span>{{ order.total_amount|money(current_user.tenant.currency_symbol) }}</span>
+      </div>
 
+      <form method="POST" action="{{ url_for('admin_orders.update_order_status', order_id=order.id) }}" style="margin-top:22px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="form-label" for="status">Update status</label>
+        <select class="form-select" id="status" name="status">
+          {% for value in ['pending', 'paid', 'shipped', 'completed', 'cancelled'] %}
+          <option value="{{ value }}" {{ 'selected' if order.status == value }}>{{ value|capitalize }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-primary" type="submit" style="margin-top:14px">Save status</button>
+      </form>
+    </div>
+  </div>
+  </div>
+</div>
 {% endblock %}

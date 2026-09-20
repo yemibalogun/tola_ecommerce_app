@@ -28,10 +28,11 @@ class OrderItem(db.Model):
         nullable=False
     )
 
+    # Optional: products can be sold without variants
     variant_id = db.Column(
         db.Integer,
         db.ForeignKey("product_variant.id"),
-        nullable=False
+        nullable=True
     )
 
     quantity = db.Column(db.Integer, nullable=False)
@@ -42,3 +43,5 @@ class OrderItem(db.Model):
     )
 
     order = relationship("Order", back_populates="items")
+    product = relationship("Product")
+    variant = relationship("ProductVariant")

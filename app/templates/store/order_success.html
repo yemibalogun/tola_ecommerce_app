@@ -7,14 +7,15 @@
   <div class="wrap" style="position:relative;display:grid;justify-items:center">
     <span class="brand-mark" style="width:72px;height:72px;border-radius:50%;margin-bottom:26px"><svg class="i i-lg"><use href="#i-check"/></svg></span>
     <h1>Thank you, {{ customer.full_name.split(' ')[0] }}!</h1>
-    <p style="margin-inline:auto">Your order has been received. {{ tenant.name }} will be in touch at <strong>{{ customer.email }}</strong> to confirm delivery.</p>
+    <p style="margin-inline:auto">Your order is confirmed. {{ tenant.name }} will be in touch at <strong>{{ customer.email }}</strong> to arrange delivery.</p>
+    <p class="order-ref">Order number <strong>#{{ order.id }}</strong></p>
   </div>
 </section>
 
 <div class="sheet">
   <div class="wrap" style="max-width:560px">
     <div class="panel summary" style="position:static">
-      <h2>Order summary</h2>
+      <h2>Order #{{ order.id }}</h2>
       {% for item in cart['items'] %}
       <div class="mini-line">
         <span class="thumb"><img src="{{ media_url(item.product.image) }}" alt=""><span>{{ item.quantity }}</span></span>
