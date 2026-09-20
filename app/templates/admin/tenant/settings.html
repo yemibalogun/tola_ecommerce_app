@@ -1,0 +1,261 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Customise store{% endblock %}
+{% block page_title %}Customise store{% endblock %}
+
+{% macro errors(field) %}
+  {% for e in field.errors %}<div class="invalid">{{ e }}</div>{% endfor %}
+{% endmacro %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h2>Make it yours</h2>
+    <p>Everything here shows up on your public storefront right away.</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('store.home', store_slug=tenant.slug) }}" target="_blank" rel="noopener">
+    <svg class="i"><use href="#i-external"/></svg> Preview live store
+  </a>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="settings" novalidate>
+  {{ form.hidden_tag() }}
+
+  <div>
+    <section class="panel">
+      <div class="panel-head"><h3>Store identity</h3></div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control", id="store-name") }}
+            {{ errors(form.name) }}
+          </div>
+          <div class="col-md-6">
+            {{ form.slug.label(class="form-label") }}
+            <div class="slug-group">
+              <span>{{ request.host }}/store/</span>
+              {{ form.slug(class="form-control", id="store-slug", autocomplete="off") }}
+            </div>
+            <div class="form-text">Changing this changes your shareable link — old links stop working.</div>
+            {{ errors(form.slug) }}
+          </div>
+          <div class="col-12">
+            {{ form.tagline.label(class="form-label") }}
+            {{ form.tagline(class="form-control", id="store-tagline", placeholder="Premium sound. Modern design. Ultimate comfort.") }}
+            <div class="form-text">A short line shown under your store name.</div>
+          </div>
+          <div class="col-12">
+            {{ form.about.label(class="form-label") }}
+            {{ form.about(class="form-control", rows=5, placeholder="Tell customers who you are and what you sell.") }}
+          </div>
+          <div class="col-md-6">
+            {{ form.logo.label(class="form-label") }}
+            {{ form.logo(class="form-control", id="logo-input") }}
+            {% if tenant.logo %}
+            <div class="current-img">
+              <img src="{{ media_url(tenant.logo) }}" alt="Current logo">
+              <label class="form-check-label" style="display:flex;gap:8px;align-items:center;margin:0">
+                {{ form.remove_logo(class="form-check-input") }} Remove logo
+              </label>
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            {{ form.currency_symbol.label(class="form-label") }}
+            {{ form.currency_symbol(class="form-select") }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h3>Look &amp; feel</h3></div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            {{ form.accent_color.label(class="form-label") }}
+            <div class="color-field">
+              <input type="color" id="accent-picker" value="{{ form.accent_color.data or '#6d5dfc' }}" aria-label="Pick accent colour">
+              {{ form.accent_color(class="form-control", id="accent-hex", maxlength=7) }}
+            </div>
+            <div class="swatches">
+              {% for c in ['#6d5dfc', '#2f7bff', '#12b886', '#ff6b4a', '#f5b82e', '#e5484d', '#0e1124'] %}
+              <button type="button" data-swatch="{{ c }}" style="--c: {{ c }}" aria-label="Use {{ c }}"></button>
+              {% endfor %}
+            </div>
+            {{ errors(form.accent_color) }}
+          </div>
+          <div class="col-md-6">
+            {{ form.hero_theme.label(class="form-label") }}
+            <div class="theme-pick">
+              {% for value, label in form.hero_theme.choices %}
+              <label>
+                <input type="radio" name="hero_theme" value="{{ value }}" {{ 'checked' if (form.hero_theme.data or 'dark') == value }}>
+                <span class="sample {{ value }}"></span>
+                <span style="font-size:13px;font-weight:600">{{ label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h3>Homepage hero</h3></div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-12">
+            {{ form.hero_title.label(class="form-label") }}
+            {{ form.hero_title(class="form-control", id="hero-title", placeholder="Elevate Your *Audio* Journey") }}
+            <div class="form-text">Wrap a word in *asterisks* to paint it with your accent colour.</div>
+          </div>
+          <div class="col-12">
+            {{ form.hero_subtitle.label(class="form-label") }}
+            {{ form.hero_subtitle(class="form-control", id="hero-sub", placeholder="Discover the perfect gear for your lifestyle.") }}
+          </div>
+          <div class="col-12">
+            {{ form.hero_image.label(class="form-label") }}
+            {{ form.hero_image(class="form-control", id="hero-image-input") }}
+            <div class="form-text">Square images work best. Without one we'll feature your newest product.</div>
+            {% if tenant.hero_image %}
+            <div class="current-img">
+              <img src="{{ media_url(tenant.hero_image) }}" alt="Current hero image">
+              <label class="form-check-label" style="display:flex;gap:8px;align-items:center;margin:0">
+                {{ form.remove_hero_image(class="form-check-input") }} Remove hero image
+              </label>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h3>Contact</h3></div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            {{ form.contact_email.label(class="form-label") }}
+            {{ form.contact_email(class="form-control", placeholder="hello@yourstore.com") }}
+            {{ errors(form.contact_email) }}
+          </div>
+          <div class="col-md-6">
+            {{ form.contact_phone.label(class="form-label") }}
+            {{ form.contact_phone(class="form-control", placeholder="+234 000 0000 000") }}
+          </div>
+          <div class="col-12">
+            {{ form.instagram_url.label(class="form-label") }}
+            {{ form.instagram_url(class="form-control", placeholder="https://instagram.com/yourstore") }}
+            {{ errors(form.instagram_url) }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="save-bar">
+      <span>Changes go live as soon as you save.</span>
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </div>
+
+  <aside class="preview-wrap">
+    <div class="preview">
+      <div class="preview-bar"><i></i><i></i><i></i><span id="pv-url">{{ request.host }}/store/{{ tenant.slug }}</span></div>
+      <div class="pv-hero {{ 'light' if (form.hero_theme.data or 'dark') == 'light' }}" id="pv-hero">
+        <div class="pv-nav">
+          <span class="mk">{% if tenant.logo %}<img src="{{ media_url(tenant.logo) }}" alt="">{% endif %}</span>
+          <span id="pv-name">{{ tenant.name }}</span>
+          <span class="pill">Shop Now</span>
+        </div>
+        <div class="pv-grid">
+          <div>
+            <div class="pv-title" id="pv-title">{{ (form.hero_title.data or tenant.display_hero_title)|highlight }}</div>
+            <div class="pv-sub" id="pv-sub">{{ form.hero_subtitle.data or tenant.display_hero_subtitle }}</div>
+            <span class="pv-btn">Shop Now</span>
+          </div>
+          <div class="pv-orb"><span id="pv-orb" {% if tenant.hero_image %}style="background-image:url('{{ media_url(tenant.hero_image) }}')"{% endif %}></span></div>
+        </div>
+      </div>
+      <div class="pv-cards">
+        {% for i in range(3) %}<div><span></span><b></b><em></em></div>{% endfor %}
+      </div>
+    </div>
+    <p class="preview-note">Live preview — save to publish.</p>
+  </aside>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var hero = document.getElementById("pv-hero");
+  var hex = document.getElementById("accent-hex");
+  var picker = document.getElementById("accent-picker");
+  var title = document.getElementById("hero-title");
+  var sub = document.getElementById("hero-sub");
+  var name = document.getElementById("store-name");
+  var slug = document.getElementById("store-slug");
+  var tagline = document.getElementById("store-tagline");
+  var host = {{ (request.host ~ '/store/')|tojson }};
+  var escapeHtml = function (s) {
+    return s.replace(/[&<>"']/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+    });
+  };
+
+  var applyAccent = function (value) {
+    if (!/^#[0-9a-fA-F]{6}$/.test(value)) return;
+    document.body.style.setProperty("--accent", value);
+    picker.value = value;
+  };
+
+  hex.addEventListener("input", function () { applyAccent(hex.value.trim()); });
+  picker.addEventListener("input", function () { hex.value = picker.value; applyAccent(picker.value); });
+
+  document.querySelectorAll("[data-swatch]").forEach(function (btn) {
+    btn.addEventListener("click", function () { hex.value = btn.dataset.swatch; applyAccent(btn.dataset.swatch); });
+  });
+
+  document.querySelectorAll("input[name=hero_theme]").forEach(function (radio) {
+    radio.addEventListener("change", function () { hero.classList.toggle("light", radio.value === "light" && radio.checked); });
+  });
+
+  var renderTitle = function () {
+    var raw = title.value || ("Welcome to *" + (name.value || "your store") + "*");
+    document.getElementById("pv-title").innerHTML =
+      escapeHtml(raw).replace(/\*([^*]+)\*/g, '<span class="text-gradient">$1</span>');
+  };
+  var renderSub = function () {
+    document.getElementById("pv-sub").textContent =
+      sub.value || tagline.value || "Thoughtfully chosen products, delivered with care.";
+  };
+
+  [title, name].forEach(function (el) { el.addEventListener("input", renderTitle); });
+  [sub, tagline].forEach(function (el) { el.addEventListener("input", renderSub); });
+  name.addEventListener("input", function () { document.getElementById("pv-name").textContent = name.value || "Your store"; });
+  slug.addEventListener("input", function () {
+    slug.value = slug.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+    document.getElementById("pv-url").textContent = host + (slug.value || "your-store");
+  });
+
+  // Preview newly chosen images before they are uploaded
+  var preview = function (inputId, apply) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener("change", function () {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      apply(URL.createObjectURL(file));
+    });
+  };
+  preview("hero-image-input", function (url) { document.getElementById("pv-orb").style.backgroundImage = "url(" + url + ")"; });
+  preview("logo-input", function (url) {
+    var mk = document.querySelector(".pv-nav .mk");
+    mk.innerHTML = '<img alt="">';
+    mk.querySelector("img").src = url;
+  });
+})();
+</script>
+{% endblock %}

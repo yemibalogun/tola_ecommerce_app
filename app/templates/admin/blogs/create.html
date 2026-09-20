@@ -1,23 +1,26 @@
 {% extends "admin/layouts/base.html" %}
 
-{% block content %}
-<h2>Create Blog</h2>
+{% block title %}New post{% endblock %}
+{% block page_title %}New post{% endblock %}
 
-<form method="POST" enctype="multipart/form-data">
+{% block content %}
+<div class="page-head"><div><h2>Write a post</h2><p>Posts show up in your storefront journal.</p></div></div>
+
+<form method="POST" enctype="multipart/form-data" class="panel" style="max-width:720px;padding:24px">
   {{ form.hidden_tag() }}
 
   <div class="mb-3">
-    {{ form.title.label }}
+    {{ form.title.label(class="form-label") }}
     {{ form.title(class="form-control") }}
   </div>
 
   <div class="mb-3">
-    {{ form.content.label }}
+    {{ form.content.label(class="form-label") }}
     {{ form.content(class="form-control", rows=6) }}
   </div>
 
   <div class="mb-3">
-    {{ form.image.label }}
+    {{ form.image.label(class="form-label") }}
     {{ form.image(class="form-control") }}
   </div>
 

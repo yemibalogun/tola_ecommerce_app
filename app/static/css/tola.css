@@ -488,9 +488,11 @@ p { margin: 0; }
 .footer-bottom a { color: #c5c8e2; font-weight: 600; }
 .footer-bottom a:hover { color: #fff; }
 
-/* ---------- Reveal on scroll ---------- */
-.reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
-.reveal.is-in { opacity: 1; transform: none; }
+/* ---------- Reveal on scroll ----------
+   Only hidden when JS is available to reveal them again, so the page is
+   fully readable without JavaScript. */
+.has-js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.has-js .reveal.is-in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal { opacity: 1; transform: none; }
@@ -550,3 +552,6 @@ p { margin: 0; }
   .brand { font-size: 16px; }
   .hero-cta .btn { flex: 1; }
 }
+
+/* Order confirmation reference */
+.order-ref { margin-top: 18px; padding: 10px 18px; border-radius: 999px; background: var(--hero-glass); border: 1px solid var(--hero-line); font-size: 15px; }

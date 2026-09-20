@@ -1,8 +1,18 @@
 {% extends "admin/layouts/base.html" %}
 
+{% block title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+
 {% block content %}
-<h1>Categories</h1>
-<a href="{{ url_for('admin_categories.create_category') }}" class="btn btn-success">Add Category</a>
+<div class="page-head">
+    <div>
+        <h2>Categories</h2>
+        <p>Group your products so shoppers can browse them.</p>
+    </div>
+    <a href="{{ url_for('admin_categories.create_category') }}" class="btn btn-primary">
+        <svg class="i"><use href="#i-plus"/></svg> Add category
+    </a>
+</div>
 
 <table class="table mt-3">
     <thead>
@@ -19,11 +29,15 @@
             <td>{{ cat.slug }}</td>
             <td>
                 <a href="{{ url_for('admin_categories.edit_category', category_id=cat.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                <form action="{{ url_for('admin_categories.delete_category', category_id=cat.id) }}" method="POST" style="display:inline;">
+                <form action="{{ url_for('admin_categories.delete_category', category_id=cat.id) }}" method="POST" style="display:inline;"
+                      onsubmit="return confirm('Delete this category?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                 </form>
             </td>
         </tr>
+        {% else %}
+        <tr><td colspan="3" class="muted">No categories yet. Add one to start listing products.</td></tr>
         {% endfor %}
     </tbody>
 </table>

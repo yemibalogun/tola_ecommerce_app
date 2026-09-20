@@ -1,9 +1,12 @@
 {% extends "admin/layouts/base.html" %}
 
+{% block title %}Hero banners{% endblock %}
+{% block page_title %}Hero banners{% endblock %}
+
 {% block content %}
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Banners</h2>
+    <div><h2>Hero banners</h2><p class="muted" style="margin:6px 0 0">Banners become the rotating slides on your homepage hero.</p></div>
     <a href="{{ url_for('tenant_content.banner_create') }}" class="btn btn-primary">
       + New Banner
     </a>
@@ -49,7 +52,7 @@
         {% else %}
         <tr>
           <td colspan="4" class="text-center py-4 text-muted">
-            No banners yet.
+            No banners yet — your homepage uses the headline from Customise store.
           </td>
         </tr>
         {% endfor %}

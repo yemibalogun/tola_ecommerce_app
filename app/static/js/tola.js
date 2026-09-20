@@ -2,6 +2,8 @@
 (function () {
   "use strict";
 
+  document.documentElement.classList.add("has-js");
+
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 

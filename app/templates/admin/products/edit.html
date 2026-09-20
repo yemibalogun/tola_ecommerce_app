@@ -1,15 +1,20 @@
 {% extends "admin/layouts/base.html" %}
 
-{% block title %}Edit Product - {{ product.name }}{% endblock %}
+{% block title %}Edit product{% endblock %}
+{% block page_title %}Edit product{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
 
     <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Edit Product</h2>
-        <a href="{{ url_for('admin_products.create_product') }}" class="btn btn-primary">
-            + Add Product
+    <div class="page-head">
+        <div>
+            <h2>{{ product.name }}</h2>
+            <p>Update the details, photo and stock for this product.</p>
+        </div>
+        <a href="{{ url_for('store.product_detail', store_slug=current_user.tenant.slug, slug=product.slug) }}"
+           class="btn btn-outline-secondary" target="_blank" rel="noopener">
+            <svg class="i"><use href="#i-external"/></svg> View on store
         </a>
     </div>
 
@@ -44,8 +49,8 @@
                             {{ form.image.label(class="form-label") }}
                             {{ form.image(class="form-control") }}
                             {% if product.image %}
-                                <img src="{{ url_for('static', filename=product.image.replace('admin/', '')) }}"
-                                     class="img-fluid mt-2" alt="Product Image">
+                                <img src="{{ media_url(product.image) }}"
+                                     class="mt-2" alt="Product Image" style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid var(--line)">
                             {% endif %}
                         </div>
                         <div class="form-check mb-3">
@@ -87,7 +92,7 @@
                         <tr id="variant-row-{{ v.id }}">
                             <td>
                                 {% if v.image %}
-                                    <img src="{{ url_for('static', filename=v.image) }}"
+                                    <img src="{{ media_url(v.image) }}"
                                          class="img-thumbnail" width="50" alt="Variant Image">
                                 {% else %}
                                     <span class="text-muted">—</span>
@@ -97,7 +102,7 @@
                             <td class="text-muted small">{{ v.sku }}</td>
                             <td>
                                 {% set price = v.price_override if v.price_override else product.price %}
-                                ₦{{ "{:,.2f}".format(price) }}
+                                {{ price|money(current_user.tenant.currency_symbol) }}
                                 {% if v.price_override %}<small class="text-muted">(override)</small>{% endif %}
                             </td>
                             <td>

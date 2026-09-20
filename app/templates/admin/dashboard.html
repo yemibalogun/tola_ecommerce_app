@@ -1,97 +1,122 @@
 {% extends "admin/layouts/base.html" %}
 
 {% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 style="margin-bottom: 25px;">Dashboard Overview</h1>
+{% set store_url = url_for('store.home', store_slug=tenant.slug, _external=True) %}
+{% set done = checklist | selectattr('done') | list | length %}
 
-<!-- Metric Cards -->
-<div class="dashboard-grid">
-    <div class="card">
-        <h3>Total Products</h3>
-        <p>{{ total_products }}</p>
+<section class="hero-card">
+  <div>
+    <h2>Welcome back{{ ', ' ~ current_user.email.split('@')[0] if current_user.email }}</h2>
+    <p>{{ tenant.name }} is live. Share this link and start selling.</p>
+    <div class="link-box">
+      <svg class="i" style="color:#fff;opacity:.6"><use href="#i-link"/></svg>
+      <code>{{ store_url }}</code>
+      <button type="button" class="btn btn-primary btn-sm" data-copy="{{ store_url }}">
+        <svg class="i"><use href="#i-copy"/></svg><span data-copy-label>Copy</span>
+      </button>
     </div>
+  </div>
+  <div class="actions">
+    <a class="btn btn-ghost" href="{{ store_url }}" target="_blank" rel="noopener"><svg class="i"><use href="#i-external"/></svg> View store</a>
+    <a class="btn btn-ghost" href="{{ url_for('tenant_content.store_settings') }}"><svg class="i"><use href="#i-brush"/></svg> Customise</a>
+  </div>
+</section>
 
-    <div class="card">
-        <h3>Total Categories</h3>
-        <p>{{ total_categories }}</p>
-    </div>
-
-    <div class="card">
-        <h3>Total Orders</h3>
-        <p>{{ total_orders }}</p>
-    </div>
-
-    <div class="card">
-        <h3>Total Revenue</h3>
-        <p>₦{{ "%.2f"|format(revenue) }}</p>
-    </div>
+<div class="stats">
+  <div class="stat">
+    <span class="ico"><svg class="i"><use href="#i-box"/></svg></span>
+    <span><small>Products</small><strong>{{ total_products }}</strong></span>
+  </div>
+  <div class="stat">
+    <span class="ico"><svg class="i"><use href="#i-grid"/></svg></span>
+    <span><small>Categories</small><strong>{{ total_categories }}</strong></span>
+  </div>
+  <div class="stat">
+    <span class="ico"><svg class="i"><use href="#i-receipt"/></svg></span>
+    <span><small>Orders</small><strong>{{ total_orders }}</strong></span>
+  </div>
+  <div class="stat">
+    <span class="ico"><svg class="i"><use href="#i-tag"/></svg></span>
+    <span><small>Revenue</small><strong>{{ revenue|money(tenant.currency_symbol) }}</strong></span>
+  </div>
 </div>
 
-<!-- Recent Orders -->
-<div class="section">
-    <h2>Recent Orders</h2>
-
-    <table class="table-modern">
+<div class="grid-2col">
+  <div>
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Recent orders</h3>
+        <a href="{{ url_for('admin_orders.list_orders') }}">View all</a>
+      </div>
+      <table class="table">
         <thead>
-            <tr>
-                <th>ID</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Date</th>
-            </tr>
+          <tr><th>Order</th><th>Status</th><th>Total</th><th>Date</th></tr>
         </thead>
         <tbody>
-            {% for order in recent_orders %}
-            <tr>
-                <td>
-                    <a href="{{ url_for('admin_orders.view_order', order_id=order.id) }}">
-                        #{{ order.id }}
-                    </a>
-                </td>
-                <td>
-                    <span class="badge {{ order.status }}">
-                        {{ order.status }}
-                    </span>
-                </td>
-                <td>₦{{ "%.2f"|format(order.total_amount) }}</td>
-                <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="4">No recent orders.</td>
-            </tr>
-            {% endfor %}
+          {% for order in recent_orders %}
+          <tr>
+            <td><a href="{{ url_for('admin_orders.view_order', order_id=order.id) }}">#{{ order.id }}</a></td>
+            <td><span class="badge {{ order.status }}">{{ order.status }}</span></td>
+            <td>{{ order.total_amount|money(tenant.currency_symbol) }}</td>
+            <td class="muted">{{ order.created_at.strftime('%d %b %Y') }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="muted">No orders yet — share your store link to get the first one.</td></tr>
+          {% endfor %}
         </tbody>
-    </table>
-</div>
+      </table>
+    </div>
 
-<!-- Low Stock -->
-<div class="section">
-    <h2>Low Stock Variants</h2>
-
-    <table class="table-modern">
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-head">
+        <h3>Low stock</h3>
+        <a href="{{ url_for('admin_products.list_products') }}">Manage products</a>
+      </div>
+      <table class="table">
         <thead>
-            <tr>
-                <th>Product</th>
-                <th>SKU</th>
-                <th>Stock</th>
-            </tr>
+          <tr><th>Product</th><th>SKU</th><th>Stock</th></tr>
         </thead>
         <tbody>
-            {% for variant in low_stock_variants %}
-            <tr>
-                <td>{{ variant.product.name }}</td>
-                <td>{{ variant.sku }}</td>
-                <td>{{ variant.stock }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="3">All stock levels are healthy.</td>
-            </tr>
-            {% endfor %}
+          {% for variant in low_stock_variants %}
+          <tr>
+            <td>{{ variant.product.name }} <span class="muted">· {{ variant.name }}</span></td>
+            <td class="muted">{{ variant.sku }}</td>
+            <td>
+              {% if variant.stock_quantity == 0 %}
+                <span class="badge bg-danger">Out of stock</span>
+              {% else %}
+                <span class="badge bg-warning">{{ variant.stock_quantity }} left</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="muted">All stock levels are healthy.</td></tr>
+          {% endfor %}
         </tbody>
-    </table>
-</div>
+      </table>
+    </div>
+  </div>
 
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Get set up</h3>
+      <span class="muted" style="font-size:13px">{{ done }}/{{ checklist|length }}</span>
+    </div>
+    <div class="progress-line" style="margin-top:14px"><span style="width: {{ (done / checklist|length * 100)|round }}%"></span></div>
+    <ul class="checklist">
+      {% for step in checklist %}
+      <li class="{{ 'done' if step.done }}">
+        <a href="{{ step.url }}" {% if loop.last %}target="_blank" rel="noopener"{% endif %}>
+          <span class="tick"><svg class="i" style="width:14px;height:14px"><use href="#i-check"/></svg></span>
+          <span><strong>{{ step.label }}</strong><small>{{ step.hint }}</small></span>
+          <svg class="i go"><use href="#i-arrow"/></svg>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
 {% endblock %}

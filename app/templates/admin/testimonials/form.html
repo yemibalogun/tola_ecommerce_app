@@ -1,0 +1,39 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Testimonials{% endblock %}
+{% block page_title %}Testimonials{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h2>Add a testimonial</h2>
+    <p>Kind words from customers appear on your storefront homepage.</p>
+  </div>
+</div>
+
+<div style="max-width:620px">
+  <form method="post" class="panel">
+    {{ form.hidden_tag() }}
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-8">
+          {{ form.author_name.label(class="form-label") }}
+          {{ form.author_name(class="form-control", placeholder="Customer name") }}
+        </div>
+        <div class="col-md-4">
+          {{ form.rating.label(class="form-label") }}
+          {{ form.rating(class="form-control", type="number", min=1, max=5) }}
+        </div>
+        <div class="col-12">
+          {{ form.content.label(class="form-label") }}
+          {{ form.content(class="form-control", rows=4, placeholder="What did they say about your store?") }}
+        </div>
+      </div>
+      {% for field in [form.author_name, form.content, form.rating] %}
+        {% for e in field.errors %}<div class="invalid">{{ e }}</div>{% endfor %}
+      {% endfor %}
+      <div style="margin-top:20px">{{ form.submit(class="btn btn-primary") }}</div>
+    </div>
+  </form>
+</div>
+{% endblock %}
