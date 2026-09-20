@@ -82,8 +82,22 @@ def create_app(config_name: str = "development") -> Flask:
         with app.app_context():
             # --- Import all models first ---
             from app.models import base, tenant, user, product, order, category, product_variant, payment, order_item, inventory, testimonial, blog, tenant_banner
-            # --- Then create tables ---
-            db.create_all()  # now all foreign keys are resolvable
+
+            # Only bootstrap a completely empty database. Once the schema
+            # exists it belongs to Alembic: create_all() never alters existing
+            # tables, so running it over a migrated database hides drift and
+            # makes `flask db upgrade` collide with columns it just created.
+            from sqlalchemy import inspect as sa_inspect
+
+            if not sa_inspect(db.engine).get_table_names():
+                db.create_all()  # now all foreign keys are resolvable
+                # Record that the fresh schema is already at the latest
+                # revision, so future `flask db upgrade` runs start cleanly.
+                try:
+                    from flask_migrate import stamp
+                    stamp(revision="head")
+                except Exception:
+                    app.logger.warning("Could not stamp the new database at head", exc_info=True)
 
     # Register blueprints
     from app.web import web_bp, bp
